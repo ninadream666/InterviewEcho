@@ -57,7 +57,7 @@ const router = createRouter({
 })
 
 // 全局前置路由守卫：用于在页面切换时动态修改浏览器的标签页标题
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _from, next) => {
   if (to.meta.title) {
     document.title = to.meta.title as string
   }
