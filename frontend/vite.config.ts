@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import path from 'path'
+import { fileURLToPath, URL } from 'node:url'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -8,7 +8,7 @@ export default defineConfig({
   resolve: {
     alias: {
       // 配置 @ 别名指向 src 目录，方便后续深层级目录引入文件
-      '@': path.resolve(__dirname, 'src') 
+      '@': fileURLToPath(new URL('./src', import.meta.url))
     }
   },
   server: {
