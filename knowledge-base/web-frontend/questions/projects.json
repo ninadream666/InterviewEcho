@@ -1,0 +1,44 @@
+[
+    {
+        "id": "prj_201",
+        "job_type": "web-frontend",
+        "category": "project",
+        "question": "请讲一个让你最自豪的/技术挑战最大的项目，你扮演了什么角色取得了什么结果？",
+        "reference_answer": "【遵循 STAR 原则(情境、任务、行动、结果)】。不要只答业务增删改查。\n参考：【情境】项目是一个存在大量图表展示和复杂表单重构配置的业务系统，原有架构老旧（或者遇到严重卡顿）。【任务】作为前端核心/负责人主导了系统的基建和重构改造。【行动】从框架层面挑选Vue3+Pinia/React+Zustand重架构，抽离15+公用基础业务组件推送到内部镜像。采用懒加载和重写渲染逻辑(或者canvas画布改写)破除老系统的卡顿。【结果】提高了团队协同效率百分之30%，Lighthouse跑分LCP缩短1秒以上。",
+        "key_points": [
+            "STAR原则讲述全局闭环",
+            "跳脱CRUD，体现架构思考",
+            "使用数据支撑业务收益"
+        ],
+        "difficulty": "medium",
+        "section": "项目架构与复盘"
+    },
+    {
+        "id": "prj_202",
+        "job_type": "web-frontend",
+        "category": "project",
+        "question": "在项目中碰到过特别难调优的性能问题吗？可以详细说说整个链路吗？",
+        "reference_answer": "例如：接手时由于一个超大树形控件渲染卡废了应用。排查发现每点击一个节点就会引发顶级组件无脑下发导致全页面的 React/Vue Diff重排（深拷贝过度引发性能骤降）。我的干预优化是：1. 针对渲染机制使用 `React.memo` 或者 `SFC` 加依赖约束缓存避免无效重绘。2. 把树结构拍平为一维数组结合虚拟列表优化，DOM从几万个锐减到100个以内。最终 FPS 从30掉帧回稳到达 60，页面丝滑。",
+        "key_points": [
+            "利用性能监控分析瓶颈(Performance面板)",
+            "阻截无关的脏重绘",
+            "算法级降维改变渲染策略"
+        ],
+        "difficulty": "hard",
+        "section": "性能调优实战"
+    },
+    {
+        "id": "prj_203",
+        "job_type": "web-frontend",
+        "category": "project",
+        "question": "在前端团队内或者项目迭代中，你做过哪些工程化/基准建设的工作？",
+        "reference_answer": "针对团队新人多、代码规范混乱的问题，我主导了【研发流水线增强】。1. 统一接入 ESlint、Prettier 以及 Git Husky 做提交卡点拦截(Lint-staged)，将规范固化。2. 编写了 CLI 提效工具及通用的脚手架模板，将新项目的开箱成本缩减到了2分钟。 3. 在构建层面排查了 Webpack 的冗余 Loader，引入 Vite 的 ES-build 转译把开发环境 HMR 热更新从数十秒提高到了毫秒级。",
+        "key_points": [
+            "Lint/Husky流水卡点机制规范化",
+            "构建工具调参",
+            "内部研发效能提效"
+        ],
+        "difficulty": "hard",
+        "section": "前端工程化落地"
+    }
+]

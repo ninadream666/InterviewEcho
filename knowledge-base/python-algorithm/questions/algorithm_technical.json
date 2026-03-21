@@ -1,0 +1,324 @@
+[
+    {
+        "id": "algo_tech_0",
+        "job_type": "python-algorithm",
+        "category": "technical",
+        "question": "Python的GIL是什么？有什么优缺点？在处理哪种任务时是瓶颈，如何绕过？",
+        "reference_answer": "GIL（全局解释器锁）是CPython解释器用来保证线程安全的机制，导致同一进程内多线程无法同时利用多核CPU。优点：单线程执行极快，C扩展（扩展模块）编写容易。缺点：限制了多核并发并行。它是CPU密集型任务的瓶颈。绕过方法：使用多进程（multiprocessing）、使用C原生扩展释放GIL、或在I/O密集型任务中使用多线程/协程。",
+        "key_points": [
+            "CPython特有",
+            "CPU密集型受限",
+            "多进程与C扩展替代"
+        ],
+        "difficulty": "medium",
+        "section": "AI算法-python篇"
+    },
+    {
+        "id": "algo_tech_1",
+        "job_type": "python-algorithm",
+        "category": "technical",
+        "question": "Python中列表推导式(List Comprehension)为什么比普通的for循环快？",
+        "reference_answer": "列表推导式在底层由C语言直接执行，且在创建列表时直接在底层分配内存，避免了for循环每次调用.append()方法时的环境检查和函数调用开销。但在涉及非常庞大数据时，应使用生成器表达式()以节省内存。",
+        "key_points": [
+            "底层C执行",
+            "避免append函数调用开销",
+            "内存与生成器的权衡"
+        ],
+        "difficulty": "easy",
+        "section": "AI算法-python篇"
+    },
+    {
+        "id": "algo_tech_2",
+        "job_type": "python-algorithm",
+        "category": "technical",
+        "question": "介绍一下Python的垃圾回收机制（GC）？",
+        "reference_answer": "Python GC以“引用计数”为主，辅以“标记-清除”和“分代回收”。引用计数：对象被引用计数+1，撤销引用-1，为0释放（高效但无法解决循环引用）。标记-清除：用于解决双向链表等循环引用，从GC Root遍历，标记活动对象，清除不可达对象。分代回收：基于空间换时间，把对象分三代，越久未被回收的对象放入高代，降低扫描频率。",
+        "key_points": [
+            "引用计数",
+            "标记-清除解决循环引用",
+            "分代回收集优化性能"
+        ],
+        "difficulty": "hard",
+        "section": "AI算法-python篇"
+    },
+    {
+        "id": "algo_tech_3",
+        "job_type": "python-algorithm",
+        "category": "technical",
+        "question": "迭代器(Iterator)和生成器(Generator)有什么区别？",
+        "reference_answer": "迭代器是实现了__iter__()和__next__()魔法方法的对象，能用内置的next()访问。生成器是一类特殊的迭代器，通过yield关键字返回，无需手动实现类方法。它们都支持惰性计算，不会一次性把数据加载到内存，非常适合AI中的海量数据（如大规模Dataset加载）。",
+        "key_points": [
+            "__iter__与__next__",
+            "yield惰性求值",
+            "海量数据加载省内存"
+        ],
+        "difficulty": "medium",
+        "section": "AI算法-python篇"
+    },
+    {
+        "id": "algo_tech_4",
+        "job_type": "python-algorithm",
+        "category": "technical",
+        "question": "描述Python中的装饰器的原理及其在AI工程中的常见应用？",
+        "reference_answer": "装饰器本质上是一个闭包函数，可以在不修改原函数代码的前提下，拦截原函数的调用并扩展其功能。AI工程常见应用：1. 耗时统计（记录模型Forward耗时）；2. PyTorch中的@torch.no_grad()用于关闭梯度图计算；3. 内存显存监控；4. 重试机制（当API调用失败时重试）。",
+        "key_points": [
+            "闭包原理",
+            "不改变原函数签名",
+            "耗时与无梯度计算等场景"
+        ],
+        "difficulty": "medium",
+        "section": "AI算法-python篇"
+    },
+    {
+        "id": "algo_tech_5",
+        "job_type": "python-algorithm",
+        "category": "technical",
+        "question": "什么是Numpy中的广播机制(Broadcasting)？它的底层原理是什么？",
+        "reference_answer": "广播是指Numpy在对不同形状的数组进行数值计算时，自动将较小数组映射拉伸为一个与较大数组形状兼容的数组机制。规则：从尾部维度对比，如果维度相等或其中一个为1，则可以广播。底层并没有实际复制内存数据，而是通过内部strides（步幅）的调整使其在访问时表现出扩展后的形状，极大节省内存和提速。",
+        "key_points": [
+            "后缘维度匹配",
+            "某维度为1",
+            "strides零内存拷贝拉伸"
+        ],
+        "difficulty": "hard",
+        "section": "AI算法-python篇"
+    },
+    {
+        "id": "algo_tech_6",
+        "job_type": "python-algorithm",
+        "category": "technical",
+        "question": "随机森林(Random Forest)和XGBoost的核心区别是什么？",
+        "reference_answer": "1. 集成策略：RF使用Bagging并行构建多棵独立树；XGBoost使用Boosting串行构建，新树拟合上一棵树的残差。2. 偏差-方差权衡：RF主要通过特征和样本的随机抽样降低模型的方差；XGBoost通过残差迭代降低偏差。3. 损失函数与导数：XGBoost对目标函数进行二阶泰勒展开，利用一阶和二阶导数信息寻优，支持自定义损失函数。",
+        "key_points": [
+            "Bagging降低方差",
+            "Boosting残差迭代降偏差",
+            "二阶泰勒展开使用Hessian"
+        ],
+        "difficulty": "hard",
+        "section": "AI算法-算法面经篇"
+    },
+    {
+        "id": "algo_tech_7",
+        "job_type": "python-algorithm",
+        "category": "technical",
+        "question": "SVM(支持向量机)为什么需要核函数？常见的核函数有哪些？",
+        "reference_answer": "当数据在低维特征空间线性不可分时，SVM通过升维将数据映射到高维空间寻找超平面。直接计算高维内积计算量爆炸，核函数的巧妙在于能够在低维空间计算出等效于高维空间的内积，即“核技巧(Kernel Trick)”。常见：线性核、多项式核、RBF径向基函数（高斯核，是最常用的，可映射到无限维）。",
+        "key_points": [
+            "解决线性不可分",
+            "核技巧替代高维内积降极算量",
+            "RBF高斯核函数"
+        ],
+        "difficulty": "medium",
+        "section": "AI算法-算法面经篇"
+    },
+    {
+        "id": "algo_tech_8",
+        "job_type": "python-algorithm",
+        "category": "technical",
+        "question": "逻辑回归(LR)为什么要使用交叉熵而不用MSE作为损失函数？",
+        "reference_answer": "MSE在LR配合Sigmoid函数时，其损失曲面是非凸的，极易陷入局部最优；其次，在预测严重错误时（如预测值为0，真实为1），Sigmoid处于饱和区，其导数极小会导致梯度的消失（参数更新停滞）。交叉熵的对数求导恰好能抵消掉Sigmoid的导数，使得误差越大学习更新越快。",
+        "key_points": [
+            "非凸函数多极小值",
+            "抵消Sigmoid饱和梯度",
+            "学习率维持饱满"
+        ],
+        "difficulty": "hard",
+        "section": "AI算法-算法面经篇"
+    },
+    {
+        "id": "algo_tech_9",
+        "job_type": "python-algorithm",
+        "category": "technical",
+        "question": "请详细解释下各种优化器(SGD, Momentum, AdaGrad, Adam)的演进逻辑？",
+        "reference_answer": "1. SGD：依赖当前Batch梯度，容易在峡谷震荡。2. Momentum：引入一阶矩(动量)，记录历史梯度平滑更新方向，加速冲出鞍点。3. AdaGrad：引入二阶矩(历史梯度平方和)做分母，自适应降低频繁更新特征的学习率，但后期学习率近乎0；4. RMSProp：改成指数加权移动平均，解决学习率归零；5. Adam：结合Momentum(一阶矩)和RMSProp(二阶矩)，并加上偏差修正，是目前默认基准优化器。",
+        "key_points": [
+            "动量一阶矩平滑",
+            "自适应学习率二阶矩",
+            "结合体Adam加偏差修正"
+        ],
+        "difficulty": "hard",
+        "section": "AI算法-算法面经篇"
+    },
+    {
+        "id": "algo_tech_10",
+        "job_type": "python-algorithm",
+        "category": "technical",
+        "question": "如何解决神经网络中的梯度消失和梯度爆炸问题？",
+        "reference_answer": "原因：在深层网络中连乘导致数值指数级衰减或放大。解决梯度消失：1. 改变激活函数(用ReLU替换Sigmoid/Tanh)；2. Batch Normalization规范化输出；3. 引入残差连接(ResNet的Skip Connection)提供短路梯度流。解决梯度爆炸：1. 梯度裁剪(Gradient Clipping)强制截断；2. 好的权重初始化(Xavier/Kaiming)；3. 正则化权重惩罚。",
+        "key_points": [
+            "ReLU解决饱和区",
+            "BatchNorm强制分布",
+            "ResNet残差连接直通"
+        ],
+        "difficulty": "medium",
+        "section": "AI算法-算法面经篇"
+    },
+    {
+        "id": "algo_tech_11",
+        "job_type": "python-algorithm",
+        "category": "technical",
+        "question": "L1正则化与L2正则化的根本区别是什么？为什么L1会产生稀疏解？",
+        "reference_answer": "L1正则化是在损失函数后加参数绝对值求和，L2是参数平方和。区别：L1倾向于产生稀疏解（权重矩阵很多特征权重直接变为0），自带特征选择功能；L2更倾向于让各参数均衡地变小，能防止过拟合但不稀疏。原因：在Loss等高线与正则项约束函数相交时，由于L1是一个菱形，相交点更易落在坐标轴顶点上，从而导致某维度为0。",
+        "key_points": [
+            "L1菱形等高线",
+            "特征选择与稀疏解",
+            "L2圆形衰减惩罚"
+        ],
+        "difficulty": "hard",
+        "section": "AI算法-算法面经篇"
+    },
+    {
+        "id": "algo_tech_12",
+        "job_type": "python-algorithm",
+        "category": "technical",
+        "question": "详细阐述Transformer中Self-Attention机制的数学计算步骤。除以sqrt(d_k)的作用是什么？",
+        "reference_answer": "输入X与权重Wq, Wk, Wv相乘得到Q, K, V。分数=Softmax( (Q内积K的转置) / sqrt(d_k) )。计算结果再乘V。除以缩放因子sqrt(d_k)的原因：如果不除，当维度d_k很大时，两个独立分布的随机变量内积结果的方差会变得极大(为d_k)，大方差会导致Softmax进入两极分化的饱和区，使得梯度接近0引发梯度消失。",
+        "key_points": [
+            "QKV投影",
+            "方差缩放",
+            "防Softmax饱和梯度消失"
+        ],
+        "difficulty": "hard",
+        "section": "AI算法-大模型基础面"
+    },
+    {
+        "id": "algo_tech_13",
+        "job_type": "python-algorithm",
+        "category": "technical",
+        "question": "Decoder-only(GPT系) 与 Encoder-only(BERT系)、Encoder-Decoder(T5) 的架构选择有何不同？为什么现在LLM几乎都是Decoder-only？",
+        "reference_answer": "Encoder(BERT)双向自注意力，适合判别和特征提取(NLU)；Decoder(GPT)采用Masked掩码自注意力(只能看前面的Token)，适合生成任务(NLG)。Encoder-Decoder(T5)适合Seq2Seq翻译等。主流选择Decoder-only原因：1. 无上下文泄露(通过自回归实现严格时序生成)；2. 具有极强的Few-shot和Zero-shot的“涌现能力”（In-context Learning）；3. KV Cache等推理加速手段对其更友好。",
+        "key_points": [
+            "掩码机制防止未来信息泄漏",
+            "统一自回归生成范式",
+            "涌现能力表现更好"
+        ],
+        "difficulty": "medium",
+        "section": "AI算法-大模型基础面"
+    },
+    {
+        "id": "algo_tech_14",
+        "job_type": "python-algorithm",
+        "category": "technical",
+        "question": "大模型常用的激活函数是什么？相比ReLU好在哪里？（例如SwiGLU）",
+        "reference_answer": "LLM（如LLaMA）目前普遍使用SwiGLU（Swish + Gated Linear Unit）。相比传统的ReLU（丢弃全部负值产生死神经元），Swish/GeLU在0附近存在平滑的非单调过渡区域，既能阻挡大量负信号，又能保留少许负梯度防止神经元“彻底死亡”；而GLU通过门控机制（类似乘法开关）增强了特征筛选能力。综合下来网络表达能力更强，收敛更快。",
+        "key_points": [
+            "门控线性单元GLU",
+            "非单调平滑保护负梯度",
+            "避免死神经元(Dead ReLU)"
+        ],
+        "difficulty": "hard",
+        "section": "AI算法-大模型基础面"
+    },
+    {
+        "id": "algo_tech_15",
+        "job_type": "python-algorithm",
+        "category": "technical",
+        "question": "Transformer的LayerNorm为何发展出了 Pre-Norm 和 Post-Norm 甚至 RMSNorm？区别是什么？",
+        "reference_answer": "原始Transformer使用 Post-Norm（残差相加之后再Norm），这会使得随着网络变深梯度的方差累积，深层较难起作用甚至导致训练不稳定（发散）。现在常用 Pre-Norm（进入Attention或FFN前先Norm，残差旁路不经过Norm），这让梯度可以直接反传到底层，训练极度稳定。目前LLaMA进一步简化使用 RMSNorm（Root Mean Square Norm），直接去掉了均值计算，只计算均方根，在保证精度的前提下极大地提升了计算速度。",
+        "key_points": [
+            "Post-Norm容易梯度爆炸",
+            "Pre-Norm深层训练稳定",
+            "RMSNorm移除均值计算提速"
+        ],
+        "difficulty": "hard",
+        "section": "AI算法-大模型基础面"
+    },
+    {
+        "id": "algo_tech_16",
+        "job_type": "python-algorithm",
+        "category": "technical",
+        "question": "详细讲解LLaMA中使用的旋转位置编码（RoPE）的核心思想是什么？",
+        "reference_answer": "与用正余弦相加的绝对位置编码不同，RoPE通过将Query和Key映射到复平面空间，并根据其所处绝对位置左乘一个旋转矩阵。由于复数乘法的性质，QK内积运算展开后自然会带出两者之间的相对位置偏移量（m - n）。这既囊括了绝对位置，又在内积层面体现了相对距离，且具有极好的长度外推性（Length Extrapolation）。",
+        "key_points": [
+            "绝对位置的旋转矩阵",
+            "内积产生相对距离",
+            "卓越的外推扩展性"
+        ],
+        "difficulty": "hard",
+        "section": "AI算法-大模型基础面"
+    },
+    {
+        "id": "algo_tech_17",
+        "job_type": "python-algorithm",
+        "category": "technical",
+        "question": "什么是词表分词 (Tokenization) 中的 BPE 算法？",
+        "reference_answer": "BPE（Byte Pair Encoding）是一种数据压缩技术，广泛用于LLM分词。先将词表拆分为全量基础字符，然后统计语料中相邻字符对的出现频率，将频率最高的子词对合并成一个新Token并加入词表，循环直到达到设定的词表大小（vocab size）。这种设计能有效地解决OOV（未登录词/生僻词）问题，又不会像纯字符切分模型那样推长序列长度。",
+        "key_points": [
+            "词频合并",
+            "解决OOV",
+            "介于Word与Char之间"
+        ],
+        "difficulty": "medium",
+        "section": "AI算法-大模型基础面"
+    },
+    {
+        "id": "algo_tech_18",
+        "job_type": "python-algorithm",
+        "category": "technical",
+        "question": "微调全参数与PEFT（Parameter-Efficient Fine-Tuning）技术有什么优劣？详细说下LoRA的原理。",
+        "reference_answer": "全参微调（Full SFT）吃尽显存（1个FP32参数占4字节，加上优化器动量、方差等占用巨大显存）。PEFT通过冻结基座只注入极少参数来极度降低成本。LoRA假设模型更新存在内在低秩子空间（Low-Rank）。原理是将冻结的原权重矩阵W旁路挂载两个小矩阵A和B（A负责降维，B负责升维），前向传播为W_x+BA_x，只训练A和B。训练完还可以合并(Merge)进W内保证推理无延迟。",
+        "key_points": [
+            "低秩本质假设",
+            "旁路增量训练与原权重冻结",
+            "可并入不增推理延迟"
+        ],
+        "difficulty": "hard",
+        "section": "AI算法-大模型进阶面"
+    },
+    {
+        "id": "algo_tech_19",
+        "job_type": "python-algorithm",
+        "category": "technical",
+        "question": "在分布式训练大模型时，DeepSpeed ZeRO阶段（1/2/3）是怎么划分显存并优化的？",
+        "reference_answer": "单卡装不下百亿参数时需切片。DeepSpeed基于数据并行分发（DP）的冗余分析，提出了Zero技术。ZeRO-1：把Adam状态（一阶二阶矩参数，最吃显存）切分进不同的GPU；ZeRO-2：在此基础上切分反向传播算出的梯度（Gradient）；ZeRO-3：在1和2基础上，把模型原参数本身全部切分成碎片，训练时如果前向或反向传播需要某层参数，通过All-Gather向其他卡拉取，计算完后立即释放。是用通讯带宽换存容量的极致发挥。",
+        "key_points": [
+            "优化器状态切割",
+            "梯度切割",
+            "参数切割及All-Gather借取计算"
+        ],
+        "difficulty": "hard",
+        "section": "AI算法-大模型进阶面"
+    },
+    {
+        "id": "algo_tech_20",
+        "job_type": "python-algorithm",
+        "category": "technical",
+        "question": "讲讲KV Cache机制？以及MQA和GQA是如何在这个基础上进一步省显存加速推理的？",
+        "reference_answer": "生成式模型自回归生成下一个字时，前置Token的K和V是不变的，每次重算巨耗算力，因此产生KV Cache存入显存以空间换时间。但太长上下文会撑爆显存。优化：MQA(Multi-Query Attention)让所有的Query头共享同一个K和一个V头，极大降低KV参数量；而GQA(Grouped-Query，LLaMA2/3使用)是将Query头分组，每组内共享一个K和V，不仅降显存还保持了非常接近原版MHA的准确性。",
+        "key_points": [
+            "自回归保留键值以空间换时间",
+            "MQA单K单V",
+            "GQA分组权衡(效果与性能居中)"
+        ],
+        "difficulty": "hard",
+        "section": "AI算法-大模型进阶面"
+    },
+    {
+        "id": "algo_tech_21",
+        "job_type": "python-algorithm",
+        "category": "technical",
+        "question": "SFT、RM、PPO与DPO分别在大模型的预训练之后的RLHF对齐阶段扮演什么角色？",
+        "reference_answer": "这是人类偏好对齐链。1. SFT(监督微调)：教模型“回答该长什么样”，喂优质问答样本。 2. RM(奖励模型)：让人工对微调后的多条输出打分排序，训练一个当评委的模型。3. PPO(近端策略优化)：强化学习，用RM给生成模型打分作为奖罚刺激模型更新参数（链路太长极易崩溃）。 4. DPO(直接偏好优化)：近年主流，用数学等价推导直接把强化学习奖励转化为二分类交叉熵交叉验证损失，免去了训练RM和PPO复杂训练，单阶段极简对齐。",
+        "key_points": [
+            "SFT行为克隆",
+            "被抛弃的PPO复杂强化打分",
+            "DPO数学闭环跨越RM模型直接微调分布"
+        ],
+        "difficulty": "hard",
+        "section": "AI算法-大模型进阶面"
+    },
+    {
+        "id": "algo_tech_22",
+        "job_type": "python-algorithm",
+        "category": "technical",
+        "question": "RAG（检索增强生成）系统的常见架构是什么？它如何缓解幻觉？为什么有了无限上下文长文本(Long Context)还是需要RAG？",
+        "reference_answer": "架构：召回切片-文本向量化(Embedding)-存入Faiss/Milvus等向量库。用户咨询时，系统Embedding化用户的Query找Top-K外挂知识拼接到Prompt喂给大模型。缓解幻觉：强制要求模型基于检索文档作答，做到知识可溯源更新。\n不可替代：长文本长且贵，速度慢，每次提问带着一整本书去算Attention（O(n^2)）；而且有Lost in the middle（长文本中间遗忘）效应；RAG依然是目前性价比、时效性和精细过滤首选。",
+        "key_points": [
+            "外挂溯源抗幻觉",
+            "规避每次O(N^2)极限长序列推流开销",
+            "长文本存在中间遗忘效应(needle in haystack)"
+        ],
+        "difficulty": "medium",
+        "section": "AI算法-大模型进阶面"
+    }
+]

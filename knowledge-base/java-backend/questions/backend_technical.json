@@ -1,0 +1,233 @@
+[
+    {
+        "job_type": "java-backend",
+        "category": "technical",
+        "question": "Java中的ArrayList和LinkedList有什么区别？",
+        "reference_answer": "ArrayList基于动态数组实现，支持高效的随机访问，但插入和删除操作性能较差（因为需要移动元素）；LinkedList基于双向链表实现，随机访问性能差，但在任意位置的插入和删除操作性能好。两者都是非线程安全的。",
+        "key_points": [
+            "基于动态数组",
+            "基于双向链表",
+            "随机访问性能",
+            "增删性能"
+        ],
+        "difficulty": "easy",
+        "section": "Java基础-集合"
+    },
+    {
+        "job_type": "java-backend",
+        "category": "technical",
+        "question": "HashMap的工作原理及扩容机制是什么？",
+        "reference_answer": "HashMap基于哈希表实现，JDK1.8之后采用数组+链表+红黑树的数据结构。其默认初始容量为16，加载因子为0.75。当元素数量超过16*0.75=12时，会进行两倍扩容。解决哈希碰撞采用链地址法，当链表长度大于8且数组长度大于64时，链表会转化为红黑树，以提高查询效率（O(logN)）。",
+        "key_points": [
+            "数组+链表+红黑树",
+            "加载因子0.75",
+            "两倍扩容",
+            "链表转红黑树条件"
+        ],
+        "difficulty": "medium",
+        "section": "Java基础-集合"
+    },
+    {
+        "job_type": "java-backend",
+        "category": "technical",
+        "question": "什么是JVM的内存结构？",
+        "reference_answer": "JVM内存结构主要分为：1. 堆（Heap）：存放对象实例和数组，是垃圾回收的主要区域。2. 方法区（Metaspace）：存放已加载的类信息、常量、静态变量等。3. 虚拟机栈：描述Java方法执行的内存模型，每个方法执行时会创建一个栈帧。4. 本地方法栈：为Native方法服务。5. 程序计数器：当前线程所执行的字节码的行号指示器。其中方法区和堆为线程共享，其它为线程私有。",
+        "key_points": [
+            "堆",
+            "方法区/元空间",
+            "虚拟机栈",
+            "本地方法栈",
+            "程序计数器",
+            "线程私有与共享"
+        ],
+        "difficulty": "medium",
+        "section": "JVM"
+    },
+    {
+        "job_type": "java-backend",
+        "category": "technical",
+        "question": "Spring中的IOC和AOP分别是什么？",
+        "reference_answer": "IOC（控制反转）是将对象的创建和依赖关系管理的控制权从程序代码中转移到Spring容器中，主要通过DI（依赖注入）实现。AOP（面向切面编程）可以将横切关注点（如日志、事务、权限控制等）从业务逻辑中分离出来，通过动态代理的技术在不修改源码的情况下对方法进行增强。",
+        "key_points": [
+            "控制反转",
+            "依赖注入(DI)",
+            "面向切面编程",
+            "动态代理",
+            "横切关注点"
+        ],
+        "difficulty": "medium",
+        "section": "Spring"
+    },
+    {
+        "job_type": "java-backend",
+        "category": "technical",
+        "question": "Redis有哪些常见的数据结构及使用场景？",
+        "reference_answer": "1. String：最基本的数据类型，常用于缓存、计数器、分布式锁等；2. Hash：键值对集合，适合存储对象信息；3. List：双向链表，常用于消息队列、时间线；4. Set：无序集合，常用于去重、共同好友/点赞；5. ZSet：有序集合，常用于排行榜、延时队列。另外还有BitMap、HyperLogLog、Geospatial等高级数据结构。",
+        "key_points": [
+            "String (缓存/计数)",
+            "Hash (对象/单点结构)",
+            "List (队列)",
+            "Set (交并集运算)",
+            "ZSet (排行榜)"
+        ],
+        "difficulty": "medium",
+        "section": "Redis"
+    },
+    {
+        "job_type": "java-backend",
+        "category": "technical",
+        "question": "MyBatis中#{}和${}的区别是什么？",
+        "reference_answer": "#{}是预编译处理，MyBatis在处理#{}时，会将SQL中的#{}替换为?，调用PreparedStatement的set方法来赋值，能有效防止SQL注入；${}是字符串替换，在处理${}时，就是把${}替换成变量的值，由于存在拼接SQL的问题，容易引发SQL注入风险。在动态表名或列名的情况下可能会用到${}。",
+        "key_points": [
+            "预编译预处理",
+            "字符串直接拼接",
+            "SQL注入",
+            "PreparedStatement"
+        ],
+        "difficulty": "easy",
+        "section": "MyBatis"
+    },
+    {
+        "job_type": "java-backend",
+        "category": "technical",
+        "question": "MySQL的MVCC多版本并发控制是怎么实现的？",
+        "reference_answer": "MVCC（多版本并发控制）通过在每行记录后面保存两个隐藏的列来实现：一列保存了创建该行的事务ID，另一列保存了回滚指针。并在内存中维护一个Read View（读视图）。在RR（可重复读）隔离级别下，每次开启事务都会生成一个Read View，而在RC（读已提交）级别下，则是每次执行查询时生成。通过对比版本链的事务ID和Read View，决定当前事务能够看到哪一个版本的数据，从而解决了脏读和不可重复读问题。",
+        "key_points": [
+            "隐藏列（事务ID与回滚指针）",
+            "Read View（读视图）",
+            "Undo Row版本链",
+            "读已提交与可重复读的区别"
+        ],
+        "difficulty": "hard",
+        "section": "MySQL"
+    },
+    {
+        "job_type": "java-backend",
+        "category": "technical",
+        "question": "Redis的持久化机制有哪些？分别有什么优缺点？",
+        "reference_answer": "Redis主要有RDB（快照）和AOF（追加文件）两种持久化方式。RDB是在某个时间点将数据写入一个临时文件，主进程不进行任何IO操作，恢复速度快，但可能丢失最后一次快照后的数据。AOF是将所有的写命令追加到文件中，可以通过配置来控制同步频率（每秒、每次等），数据更加安全，但AOF文件相对较大，恢复速度较RDB慢。Redis 4.0后支持RDB-AOF混合持久化，结合了二者的优点。",
+        "key_points": [
+            "RDB (快照/全量/速度快)",
+            "AOF (日志追加/增量/安全)",
+            "数据丢失风险对比",
+            "混合持久化"
+        ],
+        "difficulty": "medium",
+        "section": "Redis"
+    },
+    {
+        "job_type": "java-backend",
+        "category": "technical",
+        "question": "什么是双亲委派模型？它是如何被破坏的？",
+        "reference_answer": "双亲委派模型是指：如果一个类加载器收到了类加载的请求，它首先不会自己去尝试加载这个类，而是把这个请求委派给父类加载器去完成。只有当父加载器反馈自己无法完成这个加载请求时，子加载器才会尝试自己去加载。这保证了Java核心库类的安全性。破坏它只需要自定义类加载器并且重写loadClass方法，内部不遵循双亲委派机制即可，如Tomcat为了隔离不同Web应用的版本冲突而破坏了该模型。",
+        "key_points": [
+            "类加载器向上委托",
+            "类的唯一性和安全性",
+            "重写loadClass",
+            "Tomcat类加载机制"
+        ],
+        "difficulty": "medium",
+        "section": "JVM"
+    },
+    {
+        "job_type": "java-backend",
+        "category": "technical",
+        "question": "Java后端开发岗位的核心技术栈与知识图谱包含哪些内容？",
+        "reference_answer": "主要包含五大核心模块：1. Java基础知识，包含面向对象思想、集合框架底层实现（List/Set/Map）、并发编程（JUC、线程池、AQS、锁机制）以及JVM原理（内存模型、垃圾回收、类加载）。2. 主流开发框架，涵盖Spring（IOC/AOP/事务）、Spring Boot（自动装配原理）和MyBatis（缓存与映射）。3. 数据库与中间件，重点考察MySQL（B+树索引、事务ACID、MVCC多版本并发控制、慢查询优化）、Redis（五大数据结构、持久化机制、分布式锁、缓存异常处理）和常见的消息队列（防重复及防丢失机制）。4. 微服务与分布式系统，如Spring Cloud注册中心与网关组件、分布式事务（Seata等）与BASE理论。5. 计算机网络与底层系统，包括TCP/UDP协议、HTTP/HTTPS加密过程、以及操作系统进程调度与IO多路复用等。",
+        "key_points": [
+            "Java基础与并发、JVM",
+            "Spring核心框架",
+            "MySQL与Redis中间件",
+            "微服务与分布式体系",
+            "计算机网络与操作系统"
+        ],
+        "difficulty": "easy",
+        "section": "核心技术大纲"
+    },
+    {
+        "job_type": "java-backend",
+        "category": "technical",
+        "question": "目前一线大厂的Java后端面试中有哪些极其高频的考点？",
+        "reference_answer": "面试高频考点主要集中在以下硬核领域：1. 集合与并发：重点在于ConcurrentHashMap的JDK1.7/1.8结构剖析与并发度提升、线程池核心参数设计与动态执行流程、AQS底层的CLH队列机制、synchronized锁升级全过程。2. JVM底层：双亲委派网络加载机制及其被Tomcat破坏的场景与原因分析、经典垃圾收集器对比（CMS与G1优缺点）、对象生命周期流转与内存分配策略（如TLAB）。3. 数据库性能：MySQL聚簇索引与非聚簇索引对比及回表原因、Explain执行计划性能分析、事务隔离级别与MVCC工作机制如何解决幻读。4. 缓存与分布式：Redis分布式锁成熟方案（如Redisson看门狗机制）、缓存雪崩/击穿/穿透的热点处理方案。5. 框架与网络：TCP三次握手/四次挥手机制设计、HTTPS的TLS加密工作流、Spring Bean的完整生命周期与使用三级缓存解决循环依赖原理机制。",
+        "key_points": [
+            "集合源码与多线程高并发",
+            "JVM内存分布与垃圾回收",
+            "MySQL索引底层与事务隔离",
+            "Redis并发及分布式场景方案",
+            "Spring生命周期循环依赖与网络"
+        ],
+        "difficulty": "medium",
+        "section": "高频考点总结"
+    },
+    {
+        "job_type": "java-backend",
+        "category": "technical",
+        "question": "Spring中@Autowired和@Resource注解有什么区别？",
+        "reference_answer": "1. 来源方不同：@Autowired是Spring提供的注解；@Resource是JDK提供的（JSR-250标准）。2. 注入方式不同：@Autowired默认按类型（byType）装配，如果想按名称装配需结合@Qualifier注解；@Resource默认按名称（byName）装配，如果找不到名称才会按类型装配。3. 作用范围不同：@Autowired可以作用在构造器、方法、字段上；@Resource只能作用在字段和Setter方法上。",
+        "key_points": [
+            "Spring与JDK来源区别",
+            "byType与byName默认策略",
+            "结合@Qualifier使用",
+            "支持的作用域"
+        ],
+        "difficulty": "easy",
+        "section": "Spring"
+    },
+    {
+        "job_type": "java-backend",
+        "category": "technical",
+        "question": "TCP三次握手中，为什么需要三次，而不是两次？什么是半连接队列和全连接队列？",
+        "reference_answer": "三次握手主要是为了防止旧的重复连接初始化造成混乱，并同步双方的初始序列号。如果是两次握手，服务端收到滞留的SYN报文发回SYN+ACK后就认为连接建立，会浪费服务端资源。 \n在此过程中Linux内核维护了两个队列：半连接队列（SYN队列，存放收到SYN并回复的连接）和全连接队列（Accept队列，存放完成三次握手的连接）。如果请求量巨大，超出队列长度会导致报文被丢弃或拒绝连接。",
+        "key_points": [
+            "防止历史重复连接",
+            "同步初始序列号(ISN)",
+            "资源浪费",
+            "SYN队列与Accept队列限制"
+        ],
+        "difficulty": "medium",
+        "section": "计算机网络"
+    },
+    {
+        "job_type": "java-backend",
+        "category": "technical",
+        "question": "分布式系统中的CAP理论和BASE理论是什么？",
+        "reference_answer": "CAP理论指一个分布式系统最多只能同时满足一致性（Consistency）、可用性（Availability）和分区容错性（Partition tolerance）这三项中的两项，通常P是必须的，只能在CP和AP中权衡。BASE理论是对CAP中一致性和可用性权衡的延伸，核心思想是即使无法做到强一致性，也可以通过追求基本上可用（Basically Available）、软状态（Soft State）来达到最终一致性（Eventual Consistency），例如常见的消息队列异步补偿机制。",
+        "key_points": [
+            "Consistency/Availability/Partition tolerance",
+            "CP与AP抉择",
+            "Basically Available(基本可用)",
+            "Soft State(软状态)",
+            "Eventual Consistency(最终一致性)"
+        ],
+        "difficulty": "medium",
+        "section": "微服务与分布式"
+    },
+    {
+        "job_type": "java-backend",
+        "category": "technical",
+        "question": "单例模式有哪些常见的实现方式？饿汉式和懒汉式的区别和优缺点是什么？",
+        "reference_answer": "单例模式通过复用对象来避免频繁创建和销毁产生的开销及GC压力。常见的实现有饿汉式和懒汉式。饿汉式在类加载时就进行初始化，优点是天然线程安全且调用时无性能损耗，缺点是会拖慢启动速度，且若一直未使用会造成资源浪费。懒汉式是在首次调用时才初始化，优点是按需加载节省资源，缺点是需要额外加锁（如双重检查锁 Double-Checked Locking 并结合 volatile）来保证多线程环境下的初始化安全。",
+        "key_points": [
+            "对象复用与降低开销",
+            "饿汉式:类加载时初始化(天然线程安全)",
+            "懒汉式:按需加载(可能浪费资源避免)",
+            "双重检查锁与volatile"
+        ],
+        "difficulty": "easy",
+        "section": "设计模式"
+    },
+    {
+        "job_type": "java-backend",
+        "category": "technical",
+        "question": "在分布式系统中，什么是一致性哈希算法？它主要解决了什么问题？",
+        "reference_answer": "一致性哈希算法将整个哈希空间视为一个2^32的闭合环状结构。它首先将所有的节点（如服务器）通过哈希计算映射到这个环上，然后将需要存储的数据的Key同样进行哈希计算映射到环上，按顺时针方向查找到的第一个节点，即为该数据存放的节点。它主要解决了传统哈希取模算法在节点动态增加或减少时，导致大量数据产生重新哈希映射（缓存大面积失效）的问题。为解决环上节点分布不均匀（数据倾斜），一致性哈希还引入了“虚拟节点”机制来实现均匀分布。",
+        "key_points": [
+            "哈希空间环状结构(0~2^32-1)",
+            "顺时针查找目标节点",
+            "避免节点增删时大规模数据迁移",
+            "虚拟节点解决数据倾斜"
+        ],
+        "difficulty": "medium",
+        "section": "微服务与分布式"
+    }
+]
