@@ -23,8 +23,8 @@ Thumbs.db
 .idea/
 .vscode/
 
-# 强制追踪 scripts 整个目录
-.scripts/
+#scripts 整个目录
+scripts/
 
 # AI
 .claude/
