@@ -1,50 +1,54 @@
 <template>
-  <router-view v-slot="{ Component, route }">
-    <component :is="getLayout(route.meta.layout)">
-      <transition name="fade" mode="out-in">
-        <component :is="Component" :key="route.path" />
-      </transition>
-    </component>
-  </router-view>
+  <div id="app" class="min-h-screen flex flex-col">
+    <!-- Navigation Bar -->
+    <header class="bg-white shadow-sm py-4 px-8 flex justify-between items-center fixed w-full top-0 z-50">
+      <div class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
+        InterviewEcho
+      </div>
+      <nav v-if="authStore.isAuthenticated">
+        <router-link to="/dashboard" class="text-gray-600 hover:text-primary mx-4 transition-colors">仪表盘</router-link>
+        <button @click="logout" class="text-gray-600 hover:text-primary transition-colors">登出</button>
+      </nav>
+      <nav v-else>
+        <router-link to="/login" class="text-gray-600 hover:text-primary transition-colors">登录/注册</router-link>
+      </nav>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow pt-20 bg-gray-50 pb-10">
+      <div class="container mx-auto px-4">
+        <router-view v-slot="{ Component }">
+          <transition name="fade" mode="out-in">
+            <component :is="Component" />
+          </transition>
+        </router-view>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white text-center py-4">
+      <p class="text-sm">© 2026 InterviewEcho. 面向计算机相关学生的AI模拟面试平台.</p>
+    </footer>
+  </div>
 </template>
 
-<script setup lang="ts">
-import DefaultLayout from '@/layouts/DefaultLayout.vue'
-import InterviewLayout from '@/layouts/InterviewLayout.vue'
+<script setup>
+import { useAuthStore } from '@/stores/auth'
+import { useRouter } from 'vue-router'
 
-const getLayout = (layoutName: unknown) => {
-  if (layoutName === 'interview') {
-    return InterviewLayout
-  }
-  return DefaultLayout
+const authStore = useAuthStore()
+const router = useRouter()
+
+const logout = () => {
+  authStore.logout()
+  router.push('/login')
 }
 </script>
 
 <style>
-/* 全局基础样式重置 */
-html, body, #app {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
-  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
-  background-color: #f5f7fa; 
-}
-
-/* 隐藏部分浏览器的默认滚动条 */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-thumb {
-  background-color: #dcdfe6;
-  border-radius: 3px;
-}
-
-/* ✨ 将路由切换的过渡动画统一放到全局 ✨ */
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.25s ease;
+  transition: opacity 0.3s ease;
 }
 .fade-enter-from,
 .fade-leave-to {

@@ -1,101 +1,38 @@
-# AI模拟面试与能力提升软件
+# InterviewEcho - AI 模拟面试与能力提升平台
 
-面向计算机相关专业学生的AI模拟面试与能力提升平台，支持Java后端、
-Web前端、Python算法三类岗位的模拟面试，提供多维度智能评估与个性化提升建议。
+这是一个深度整合了 **RAG (检索增强生成)** 与 **大型语言模型** 的 AI 模拟面试与能力提升平台，专为计算机相关专业学生打造。
 
----
+## 🌟 核心特性
+- **专业化 RAG 架构**: 基于 `knowledge-base` 资料构建的便携式向量检索系统，确保面试问题具有极高的岗位针对性。
+- **真实 LLM 交互**: 接入 OpenAI/DeepSeek 等真实模型接口，支持动态追问与多轮深度对话。
+- **多维度评估报告**: 面试结束后通过 AI 专家模型对技术深度、沟通表达、问题解决等维度进行结构化评分。
+- **现代化 UI/UX**: 使用 Vue 3 + Tailwind CSS 打造的极简、灵动、高端的交互体验。
 
-## 项目结构
-```
-ai-interview/
-├── frontend/              # 前端
-├── backend/
-│   ├── core/              # 后端核心（对话/存储/推荐）
-│   ├── evaluation/        # 评估分析模块
-│   ├── rag/               # RAG检索模块
-│   └── sql/               # 建表
-├── knowledge-base/        # 题库与知识库原始数据
-│   ├── java-backend/      # Java后端岗位
-│   ├── web-frontend/      # Web前端岗位
-│   └── python-algorithm/  # Python算法岗位
-├── docs/                  # 项目文档
-├── .env.example           # 环境变量模板
-├── .gitignore
-└── README.md
-```
----
+## 📂 项目结构
+项目已进行高度模块化合理化：
+- `backend/`
+  - `core/`: 核心逻辑（LLM 驱动、Prompt 管理、配置）。
+  - `db/`: 数据库模型、Schema 及连接管理。
+  - `routers/`: 业务路由。
+  - `services/`: 核心服务（便携式 RAG 检索器）。
+  - `rag/`: 知识检索索引库。
+- `frontend/`: 基于 Vite 的 Vue 3 响应式前端。
+- `knowledge-base/`: 供 RAG 使用的原始题库与知识点。
 
-## 技术栈
+## 🚀 快速开始
 
-| 层级       | 技术          | 版本     |
-| ---------- | ------------- | -------- |
-| 前端框架   | Vue 3         | 3.4.x    |
-| 构建工具   | Vite          | 5.x      |
-| UI组件库   | Element Plus  | 2.x      |
-| 数据可视化 | ECharts       | 5.x      |
-| 代码编辑器 | Monaco Editor | 0.47.x   |
-| HTTP请求   | Axios         | 1.x      |
-| 运行环境   | Node.js       | 20.x LTS |
-| 后端语言   | Python        | 3.11.x   |
-| 后端框架   | FastAPI       | 0.111.x  |
-| LLM框架    | LangChain     | 0.2.x    |
-| 语音识别   | Whisper       | latest   |
-| 代码执行   | Judge0 API    | 云端调用 |
-| 主数据库   | MySQL         | 8.0.x    |
-| 缓存       | Redis         | 7.x      |
-| 向量数据库 | ChromaDB      | 0.5.x    |
-| LLM        | DeepSeek API  | -        |
+### 1. 数据库初始化
+1. 确保 MySQL 8.0 运行中。
+2. 执行: `backend/sql/init_db.sql;`(请先创建数据库 interview_echo)
 
----
+### 2. 后端配置 (Python 3.12)
+1. 进入 `backend` 目录，安装依赖: `pip install -r requirements.txt`
+2. 配置 `.env`: 配置好自己的mysql信息、大模型信息
+3. **构建 RAG 索引**: 运行 `python rag/build_index.py` (这会通过 Embedding API 向量knowledge-base中的RAG知识库)。
+4. 启动后端: `uvicorn main:app --reload`
 
-## 环境要求
-
-- Python 3.11.x
-- Node.js 20.x LTS
-- MySQL 8.0.x
-- Redis 7.x
-
----
-
-## 快速启动
-
-### 1. 克隆仓库
-```bash
-git clone https://github.com/ninadream666/InterviewEcho.git
-```
-
-### 2. 配置环境变量
-```bash
-cp .env.example .env
-```
-### 3. 启动后端
-```bash
-cd backend
-python -m venv venv
-venv\Scripts\activate
-pip install -r requirements.txt
-uvicorn main:app --reload
-```
-
-### 4. 启动前端
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
----
-
-
-## 开发规范
-
-- 各自在feature分支开发，完成后发PR
-- 提交信息格式：
-  - `feat: 新功能描述`
-  - `fix: 修复问题描述`
-  - `docs: 文档更新描述`
-  - `refactor: 代码重构描述`
-- 禁止直接向main分支推送代码
-- `.env`文件禁止提交到仓库
+### 3. 前端启动
+1. 进入 `frontend` 目录。
+2. `npm install` && `npm run dev`
 
 
