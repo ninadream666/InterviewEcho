@@ -27,6 +27,8 @@ class Interview(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     role = Column(String(50), nullable=False)
+    difficulty = Column(String(20), nullable=True)
+    knowledge_points = Column(Text, nullable=True) # Stored as JSON string
     status = Column(String(20), default="in_progress")
     start_time = Column(TIMESTAMP, default=datetime.utcnow)
     end_time = Column(TIMESTAMP, nullable=True)
@@ -51,6 +53,8 @@ class Evaluation(Base):
     interview_id = Column(Integer, ForeignKey("interviews.id", ondelete="CASCADE"), nullable=False, unique=True)
     content_score = Column(Float, default=0.0)
     expression_score = Column(Float, default=0.0)
+    business_scenario_score = Column(Float, default=0.0)
+    problem_solving_score = Column(Float, default=0.0)
     total_score = Column(Float, default=0.0)
     report_json = Column(Text)
     recommendations = Column(Text)

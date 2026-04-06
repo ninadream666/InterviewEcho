@@ -27,6 +27,8 @@ CREATE TABLE IF NOT EXISTS interviews (
     user_id INT NOT NULL,
     role VARCHAR(50) NOT NULL,
     status VARCHAR(20) DEFAULT 'in_progress', -- 'in_progress', 'completed'
+    difficulty VARCHAR(20),
+    knowledge_points TEXT,
     start_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     end_time TIMESTAMP NULL,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
@@ -49,6 +51,8 @@ CREATE TABLE IF NOT EXISTS evaluations (
     interview_id INT NOT NULL UNIQUE,
     content_score FLOAT DEFAULT 0.0,
     expression_score FLOAT DEFAULT 0.0,
+    business_scenario_score FLOAT DEFAULT 0.0,
+    problem_solving_score FLOAT DEFAULT 0.0,
     total_score FLOAT DEFAULT 0.0,
     report_json TEXT,
     recommendations TEXT,

@@ -46,18 +46,35 @@
 
     <!-- Input Area -->
     <div class="p-4 bg-white border-t border-gray-200">
+      <div v-if="isRecording" class="flex items-center gap-2 mb-2 px-2 py-1 bg-red-50 text-red-500 rounded-lg animate-pulse">
+        <div class="w-2 h-2 bg-red-500 rounded-full"></div>
+        <span class="text-xs font-bold uppercase tracking-wider">正在录音中...</span>
+      </div>
+      <div v-if="isTranscribing" class="flex items-center gap-2 mb-2 px-2 py-1 bg-indigo-50 text-indigo-500 rounded-lg animate-pulse">
+        <el-icon class="is-loading"><component :is="Loading" /></el-icon>
+        <span class="text-xs font-bold uppercase tracking-wider">AI 正在精准转录您的语音...</span>
+      </div>
       <el-input
         v-model="inputMsg"
         type="textarea"
         :rows="3"
-        placeholder="请输入您的回答..."
+        placeholder="请输入您的回答，或点击麦克风开始语音输入..."
         resize="none"
         @keydown.enter.prevent="sendMessage"
         :disabled="sending || ending"
       ></el-input>
       <div class="flex justify-between items-center mt-3">
-        <el-button type="info" plain circle :icon="Microphone"></el-button>
-        <el-button type="primary" @click="sendMessage" :loading="sending" :disabled="!inputMsg.trim() || ending">
+        <el-button 
+          :type="isRecording ? 'danger' : 'info'" 
+          plain 
+          circle 
+          @click="toggleRecording"
+          :class="{ 'animate-bounce shadow-lg shadow-red-100': isRecording }"
+          :disabled="sending || ending"
+        >
+          <el-icon><Microphone /></el-icon>
+        </el-button>
+        <el-button type="primary" @click="sendMessage" :loading="sending" :disabled="(!inputMsg.trim() && !isRecording) || isTranscribing || ending">
           发送 (Enter)
         </el-button>
       </div>
@@ -83,6 +100,88 @@ const chatArea = ref(null)
 
 const sending = ref(false)
 const ending = ref(false)
+const isRecording = ref(false)
+const isTranscribing = ref(false)
+let mediaRecorder = null
+let audioChunks = []
+
+const startRecording = async () => {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+    mediaRecorder = new MediaRecorder(stream)
+    audioChunks = []
+
+    mediaRecorder.ondataavailable = (event) => {
+      audioChunks.push(event.data)
+    }
+
+    mediaRecorder.onstop = async () => {
+      const audioBlob = new Blob(audioChunks, { type: 'audio/webm' })
+      await uploadVoice(audioBlob)
+      // Release microphone
+      stream.getTracks().forEach(track => track.stop())
+    }
+
+    mediaRecorder.start()
+    isRecording.value = true
+    ElMessage.info('正在录音，请说话...')
+  } catch (err) {
+    console.error('Failed to start recording:', err)
+    ElMessage.error('无法访问麦克风，请检查权限设置')
+  }
+}
+
+const stopRecording = () => {
+  if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+    mediaRecorder.stop()
+    isRecording.value = false
+  }
+}
+
+const uploadVoice = async (blob) => {
+  isTranscribing.value = true
+  sending.value = true
+  
+  const formData = new FormData()
+  formData.append('file', blob, 'voice.webm')
+
+  try {
+    const { data } = await api.post(`/interview/${interviewId.value}/voice`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      },
+      timeout: 60000 // Voice processing on CPU can be slow, allow 60s
+    })
+    
+    // Add user message to chat
+    messages.value.push({ sender: 'user', content: data.transcription })
+    
+    // Add AI response to chat
+    messages.value.push({ sender: 'ai', content: data.ai_message.content })
+    
+    if (data.ai_message.is_final) {
+      ElMessage.warning('面试已达到建议轮数，正在为您生成评估报告...')
+      setTimeout(() => {
+        endInterview()
+      }, 2500)
+    }
+  } catch (err) {
+    console.error('Voice upload failed:', err)
+    ElMessage.error('语音转录失败，请重试或手动输入')
+  } finally {
+    isTranscribing.value = false
+    sending.value = false
+    scrollToBottom()
+  }
+}
+
+const toggleRecording = async () => {
+  if (isRecording.value) {
+    stopRecording()
+  } else {
+    await startRecording()
+  }
+}
 
 const scrollToBottom = () => {
   nextTick(() => {
@@ -93,12 +192,26 @@ const scrollToBottom = () => {
 }
 
 onMounted(async () => {
+  // Use interviewId from query if provided (from Dashboard Settings Dialog)
+  const idFromQuery = route.query.interviewId
+  if (idFromQuery) {
+    interviewId.value = parseInt(idFromQuery)
+    // Fetch and display initial messages (the one generated on start)
+    try {
+      const { data } = await api.get(`/interview/${interviewId.value}/messages`)
+      messages.value = data
+      scrollToBottom()
+    } catch (e) {
+      // Fallback if message fetch fails
+      messages.value.push({ sender: 'ai', content: `你好，我是你的${role.value}面试官。准备好了吗？我们将针对性地展开面试。` })
+    }
+    return
+  }
+
+  // Fallback: If no id provided (direct navigation), start a fresh default interview
   try {
     const { data } = await api.post('/interview/start', { role: role.value })
     interviewId.value = data.id
-    // Fetch initial message directly? Actually, we'd need a separate endpoint to fetch messages, but for MVP, let's pretend the mock AI gives first question soon
-    // We should mock the first question by hardcoding or wait for another call if needed.
-    // For now we'll fetch messages via a hypothetical endpoint or just show a default
     messages.value.push({ sender: 'ai', content: `你好，我是你的${role.value}面试官。我们马上开始面试，请先做个简单的自我介绍。` })
   } catch (err) {
     ElMessage.error('无法启动面试室')

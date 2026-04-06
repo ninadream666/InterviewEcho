@@ -13,7 +13,7 @@
         v-for="role in roles" 
         :key="role.id"
         class="group relative bg-white rounded-3xl p-1 shadow-sm hover:shadow-2xl transition-all duration-500 cursor-pointer overflow-hidden border border-gray-100"
-        @click="startInterview(role.name)"
+        @click="startInterview(role)"
       >
         <div :class="`absolute inset-0 bg-gradient-to-br ${role.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-500 shadow-inner text-center` "></div>
         <div class="relative p-8 flex flex-col items-center text-center">
@@ -40,7 +40,7 @@
         <div class="flex items-center justify-between mb-8">
           <h2 class="text-2xl font-black text-gray-800">能力成长趋势</h2>
           <div class="flex gap-2" v-if="history.length > 0">
-            <span class="px-3 py-1 bg-blue-50 text-blue-600 text-xs font-bold rounded-full">综合评分</span>
+            <span class="px-3 py-1 bg-blue-50 text-blue-600 text-xs font-bold rounded-full">综合评分曲线</span>
           </div>
         </div>
 
@@ -51,31 +51,37 @@
           <p class="text-gray-400 font-medium">完成第一次面试后，系统将为您分析多维能力曲线</p>
         </div>
 
-        <!-- Dynamic History List -->
-        <div v-else class="space-y-6">
-          <div 
-            v-for="(item, index) in history.slice(-5)" 
-            :key="index" 
-            class="relative group cursor-pointer hover:translate-x-1 transition-transform"
-            @click="router.push({ name: 'Report', params: { id: item.id } })"
-          >
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-sm font-bold text-gray-600 group-hover:text-primary transition-colors">{{ item.role }}</span>
-              <span class="text-sm font-black text-primary">{{ item.total_score.toFixed(1) }} <small class="font-normal opacity-60">分</small></span>
-            </div>
-            <div class="w-full h-3 bg-gray-100 rounded-full overflow-hidden">
-              <div 
-                class="h-full bg-gradient-to-r from-primary to-indigo-400 rounded-full transition-all duration-1000 ease-out"
-                :style="{ width: `${item.total_score}%` }"
-              ></div>
-            </div>
-            <div class="mt-1 text-[10px] text-gray-400 font-medium uppercase tracking-tighter">
-              {{ new Date(item.created_at).toLocaleDateString() }} · <span class="text-primary opacity-0 group-hover:opacity-100 transition-opacity">点击查看详情 →</span>
+        <div v-else class="space-y-10">
+          <!-- ECharts Line Chart -->
+          <LineChart :history="history" />
+
+          <!-- Dynamic History List (Recent 3) -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-gray-50">
+            <div 
+              v-for="(item, index) in history.slice(0, 3)" 
+              :key="index" 
+              class="bg-gray-50/50 p-6 rounded-3xl border border-gray-100 group cursor-pointer hover:bg-white hover:shadow-xl transition-all duration-500"
+              @click="router.push({ name: 'Report', params: { id: item.id } })"
+            >
+              <div class="flex justify-between items-start mb-4">
+                <span class="text-xs font-black text-gray-400 uppercase tracking-widest">{{ new Date(item.created_at).toLocaleDateString() }}</span>
+                <span class="text-xl font-black text-primary">{{ item.total_score.toFixed(1) }}</span>
+              </div>
+              <h4 class="font-bold text-gray-800 mb-1 group-hover:text-primary transition-colors">{{ item.role }}</h4>
+              <p class="text-[10px] text-gray-400 font-medium uppercase tracking-tighter">点击查看详情 →</p>
             </div>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- Interview Settings Dialog -->
+    <InterviewSettingsDialog 
+      ref="settingsDialogRef" 
+      :role-name="selectedRole?.name" 
+      :role-key="selectedRole?.key"
+      @confirm="onSettingsConfirm"
+    />
   </div>
 </template>
 
@@ -84,10 +90,14 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { DataLine } from '@element-plus/icons-vue'
 import api from '@/api'
+import LineChart from '@/components/analytics/LineChart.vue'
+import InterviewSettingsDialog from '@/components/business/InterviewSettingsDialog.vue'
 
 const router = useRouter()
 const history = ref([])
 const roles = ref([])
+const settingsDialogRef = ref(null)
+const selectedRole = ref(null)
 
 onMounted(async () => {
   try {
@@ -102,7 +112,24 @@ onMounted(async () => {
   }
 })
 
-const startInterview = (roleName) => {
-  router.push(`/interview/${encodeURIComponent(roleName)}`)
+const startInterview = (role) => {
+  selectedRole.value = role
+  settingsDialogRef.value.open(role.key)
+}
+
+const onSettingsConfirm = async (settings) => {
+  try {
+    const { data } = await api.post('/interview/start', {
+      role: selectedRole.value.name,
+      ...settings
+    })
+    router.push({ 
+      name: 'InterviewRoom', 
+      params: { role: selectedRole.value.name },
+      query: { interviewId: data.id }
+    })
+  } catch (err) {
+    console.error('Failed to start interview:', err)
+  }
 }
 </script>

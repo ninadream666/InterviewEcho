@@ -1,4 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+import uuid
+import shutil
+import tempfile
+from services.stt_service import stt_service
 from sqlalchemy.orm import Session
 from typing import List
 import json
@@ -38,32 +42,45 @@ ROLES = [
     }
 ]
 
-def get_random_starting_question(role_name: str):
+def get_random_starting_question(role_name: str, difficulty: str = "medium", knowledge_points: List[str] = None):
     # Find the role key from ROLES list
     role_info = next((r for r in ROLES if r["name"] == role_name), None)
     role_key = role_info["key"] if role_info else "java-backend"
     
     # Map role key to actual folder path
-    base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    # We expect knowledge-base/<role_key>/questions/behavioral.json etc.
-    kb_questions_path = os.path.join(base_path, "knowledge-base", role_key, "questions")
+    backend_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    kb_questions_path = os.path.join(os.path.dirname(backend_path), "knowledge-base", role_key, "questions")
     
     if not os.path.exists(kb_questions_path):
         return "请做一个简单的自我介绍，并聊聊你最近参与的一个技术项目。"
 
+    # Map easy/medium/hard from UI to internal JSON difficulty
+    diff_map = {"简单": "easy", "中等": "medium", "困难": "hard"}
+    target_diff = diff_map.get(difficulty, "medium")
+
     try:
-        # Try different files
-        files = ["behavioral.json", "scenarios.json", "projects.json"]
-        random.shuffle(files)
-        
-        for f_name in files:
-            f_path = os.path.join(kb_questions_path, f_name)
-            if os.path.exists(f_path):
+        potential_questions = []
+        for f_name in os.listdir(kb_questions_path):
+            if f_name.endswith(".json"):
+                f_path = os.path.join(kb_questions_path, f_name)
                 with open(f_path, "r", encoding="utf-8") as f:
                     questions = json.load(f)
-                    if questions:
-                        q = random.choice(questions)
-                        return q.get("question")
+                    for q in questions:
+                        # Filter by difficulty and optionally by knowledge point section
+                        q_diff = q.get("difficulty", "medium")
+                        q_section = q.get("section", "")
+                        
+                        match_diff = (q_diff == target_diff)
+                        match_section = True
+                        if knowledge_points:
+                            match_section = any(kp == q_section for kp in knowledge_points)
+                        
+                        if match_diff and match_section:
+                            potential_questions.append(q.get("question"))
+        
+        if potential_questions:
+            return random.choice(potential_questions)
+            
     except Exception as e:
         pass
     
@@ -88,19 +105,57 @@ def get_current_user_id(authorization: str = Header(None)):
 
 @router.post("/start", response_model=schemas.InterviewResponse)
 def start_interview(data: schemas.InterviewStart, db: Session = Depends(get_db), user_id: int = Depends(get_current_user_id)):
-    new_interview = models.Interview(user_id=user_id, role=data.role, status="in_progress")
+    knowledge_points_json = json.dumps(data.knowledge_points) if data.knowledge_points else "[]"
+    new_interview = models.Interview(
+        user_id=user_id, 
+        role=data.role, 
+        difficulty=data.difficulty,
+        knowledge_points=knowledge_points_json,
+        status="in_progress"
+    )
     db.add(new_interview)
     db.commit()
     db.refresh(new_interview)
 
-    # Initial greeting based on role and randomization
-    intro_q = get_random_starting_question(data.role)
-    greeting = f"你好，我是你的{data.role}面试官。很高兴见到你。{intro_q}"
+    # Initial greeting based on role, difficulty, and selected directions
+    intro_q = get_random_starting_question(data.role, data.difficulty, data.knowledge_points)
+    greeting = f"你好，我是你的{data.role}面试官。很高兴见到你。接下来我们将进行一次{data.difficulty or '标准'}难度的面试{f'，重点关注{', '.join(data.knowledge_points)}等领域' if data.knowledge_points else ''}。{intro_q}"
     ai_msg = models.Message(interview_id=new_interview.id, sender="ai", content=greeting)
     db.add(ai_msg)
     db.commit()
 
     return new_interview
+
+@router.get("/roles/{role_key}/sections")
+def get_role_sections(role_key: str):
+    # Dynamic extraction of sections from knowledge base JSON files
+    backend_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    kb_questions_path = os.path.join(os.path.dirname(backend_path), "knowledge-base", role_key, "questions")
+    
+    sections = set()
+    if os.path.exists(kb_questions_path):
+        for f_name in os.listdir(kb_questions_path):
+            if f_name.endswith(".json"):
+                try:
+                    with open(os.path.join(kb_questions_path, f_name), "r", encoding="utf-8") as f:
+                        questions = json.load(f)
+                        for q in questions:
+                            if "section" in q:
+                                sections.add(q["section"])
+                except:
+                    pass
+    
+    # Return as a sorted list
+    return sorted(list(sections))
+
+@router.get("/{interview_id}/messages", response_model=List[schemas.MessageResponse])
+def get_interview_messages(interview_id: int, db: Session = Depends(get_db), user_id: int = Depends(get_current_user_id)):
+    interview = db.query(models.Interview).filter(models.Interview.id == interview_id, models.Interview.user_id == user_id).first()
+    if not interview:
+        raise HTTPException(status_code=404, detail="Interview not found or unauthorized")
+    
+    messages = db.query(models.Message).filter(models.Message.interview_id == interview_id).order_by(models.Message.created_at.asc()).all()
+    return messages
 
 @router.get("/{interview_id}/evaluation", response_model=schemas.EvaluationDetail)
 def get_evaluation(interview_id: int, db: Session = Depends(get_db), user_id: int = Depends(get_current_user_id)):
@@ -123,34 +178,85 @@ def get_evaluation(interview_id: int, db: Session = Depends(get_db), user_id: in
         role=eval_record.interview.role,
         content_score=eval_record.content_score,
         expression_score=eval_record.expression_score,
+        business_scenario_score=eval_record.business_scenario_score,
+        problem_solving_score=eval_record.problem_solving_score,
         total_score=eval_record.total_score,
         highlights=report_data.get("highlights", report_data.get("strengths", [])),
         weaknesses=report_data.get("weaknesses", []),
         recommendations=eval_record.recommendations or report_data.get("improvement_suggestions", "继续加油！"),
+        scores=report_data.get("scores"),
         created_at=eval_record.created_at
     )
 
+@router.post("/polish")
+async def polish_transcription(data: dict, user_id: int = Depends(get_current_user_id)):
+    """
+    Endpoint to add punctuation to raw transcription.
+    """
+    text = data.get("text", "")
+    if not text:
+        return {"text": ""}
+    
+    polished_text = await llm_service.polish_text(text)
+    return {"text": polished_text}
+
 @router.post("/{interview_id}/message", response_model=schemas.MessageResponse)
 async def send_message(interview_id: int, msg: schemas.MessageSend, db: Session = Depends(get_db), user_id: int = Depends(get_current_user_id)):
+    return await process_message_logic(interview_id, msg.content, db, user_id)
+
+@router.post("/{interview_id}/voice", response_model=schemas.VoiceResponse)
+async def upload_voice(
+    interview_id: int, 
+    file: UploadFile = File(...), 
+    db: Session = Depends(get_db), 
+    user_id: int = Depends(get_current_user_id)
+):
+    # 1. Save uploaded file to temporary location
+    temp_dir = tempfile.gettempdir()
+    file_extension = os.path.splitext(file.filename)[1] if file.filename else ".webm"
+    temp_file_path = os.path.join(temp_dir, f"voice_{uuid.uuid4()}{file_extension}")
+    
+    try:
+        with open(temp_file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+        
+        # 2. Transcribe using Whisper
+        transcript = stt_service.transcribe(temp_file_path)
+        if not transcript:
+            raise HTTPException(status_code=400, detail="Voice transcription failed. Please try again or type your message.")
+        
+        # 3. Process the transcribed text as a message
+        ai_msg_resp = await process_message_logic(interview_id, transcript, db, user_id)
+        return schemas.VoiceResponse(transcription=transcript, ai_message=ai_msg_resp)
+        
+    finally:
+        # 4. Cleanup
+        if os.path.exists(temp_file_path):
+            try:
+                os.remove(temp_file_path)
+            except:
+                pass
+
+async def process_message_logic(interview_id: int, content: str, db: Session, user_id: int):
     # 1. Fetch latest interview context & ownership
     interview = db.query(models.Interview).filter(models.Interview.id == interview_id, models.Interview.user_id == user_id).first()
     if not interview:
         raise HTTPException(status_code=404, detail="Interview not found or unauthorized")
 
     # 2. Save User Message
-    user_msg = models.Message(interview_id=interview_id, sender="user", content=msg.content)
+    user_msg = models.Message(interview_id=interview_id, sender="user", content=content)
     db.add(user_msg)
     db.commit()
 
-    # 3. Get last AI question to provide context to LLM (optional but better)
+    # 3. Get last AI question to provide context to LLM
     last_ai_msg = db.query(models.Message).filter(
         models.Message.interview_id == interview_id, 
         models.Message.sender == "ai"
-    ).order_by(models.Message.created_at.desc()).first()
+    ).order_by(models.Message.created_at.desc()).offset(0).first() 
     
     current_question = last_ai_msg.content if last_ai_msg else "请自我介绍"
 
-    # 4. Check if we have already asked 6 messages (Greeting + 5 Questions)
+    # 4. Check if we have already asked sufficient questions
     ai_count = db.query(models.Message).filter(
         models.Message.interview_id == interview_id,
         models.Message.sender == "ai"
@@ -163,7 +269,9 @@ async def send_message(interview_id: int, msg: schemas.MessageSend, db: Session 
             role=interview.role,
             question=current_question,
             expected_points="总结评价",
-            candidate_response=f"{msg.content} (注：这是最后一题，请给出简短反馈，并富有礼貌地结束面试，提示面试者后续可以在首页查看成长报告)"
+            candidate_response=f"{content} (注：这是最后一题，请给出简短反馈，并富有礼貌地结束面试，提示面试者后续可以在首页查看成长报告)",
+            difficulty=interview.difficulty,
+            knowledge_points=interview.knowledge_points
         )
         is_final = True
     else:
@@ -172,7 +280,9 @@ async def send_message(interview_id: int, msg: schemas.MessageSend, db: Session 
             role=interview.role,
             question=current_question,
             expected_points="技术准确性、逻辑清晰度、项目实践经验",
-            candidate_response=msg.content
+            candidate_response=content,
+            difficulty=interview.difficulty,
+            knowledge_points=interview.knowledge_points
         )
 
     # 5. Save AI Message
@@ -221,11 +331,20 @@ async def end_interview(interview_id: int, db: Session = Depends(get_db), user_i
 
     # 3. Save Evaluation to DB
     scores = evaluation_data.get("scores", {})
-    total_val = round((scores.get("technical_depth", 0) + scores.get("communication", 0)) / 2, 1)
+    tech_score = scores.get("technical_depth", 0)
+    comm_score = scores.get("communication", 0)
+    bus_score = scores.get("business_scenario", 0)
+    prob_score = scores.get("problem_solving", 0)
+    
+    # Calculate average of 4 metrics
+    total_val = round((tech_score + comm_score + bus_score + prob_score) / 4, 1)
+
     eval_record = models.Evaluation(
         interview_id=interview_id,
-        content_score=scores.get("technical_depth", 0),
-        expression_score=scores.get("communication", 0),
+        content_score=tech_score,
+        expression_score=comm_score,
+        business_scenario_score=bus_score,
+        problem_solving_score=prob_score,
         total_score=total_val,
         report_json=json.dumps({
             "highlights": evaluation_data.get("strengths", []),
@@ -236,9 +355,20 @@ async def end_interview(interview_id: int, db: Session = Depends(get_db), user_i
     )
     db.add(eval_record)
     db.commit()
-    # 4. Prepare response data (ensure total_score is included for immediate display)
-    evaluation_data["total_score"] = total_val
-    evaluation_data["content_score"] = scores.get("technical_depth", 0)
-    evaluation_data["expression_score"] = scores.get("communication", 0)
+    # 4. Prepare response data using the same schema as get_evaluation
+    # This ensures immediate display in the frontend works without a refresh
+    evaluation_result = {
+        "interview_id": interview_id,
+        "role": interview.role,
+        "content_score": tech_score,
+        "expression_score": comm_score,
+        "business_scenario_score": bus_score,
+        "problem_solving_score": prob_score,
+        "total_score": total_val,
+        "highlights": evaluation_data.get("strengths", []),
+        "weaknesses": evaluation_data.get("weaknesses", []),
+        "recommendations": evaluation_data.get("improvement_suggestions", "继续加油！"),
+        "created_at": eval_record.created_at or datetime.utcnow()
+    }
 
-    return {"message": "Interview ended and evaluated successfully.", "evaluation": evaluation_data}
+    return {"message": "Interview ended and evaluated successfully.", "evaluation": evaluation_result}

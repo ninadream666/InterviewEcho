@@ -11,7 +11,7 @@ client = AsyncOpenAI(
     base_url=settings.LLM_BASE_URL
 )
 
-async def generate_llm_response(role: str, question: str, expected_points: str, candidate_response: str):
+async def generate_llm_response(role: str, question: str, expected_points: str, candidate_response: str, difficulty: str = "medium", knowledge_points: str = ""):
     """
     Generate conversational follow-up or answer evaluation using real LLM.
     """
@@ -24,7 +24,9 @@ async def generate_llm_response(role: str, question: str, expected_points: str, 
         question=question,
         expected_points=expected_points,
         rag_context=rag_context,
-        candidate_response=candidate_response
+        candidate_response=candidate_response,
+        difficulty=difficulty,
+        knowledge_points=knowledge_points
     )
     
     # 3. Request LLM
@@ -40,6 +42,27 @@ async def generate_llm_response(role: str, question: str, expected_points: str, 
     except Exception as e:
         print(f"Error calling LLM: {e}")
         return "很抱歉，当前面试官遇到点小故障，请您稍后再试。"
+
+async def polish_text(text: str):
+    """
+    Add punctuation and fix minor typos in transcribed text.
+    """
+    if not text.strip():
+        return text
+        
+    try:
+        response = await client.chat.completions.create(
+            model=settings.LLM_MODEL,
+            messages=[
+                {"role": "system", "content": "你是一个文本纠错专家。请为以下没有标点符号的面试回答添加合适的中文标点，并修正明显的音近错别字。保持原意不变，不要增加额外内容，只返回处理后的文本。"},
+                {"role": "user", "content": text}
+            ],
+            temperature=0.3
+        )
+        return response.choices[0].message.content.strip()
+    except Exception as e:
+        print(f"Error polishing text: {e}")
+        return text
 
 async def evaluate_full_interview(interview_history: list):
     """

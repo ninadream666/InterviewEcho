@@ -19,6 +19,8 @@ class Token(BaseModel):
 
 class InterviewStart(BaseModel):
     role: str
+    difficulty: Optional[str] = "medium"
+    knowledge_points: Optional[List[str]] = []
 
 class InterviewResponse(BaseModel):
     id: int
@@ -55,8 +57,15 @@ class EvaluationDetail(BaseModel):
     role: str
     content_score: float
     expression_score: float
+    business_scenario_score: float
+    problem_solving_score: float
     total_score: float
     highlights: List[str]
     weaknesses: List[str]
     recommendations: str
+    scores: Optional[dict] = None
     created_at: datetime
+
+class VoiceResponse(BaseModel):
+    transcription: str
+    ai_message: MessageResponse

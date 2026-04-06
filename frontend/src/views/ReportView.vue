@@ -7,19 +7,41 @@
 
     <div v-if="report" class="space-y-6">
       <!-- Score Overview -->
-      <div class="bg-white p-8 rounded-[2rem] shadow-xl grid grid-cols-3 gap-6 text-center border border-gray-100 relative overflow-hidden">
-        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 to-primary"></div>
-        <div>
-          <p class="text-gray-400 text-xs font-bold uppercase tracking-widest mb-2">综合得分</p>
-          <p class="text-5xl font-black text-primary">{{ Number(report.total_score || 0).toFixed(1) }}</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-white p-8 rounded-[2rem] shadow-xl flex flex-col justify-center text-center border border-gray-100 relative overflow-hidden">
+          <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 to-primary"></div>
+          <div class="grid grid-cols-2 gap-y-8 gap-x-4">
+            <div class="col-span-2 border-b border-gray-50 pb-6 mb-2">
+              <p class="text-gray-400 text-[10px] font-black uppercase tracking-widest mb-1">综合平均得分</p>
+              <p class="text-6xl font-black text-primary">{{ Number(report.total_score || 0).toFixed(1) }}</p>
+            </div>
+            <div>
+              <p class="text-gray-400 text-[10px] font-black uppercase tracking-widest mb-1">技术深度</p>
+              <p class="text-3xl font-bold text-gray-800">{{ report.content_score }}</p>
+            </div>
+            <div>
+              <p class="text-gray-400 text-[10px] font-black uppercase tracking-widest mb-1">表达沟通</p>
+              <p class="text-3xl font-bold text-gray-800">{{ report.expression_score }}</p>
+            </div>
+            <div>
+              <p class="text-gray-400 text-[10px] font-black uppercase tracking-widest mb-1">业务场景</p>
+              <p class="text-3xl font-bold text-gray-800">{{ report.business_scenario_score }}</p>
+            </div>
+            <div>
+              <p class="text-gray-400 text-[10px] font-black uppercase tracking-widest mb-1">问题解决</p>
+              <p class="text-3xl font-bold text-gray-800">{{ report.problem_solving_score }}</p>
+            </div>
+          </div>
         </div>
-        <div>
-          <p class="text-gray-400 text-xs font-bold uppercase tracking-widest mb-2">技术深度</p>
-          <p class="text-4xl font-bold text-gray-800">{{ report.content_score || (report.scores ? report.scores.technical_depth : 0) }}</p>
-        </div>
-        <div>
-          <p class="text-gray-400 text-xs font-bold uppercase tracking-widest mb-2">表达沟通</p>
-          <p class="text-4xl font-bold text-gray-800">{{ report.expression_score || (report.scores ? report.scores.communication : 0) }}</p>
+
+        <!-- Radar Chart -->
+        <div class="bg-white p-6 rounded-[2rem] shadow-xl border border-gray-100 flex items-center justify-center">
+          <RadarChart :stats="{
+            technical_depth: report.content_score,
+            communication: report.expression_score,
+            business_scenario: report.business_scenario_score,
+            problem_solving: report.problem_solving_score
+          }" />
         </div>
       </div>
 
@@ -63,6 +85,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import api from '@/api'
 import { ElMessage } from 'element-plus'
+import RadarChart from '@/components/analytics/RadarChart.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -98,9 +121,11 @@ const parsedReportData = computed(() => {
   // If it's a DB record with report_json
   if (report.value.report_json) {
     try {
-      const data = JSON.parse(report.value.report_json)
+      const data = typeof report.value.report_json === 'string' 
+        ? JSON.parse(report.value.report_json) 
+        : report.value.report_json
       return {
-        highlights: data.highlights || [],
+        highlights: data.highlights || data.strengths || [],
         weaknesses: data.weaknesses || [],
         recommendations: data.recommendations || data.improvement_suggestions || ''
       }
