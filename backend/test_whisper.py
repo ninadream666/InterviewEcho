@@ -12,7 +12,7 @@ def test_whisper():
     try:
         # Create a dummy silent audio or just check model loading
         print("Loading model...")
-        model = stt_service.load_model("base")
+        model = stt_service.load_model("small")
         print("Model loaded successfully.")
         
         # Check ffmpeg

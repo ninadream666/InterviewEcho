@@ -11,7 +11,7 @@ import random
 from db import models, schemas
 from db.database import get_db
 from datetime import datetime
-from core.llm_service import generate_llm_response, evaluate_full_interview
+from core.llm_service import generate_llm_response, evaluate_full_interview, polish_text
 
 router = APIRouter()
 
@@ -42,49 +42,52 @@ ROLES = [
     }
 ]
 
-def get_random_starting_question(role_name: str, difficulty: str = "medium", knowledge_points: List[str] = None):
-    # Find the role key from ROLES list
-    role_info = next((r for r in ROLES if r["name"] == role_name), None)
-    role_key = role_info["key"] if role_info else "java-backend"
-    
-    # Map role key to actual folder path
+def get_questions_by_category(role_key: str, category: str, difficulty: str = "medium", knowledge_points: List[str] = None):
+    # Map role key to actual JSON file
     backend_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    kb_questions_path = os.path.join(os.path.dirname(backend_path), "knowledge-base", role_key, "questions")
+    questions_file = os.path.join(os.path.dirname(backend_path), "knowledge-base", role_key, "questions.json")
     
-    if not os.path.exists(kb_questions_path):
-        return "请做一个简单的自我介绍，并聊聊你最近参与的一个技术项目。"
+    if not os.path.exists(questions_file):
+        return []
 
-    # Map easy/medium/hard from UI to internal JSON difficulty
     diff_map = {"简单": "easy", "中等": "medium", "困难": "hard"}
     target_diff = diff_map.get(difficulty, "medium")
 
     try:
-        potential_questions = []
-        for f_name in os.listdir(kb_questions_path):
-            if f_name.endswith(".json"):
-                f_path = os.path.join(kb_questions_path, f_name)
-                with open(f_path, "r", encoding="utf-8") as f:
-                    questions = json.load(f)
-                    for q in questions:
-                        # Filter by difficulty and optionally by knowledge point section
-                        q_diff = q.get("difficulty", "medium")
-                        q_section = q.get("section", "")
-                        
-                        match_diff = (q_diff == target_diff)
-                        match_section = True
-                        if knowledge_points:
-                            match_section = any(kp == q_section for kp in knowledge_points)
-                        
-                        if match_diff and match_section:
-                            potential_questions.append(q.get("question"))
-        
-        if potential_questions:
-            return random.choice(potential_questions)
+        with open(questions_file, "r", encoding="utf-8") as f:
+            all_questions = json.load(f)
             
-    except Exception as e:
-        pass
+        potential = []
+        for q in all_questions:
+            if q.get("category") == category and q.get("difficulty") == target_diff:
+                # Optional section filter
+                if knowledge_points:
+                    if q.get("section") in knowledge_points:
+                        potential.append(q)
+                else:
+                    potential.append(q)
+        return potential
+    except:
+        return []
+
+def get_random_starting_question(role_name: str, difficulty: str = "medium", knowledge_points: List[str] = None):
+    # This is a fallback/legacy function, we now prefer get_questions_by_category
+    role_info = next((r for r in ROLES if r["name"] == role_name), None)
+    role_key = role_info["key"] if role_info else "java-backend"
     
-    return "请做一个简单的自我介绍，并谈谈你对该岗位的理解。"
+    # Always start with Scenario for the first actual question
+    questions = get_questions_by_category(role_key, "business_scenario", difficulty, knowledge_points)
+    if not questions:
+        # Fallback to any if scenario not found
+        backend_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        questions_file = os.path.join(os.path.dirname(backend_path), "knowledge-base", role_key, "questions.json")
+        try:
+            with open(questions_file, "r", encoding="utf-8") as f:
+                questions = json.load(f)
+        except:
+            return "请谈谈你对该岗位的理解。"
+            
+    return random.choice(questions) if questions else "请谈谈你对该岗位的理解。"
 
 @router.get("/roles")
 def get_roles():
@@ -111,16 +114,16 @@ def start_interview(data: schemas.InterviewStart, db: Session = Depends(get_db),
         role=data.role, 
         difficulty=data.difficulty,
         knowledge_points=knowledge_points_json,
+        total_rounds=data.total_rounds,
         status="in_progress"
     )
     db.add(new_interview)
     db.commit()
     db.refresh(new_interview)
 
-    # Initial greeting based on role, difficulty, and selected directions
-    intro_q = get_random_starting_question(data.role, data.difficulty, data.knowledge_points)
-    greeting = f"你好，我是你的{data.role}面试官。很高兴见到你。接下来我们将进行一次{data.difficulty or '标准'}难度的面试{f'，重点关注{', '.join(data.knowledge_points)}等领域' if data.knowledge_points else ''}。{intro_q}"
-    ai_msg = models.Message(interview_id=new_interview.id, sender="ai", content=greeting)
+    # Round 0: Only Introduction request (First sentence, no questions yet)
+    greeting = f"你好，我是你的{data.role}面试官。很高兴见到你。本次面试共设定为 {data.total_rounds} 轮提问。在正式开始前，请先做一个简单的自我介绍。"
+    ai_msg = models.Message(interview_id=new_interview.id, sender="ai", content=greeting, category="introduction")
     db.add(ai_msg)
     db.commit()
 
@@ -128,22 +131,20 @@ def start_interview(data: schemas.InterviewStart, db: Session = Depends(get_db),
 
 @router.get("/roles/{role_key}/sections")
 def get_role_sections(role_key: str):
-    # Dynamic extraction of sections from knowledge base JSON files
+    # Dynamic extraction of sections from consolidated questions.json
     backend_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    kb_questions_path = os.path.join(os.path.dirname(backend_path), "knowledge-base", role_key, "questions")
+    questions_file = os.path.join(os.path.dirname(backend_path), "knowledge-base", role_key, "questions.json")
     
     sections = set()
-    if os.path.exists(kb_questions_path):
-        for f_name in os.listdir(kb_questions_path):
-            if f_name.endswith(".json"):
-                try:
-                    with open(os.path.join(kb_questions_path, f_name), "r", encoding="utf-8") as f:
-                        questions = json.load(f)
-                        for q in questions:
-                            if "section" in q:
-                                sections.add(q["section"])
-                except:
-                    pass
+    if os.path.exists(questions_file):
+        try:
+            with open(questions_file, "r", encoding="utf-8") as f:
+                questions = json.load(f)
+                for q in questions:
+                    if "section" in q:
+                        sections.add(q["section"])
+        except Exception as e:
+            print(f"Error extracting sections for {role_key}: {e}")
     
     # Return as a sorted list
     return sorted(list(sections))
@@ -197,7 +198,7 @@ async def polish_transcription(data: dict, user_id: int = Depends(get_current_us
     if not text:
         return {"text": ""}
     
-    polished_text = await llm_service.polish_text(text)
+    polished_text = await polish_text(text)
     return {"text": polished_text}
 
 @router.post("/{interview_id}/message", response_model=schemas.MessageResponse)
@@ -221,11 +222,14 @@ async def upload_voice(
             shutil.copyfileobj(file.file, buffer)
         
         # 2. Transcribe using Whisper
-        transcript = stt_service.transcribe(temp_file_path)
-        if not transcript:
-            raise HTTPException(status_code=400, detail="Voice transcription failed. Please try again or type your message.")
+        raw_transcript = stt_service.transcribe(temp_file_path)
+        if not raw_transcript:
+            raise HTTPException(status_code=400, detail="语音转录失败，请重试或手动输入")
         
-        # 3. Process the transcribed text as a message
+        # 3. AI Polish for punctuation and homophone correction
+        transcript = await polish_text(raw_transcript)
+        
+        # 4. Process the polished text as a message
         ai_msg_resp = await process_message_logic(interview_id, transcript, db, user_id)
         return schemas.VoiceResponse(transcription=transcript, ai_message=ai_msg_resp)
         
@@ -238,7 +242,7 @@ async def upload_voice(
                 pass
 
 async def process_message_logic(interview_id: int, content: str, db: Session, user_id: int):
-    # 1. Fetch latest interview context & ownership
+    # 1. Fetch interview context
     interview = db.query(models.Interview).filter(models.Interview.id == interview_id, models.Interview.user_id == user_id).first()
     if not interview:
         raise HTTPException(status_code=404, detail="Interview not found or unauthorized")
@@ -248,52 +252,105 @@ async def process_message_logic(interview_id: int, content: str, db: Session, us
     db.add(user_msg)
     db.commit()
 
-    # 3. Get last AI question to provide context to LLM
-    last_ai_msg = db.query(models.Message).filter(
-        models.Message.interview_id == interview_id, 
-        models.Message.sender == "ai"
-    ).order_by(models.Message.created_at.desc()).offset(0).first() 
+    # 3. Analyze History
+    messages = db.query(models.Message).filter(models.Message.interview_id == interview_id).order_by(models.Message.created_at.asc()).all()
+    ai_msgs = [m for m in messages if m.sender == "ai"]
     
-    current_question = last_ai_msg.content if last_ai_msg else "请自我介绍"
+    # Identify "Main Questions" (Initial question + Stage transitions)
+    # We define a "Main Question" as one that moved the dial.
+    # In our new logic, we will tag messages to help us. 
+    # For now, let's look at how many times we've moved to a NEXT_TOPIC.
+    
+    main_questions_asked = []
+    current_follow_up_count = 0
+    
+    for m in ai_msgs[1:]: # Skip intro
+        if m.category and "FOLLOW_UP" not in m.category:
+            main_questions_asked.append(m)
+            current_follow_up_count = 0
+        else:
+            current_follow_up_count += 1
 
-    # 4. Check if we have already asked sufficient questions
-    ai_count = db.query(models.Message).filter(
-        models.Message.interview_id == interview_id,
-        models.Message.sender == "ai"
-    ).count()
+    question_count = len(main_questions_asked)
+    n = interview.total_rounds or 6
+    
+    # 4. Determine Stage & Next Target
+    # Stage 1: scenario, Stage 2: problem_solving
+    current_stage = "business_scenario" if question_count < n // 2 else "problem_solving"
+    
+    # If we are in the middle of a question, we might want the next one ready
+    role_info = next((r for r in ROLES if r["name"] == interview.role), None)
+    role_key = role_info["key"] if role_info else "java-backend"
+    kp_list = json.loads(interview.knowledge_points) if interview.knowledge_points else []
+    
+    # Logic for picking the "Next Target"
+    potential_next = get_questions_by_category(role_key, current_stage, interview.difficulty, kp_list)
+    # Filter out already asked
+    asked_titles = [m.content.split("接下来，")[-1] for m in main_questions_asked] # Simple heuristic
+    available_next = [q for q in potential_next if q["question"] not in asked_titles]
+    target_q_obj = random.choice(available_next if available_next else potential_next)
+    
+    # 5. Prepare LLM Context
+    history_str = ""
+    for m in messages[-6:]: # Last 3 rounds
+        role_name = "面试官" if m.sender == "ai" else "候选人"
+        history_str += f"{role_name}: {m.content}\n"
 
-    is_final = False
-    if ai_count >= 6:
-        # Generate a closing message instead of a new question
-        ai_response_content = await generate_llm_response(
-            role=interview.role,
-            question=current_question,
-            expected_points="总结评价",
-            candidate_response=f"{content} (注：这是最后一题，请给出简短反馈，并富有礼貌地结束面试，提示面试者后续可以在首页查看成长报告)",
-            difficulty=interview.difficulty,
-            knowledge_points=interview.knowledge_points
-        )
-        is_final = True
+    last_main_q = main_questions_asked[-1] if main_questions_asked else ai_msgs[0]
+    
+    force_next = ""
+    if current_follow_up_count >= 2:
+        force_next = "【系统指令：强制切换】当前话题已追问满 2 次，请务必结束当前话题，给出一个简短评价并过渡到下一个问题。"
+
+    # Check if this is the absolute last round
+    is_final_move = False
+    if question_count >= n:
+        is_final_move = True
+        target_next_text = "面试即将结束，请做一个结语。"
+        force_next = "【系统指令：面试结束】请给出一个礼貌的结束语表示感谢。禁止再提出任何新问题或引导后续对话内容。"
     else:
-        # Call Real LLM for next question
-        ai_response_content = await generate_llm_response(
-            role=interview.role,
-            question=current_question,
-            expected_points="技术准确性、逻辑清晰度、项目实践经验",
-            candidate_response=content,
-            difficulty=interview.difficulty,
-            knowledge_points=interview.knowledge_points
-        )
+        target_next_text = target_q_obj["question"]
 
-    # 5. Save AI Message
-    ai_msg = models.Message(interview_id=interview_id, sender="ai", content=ai_response_content)
+    # 6. Generate AI Response
+    llm_resp = await generate_llm_response(
+        role=interview.role,
+        question=last_main_q.content,
+        expected_points="技术准确性、实践经验", # Can be more dynamic if we store key_points
+        conversation_history=history_str,
+        target_next_question=target_next_text,
+        difficulty=interview.difficulty,
+        knowledge_points=interview.knowledge_points,
+        force_next_instruction=force_next
+    )
+
+    # 7. Update State
+    final_is_ended = False
+    # Only end if we have asked exactly N main questions AND the AI says MOVE_NEXT (meaning no more follow-ups for the last question)
+    if question_count >= n and llm_resp["action"] == "MOVE_NEXT":
+        final_is_ended = True
+        interview.status = "completed"
+        db.commit()
+
+    # Save AI Message
+    # Category tag: "Main" vs "FollowUp"
+    msg_category = current_stage
+    if llm_resp["action"] == "FOLLOW_UP":
+        msg_category = f"{current_stage}_FOLLOW_UP"
+
+    ai_msg = models.Message(
+        interview_id=interview_id,
+        sender="ai",
+        content=llm_resp["text"],
+        category=msg_category
+    )
     db.add(ai_msg)
     db.commit()
     db.refresh(ai_msg)
 
+    # 8. Format Response for Schema
+    # MessageResponse expects id, sender, content, created_at, and is_final.
     response = schemas.MessageResponse.model_validate(ai_msg)
-    response.is_final = is_final
-
+    response.is_final = final_is_ended
     return response
 
 @router.get("/history", response_model=List[schemas.EvaluationSummary])
@@ -308,6 +365,7 @@ def get_interview_history(db: Session = Depends(get_db), user_id: int = Depends(
         schemas.EvaluationSummary(
             id=e.interview_id,
             role=e.interview.role,
+            difficulty=e.interview.difficulty,
             total_score=e.total_score,
             created_at=e.created_at
         ) for e in results
@@ -330,45 +388,35 @@ async def end_interview(interview_id: int, db: Session = Depends(get_db), user_i
     evaluation_data = await evaluate_full_interview(messages)
 
     # 3. Save Evaluation to DB
-    scores = evaluation_data.get("scores", {})
-    tech_score = scores.get("technical_depth", 0)
-    comm_score = scores.get("communication", 0)
-    bus_score = scores.get("business_scenario", 0)
-    prob_score = scores.get("problem_solving", 0)
-    
-    # Calculate average of 4 metrics
-    total_val = round((tech_score + comm_score + bus_score + prob_score) / 4, 1)
-
     eval_record = models.Evaluation(
         interview_id=interview_id,
-        content_score=tech_score,
-        expression_score=comm_score,
-        business_scenario_score=bus_score,
-        problem_solving_score=prob_score,
-        total_score=total_val,
-        report_json=json.dumps({
-            "highlights": evaluation_data.get("strengths", []),
-            "weaknesses": evaluation_data.get("weaknesses", []),
-            "scores": scores
-        }),
-        recommendations=evaluation_data.get("improvement_suggestions", "继续加油！")
+        content_score=evaluation_data["content_score"],
+        expression_score=evaluation_data["expression_score"],
+        business_scenario_score=evaluation_data["business_scenario_score"],
+        problem_solving_score=evaluation_data["problem_solving_score"],
+        total_score=evaluation_data["total_score"],
+        report_json=json.dumps(evaluation_data),
+        recommendations=evaluation_data["recommendations"]
     )
     db.add(eval_record)
     db.commit()
-    # 4. Prepare response data using the same schema as get_evaluation
-    # This ensures immediate display in the frontend works without a refresh
+    db.refresh(eval_record)
+    
+    # 4. Prepare response data
     evaluation_result = {
         "interview_id": interview_id,
         "role": interview.role,
-        "content_score": tech_score,
-        "expression_score": comm_score,
-        "business_scenario_score": bus_score,
-        "problem_solving_score": prob_score,
-        "total_score": total_val,
-        "highlights": evaluation_data.get("strengths", []),
-        "weaknesses": evaluation_data.get("weaknesses", []),
-        "recommendations": evaluation_data.get("improvement_suggestions", "继续加油！"),
-        "created_at": eval_record.created_at or datetime.utcnow()
+        "content_score": evaluation_data["content_score"],
+        "expression_score": evaluation_data["expression_score"],
+        "business_scenario_score": evaluation_data["business_scenario_score"],
+        "problem_solving_score": evaluation_data["problem_solving_score"],
+        "total_score": evaluation_data["total_score"],
+        "highlights": evaluation_data["highlights"],
+        "weaknesses": evaluation_data["weaknesses"],
+        "recommendations": evaluation_data["recommendations"],
+        "created_at": eval_record.created_at
     }
+
+    return {"message": "Interview ended and evaluated successfully.", "evaluation": evaluation_result}
 
     return {"message": "Interview ended and evaluated successfully.", "evaluation": evaluation_result}

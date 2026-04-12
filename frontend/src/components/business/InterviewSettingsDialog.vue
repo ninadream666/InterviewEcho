@@ -28,6 +28,23 @@
         </div>
       </div>
 
+      <!-- Rounds Selection -->
+      <div class="animate-in fade-in slide-in-from-left duration-400">
+        <label class="block text-sm font-black text-gray-400 uppercase tracking-widest mb-4 flex justify-between">
+          面试轮次 (不含开场)
+          <span class="text-primary">{{ totalRounds }} 轮</span>
+        </label>
+        <div class="px-2">
+          <el-slider 
+            v-model="totalRounds" 
+            :min="2" 
+            :max="10" 
+            :step="1"
+            :marks="{ 2: '短', 6: '中', 10: '长' }"
+          />
+        </div>
+      </div>
+
       <!-- Knowledge Points Selection -->
       <div class="animate-in fade-in slide-in-from-left duration-500">
         <label class="block text-sm font-black text-gray-400 uppercase tracking-widest mb-4">重点考察领域 (多选)</label>
@@ -84,6 +101,7 @@ const emit = defineEmits(['confirm'])
 
 const visible = ref(false)
 const difficulty = ref('中等')
+const totalRounds = ref(6)
 const sections = ref([])
 const selectedSections = ref([])
 const loading = ref(false)
@@ -122,7 +140,8 @@ const toggleSection = (s) => {
 const handleConfirm = () => {
   emit('confirm', {
     difficulty: difficulty.value,
-    knowledge_points: selectedSections.value
+    knowledge_points: selectedSections.value,
+    total_rounds: totalRounds.value
   })
   visible.value = false
 }

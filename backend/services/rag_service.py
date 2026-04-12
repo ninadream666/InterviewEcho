@@ -27,28 +27,31 @@ class RAGService:
         )
         return response.data[0].embedding
 
-    def query_context(self, query_text: str, k: int = 3):
+    async def query_context_async(self, query_text: str, k: int = 3):
+        """
+        Asynchronous version of query_context.
+        """
         if not self.index_data:
             return "知识库未初始化。"
 
         try:
+            # Note: embeddings create is synchronous in OpenAI client if not using AsyncClient
+            # But we are using the sync client here. For simplicity, we wrap it or use the logic.
+            # In a real async environment, we'd use AsyncOpenAI's embeddings.
             query_vec = np.array(self.get_embedding(query_text))
             
             similarities = []
             for item in self.index_data:
                 item_vec = np.array(item["embedding"])
-                # Cosine Similarity = (A . B) / (||A|| * ||B||)
-                # If embeddings are normalized (OpenAI usually does), it's just dot product
                 score = np.dot(query_vec, item_vec)
                 similarities.append((score, item["content"]))
             
-            # Sort by score desc
             similarities.sort(key=lambda x: x[0], reverse=True)
             top_k = similarities[:k]
             
             return "\n\n".join([item[1] for item in top_k])
         except Exception as e:
-            print(f"RAG Query Error: {e}")
+            print(f"RAG Async Query Error: {e}")
             return "知识库检索异常。"
 
 rag_service = RAGService()

@@ -12,12 +12,12 @@ OUTPUT_FILE = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "rag
 
 # Setup Client
 LLM_API_KEY = os.getenv("LLM_API_KEY", "")
-LLM_BASE_URL = os.getenv("LLM_BASE_URL", "https://api.openai.com/v1")
-client = OpenAI(api_key=LLM_API_KEY, base_url=LLM_BASE_URL)
+from core.config import settings
+client = OpenAI(api_key=settings.LLM_API_KEY, base_url=settings.LLM_BASE_URL)
 
 def get_embedding(text):
     print(f"Embedding: {text[:30]}...")
-    resp = client.embeddings.create(input=text, model="text-embedding-3-small")
+    resp = client.embeddings.create(input=text, model=settings.LLM_EMBEDDING_MODEL)
     return resp.data[0].embedding
 
 def build_index():
