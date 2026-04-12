@@ -12,7 +12,7 @@ class WhisperSTT:
             cls._instance = super(WhisperSTT, cls).__new__(cls)
         return cls._instance
 
-    def load_model(self, model_name: str = "base"):
+    def load_model(self, model_name: str = "small"):
         """
         Load the whisper model into memory (singleton).
         """

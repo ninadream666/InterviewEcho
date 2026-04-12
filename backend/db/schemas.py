@@ -21,6 +21,7 @@ class InterviewStart(BaseModel):
     role: str
     difficulty: Optional[str] = "medium"
     knowledge_points: Optional[List[str]] = []
+    total_rounds: Optional[int] = 5
 
 class InterviewResponse(BaseModel):
     id: int
@@ -47,6 +48,7 @@ class MessageResponse(BaseModel):
 class EvaluationSummary(BaseModel):
     id: int
     role: str
+    difficulty: str
     total_score: float
     created_at: datetime
     class Config:

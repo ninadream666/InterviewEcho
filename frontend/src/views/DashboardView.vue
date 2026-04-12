@@ -39,8 +39,22 @@
       <div class="relative z-10">
         <div class="flex items-center justify-between mb-8">
           <h2 class="text-2xl font-black text-gray-800">能力成长趋势</h2>
-          <div class="flex gap-2" v-if="history.length > 0">
-            <span class="px-3 py-1 bg-blue-50 text-blue-600 text-xs font-bold rounded-full">综合评分曲线</span>
+          <div class="flex items-center gap-4">
+            <el-select v-model="filterRole" placeholder="筛选岗位" size="small" class="!w-32 !rounded-xl overflow-hidden shadow-sm">
+              <el-option label="全部岗位" value="All" />
+              <el-option 
+                v-for="role in availableRoles" 
+                :key="role" 
+                :label="role" 
+                :value="role" 
+              />
+            </el-select>
+            <el-select v-model="filterDifficulty" placeholder="筛选难度" size="small" class="!w-32 !rounded-xl overflow-hidden shadow-sm">
+              <el-option label="全部难度" value="All" />
+              <el-option label="简单" value="简单" />
+              <el-option label="中等" value="中等" />
+              <el-option label="困难" value="困难" />
+            </el-select>
           </div>
         </div>
 
@@ -53,22 +67,24 @@
 
         <div v-else class="space-y-10">
           <!-- ECharts Line Chart -->
-          <LineChart :history="history" />
+          <LineChart :history="history" :filter-role="filterRole" :filter-difficulty="filterDifficulty" />
 
           <!-- Dynamic History List (Recent 3) -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-gray-50">
             <div 
-              v-for="(item, index) in history.slice(0, 3)" 
+              v-for="(item, index) in filteredHistory.slice(0, 3)" 
               :key="index" 
               class="bg-gray-50/50 p-6 rounded-3xl border border-gray-100 group cursor-pointer hover:bg-white hover:shadow-xl transition-all duration-500"
               @click="router.push({ name: 'Report', params: { id: item.id } })"
             >
               <div class="flex justify-between items-start mb-4">
-                <span class="text-xs font-black text-gray-400 uppercase tracking-widest">{{ new Date(item.created_at).toLocaleDateString() }}</span>
+                <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">{{ formatDateTime(item.created_at) }}</span>
                 <span class="text-xl font-black text-primary">{{ item.total_score.toFixed(1) }}</span>
               </div>
               <h4 class="font-bold text-gray-800 mb-1 group-hover:text-primary transition-colors">{{ item.role }}</h4>
-              <p class="text-[10px] text-gray-400 font-medium uppercase tracking-tighter">点击查看详情 →</p>
+              <div class="flex gap-2">
+                <span :class="`text-[8px] px-2 py-0.5 rounded-full font-bold uppercase ${getDifficultyClass(item.difficulty)}` ">{{ item.difficulty }}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -86,7 +102,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { DataLine } from '@element-plus/icons-vue'
 import api from '@/api'
@@ -96,6 +112,8 @@ import InterviewSettingsDialog from '@/components/business/InterviewSettingsDial
 const router = useRouter()
 const history = ref([])
 const roles = ref([])
+const filterRole = ref('All')
+const filterDifficulty = ref('All')
 const settingsDialogRef = ref(null)
 const selectedRole = ref(null)
 
@@ -111,6 +129,36 @@ onMounted(async () => {
     console.error('Failed to fetch data:', err)
   }
 })
+
+const availableRoles = computed(() => {
+  const rs = new Set(history.value.map(h => h.role))
+  return Array.from(rs)
+})
+
+const filteredHistory = computed(() => {
+  return history.value.filter(h => {
+    const roleMatch = filterRole.value === 'All' || h.role === filterRole.value
+    const diffMatch = filterDifficulty.value === 'All' || h.difficulty === filterDifficulty.value
+    return roleMatch && diffMatch
+  })
+})
+
+const getDifficultyClass = (diff) => {
+  if (diff === '简单') return 'bg-blue-50 text-blue-500'
+  if (diff === '中等') return 'bg-green-50 text-green-500'
+  if (diff === '困难') return 'bg-red-50 text-red-500'
+  return 'bg-gray-50 text-gray-500'
+}
+
+const formatDateTime = (dateStr) => {
+  const d = new Date(dateStr)
+  const Y = d.getFullYear()
+  const M = String(d.getMonth() + 1).padStart(2, '0')
+  const D = String(d.getDate()).padStart(2, '0')
+  const HH = String(d.getHours()).padStart(2, '0')
+  const mm = String(d.getMinutes()).padStart(2, '0')
+  return `${Y}-${M}-${D} ${HH}:${mm}`
+}
 
 const startInterview = (role) => {
   selectedRole.value = role

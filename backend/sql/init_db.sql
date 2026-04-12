@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS interviews (
     status VARCHAR(20) DEFAULT 'in_progress', -- 'in_progress', 'completed'
     difficulty VARCHAR(20),
     knowledge_points TEXT,
+    total_rounds INT DEFAULT 5,
     start_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     end_time TIMESTAMP NULL,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
@@ -40,6 +41,7 @@ CREATE TABLE IF NOT EXISTS messages (
     interview_id INT NOT NULL,
     sender VARCHAR(20) NOT NULL,
     content TEXT NOT NULL,
+    category VARCHAR(50) NULL,
     audio_path VARCHAR(255) NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (interview_id) REFERENCES interviews(id) ON DELETE CASCADE

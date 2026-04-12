@@ -29,6 +29,7 @@ class Interview(Base):
     role = Column(String(50), nullable=False)
     difficulty = Column(String(20), nullable=True)
     knowledge_points = Column(Text, nullable=True) # Stored as JSON string
+    total_rounds = Column(Integer, default=5)
     status = Column(String(20), default="in_progress")
     start_time = Column(TIMESTAMP, default=datetime.utcnow)
     end_time = Column(TIMESTAMP, nullable=True)
@@ -43,6 +44,7 @@ class Message(Base):
     interview_id = Column(Integer, ForeignKey("interviews.id", ondelete="CASCADE"), nullable=False)
     sender = Column(String(20), nullable=False)
     content = Column(Text, nullable=False)
+    category = Column(String(50), nullable=True) # For evaluation alignment
     audio_path = Column(String(255), nullable=True)
     created_at = Column(TIMESTAMP, default=datetime.utcnow)
 

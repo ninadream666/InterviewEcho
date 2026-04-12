@@ -28,16 +28,18 @@ class PromptManager:
                     elif "评估" in title:
                         self.prompts["evaluator"] = prompt
 
-    def get_interviewer_prompt(self, role, question, expected_points, rag_context, candidate_response, difficulty="medium", knowledge_points=""):
+    def get_interviewer_prompt(self, role, question, expected_points, conversation_history, target_next_question, difficulty="medium", knowledge_points="", force_next_instruction="", rag_context=""):
         template = self.prompts.get("interviewer", "")
         return template.format(
             role=role,
             question=question,
             expected_points=expected_points,
-            rag_context=rag_context,
-            candidate_response=candidate_response,
+            conversation_history=conversation_history,
+            target_next_question=target_next_question,
             difficulty=difficulty,
-            knowledge_points=knowledge_points
+            knowledge_points=knowledge_points,
+            force_next_instruction=force_next_instruction,
+            rag_context=rag_context
         )
 
     def get_evaluator_prompt(self, interview_transcript, excellent_answers_context):
