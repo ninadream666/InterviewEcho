@@ -2,11 +2,51 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
+/* ================== 全局字体栈 ================== */
+/* 英文/数字用 Inter，中文走系统原生：苹方 (macOS) / 微软雅黑 (Windows) */
+html, body {
   margin: 0;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family:
+    'Inter',
+    -apple-system, BlinkMacSystemFont,
+    'PingFang SC',
+    'HarmonyOS Sans SC',
+    'Microsoft YaHei', '微软雅黑',
+    'Helvetica Neue', Arial, sans-serif;
   background-color: #F9FAFB;
   color: #111827;
+
+  /* 字体渲染优化 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+
+  /* Inter 特殊字形：更美观的字母与数字变体 */
+  font-feature-settings: "cv11" on, "ss01" on;
+}
+
+/* 代码 / 文件路径 / wpm 等技术标识用等宽字体 */
+code, pre, .font-mono, kbd, samp {
+  font-family:
+    'JetBrains Mono',
+    'SF Mono',
+    'Cascadia Code',
+    Consolas,
+    'Courier New',
+    monospace;
+  font-feature-settings: "calt" 1;
+}
+
+/* 数字对齐（报告分数、star 数、wpm 等场景显示更整齐） */
+.tabular-nums,
+[class*="font-bold"],
+[class*="font-extrabold"] {
+  font-variant-numeric: tabular-nums;
+}
+
+/* 中文标题字重补偿：Inter 粗体对中文效果不明显，稍加字距 */
+h1, h2, h3 {
+  letter-spacing: 0.01em;
 }
 
 /* Custom soft scrollbar */
@@ -19,4 +59,7 @@ body {
 ::-webkit-scrollbar-thumb {
   background-color: #D1D5DB;
   border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: #9CA3AF;
 }

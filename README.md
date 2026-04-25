@@ -34,5 +34,3 @@
 ### 3. 前端启动
 1. 进入 `frontend` 目录。
 2. `npm install` && `npm run dev`
-
-

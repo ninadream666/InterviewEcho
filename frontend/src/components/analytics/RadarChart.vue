@@ -1,5 +1,5 @@
 <template>
-  <div ref="chartRef" class="w-full h-full min-h-[350px] animate-in zoom-in duration-1000"></div>
+  <div ref="chartRef" class="w-full h-full min-h-[300px]"></div>
 </template>
 
 <script setup>
@@ -9,12 +9,25 @@ import * as echarts from 'echarts'
 const props = defineProps({
   stats: {
     type: Object,
-    default: () => ({
-      technical_depth: 0,
-      business_scenario: 0,
-      problem_solving: 0,
-      communication: 0
-    })
+    default: null
+  },
+  indicators: {
+    type: Array,
+    default: () => [
+      { name: '技术正确性', max: 100 },
+      { name: '知识深度', max: 100 },
+      { name: '逻辑严谨性', max: 100 },
+      { name: '岗位匹配度', max: 100 },
+      { name: '沟通表达', max: 100 }
+    ]
+  },
+  dataValues: {
+    type: Array,
+    default: () => []
+  },
+  seriesName: {
+    type: String,
+    default: '能力评估雷达图'
   }
 })
 
@@ -30,97 +43,112 @@ const initChart = () => {
 const updateChart = () => {
   if (!chartInstance) return
 
+  let finalData = props.dataValues
+  if (!props.dataValues || props.dataValues.length === 0) {
+    if (props.stats) {
+      finalData = [
+        props.stats.technical_depth || 0,
+        props.stats.problem_solving || 0,
+        props.stats.communication || 0,
+        props.stats.business_scenario || 0,
+        ((props.stats.technical_depth + props.stats.business_scenario + props.stats.problem_solving + props.stats.communication) / 4) || 0
+      ]
+    } else {
+      finalData = [0, 0, 0, 0, 0]
+    }
+  }
+
   const option = {
-    color: ['#4F46E5'],
+    color: ['#0066CC'],
     tooltip: {
       trigger: 'item',
-      backgroundColor: 'rgba(255, 255, 255, 0.9)',
-      borderWidth: 0,
+      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+      borderWidth: 1,
+      borderColor: '#E5E7EB',
       shadowBlur: 10,
-      shadowColor: 'rgba(0, 0, 0, 0.1)',
-      textStyle: { color: '#1F2937' }
+      shadowColor: 'rgba(0, 0, 0, 0.05)',
+      textStyle: { color: '#374151' }
     },
     radar: {
-      indicator: [
-        { name: '技术深度', max: 100 },
-        { name: '业务场景', max: 100 },
-        { name: '问题解决', max: 100 },
-        { name: '表达沟通', max: 100 },
-        { name: '综合匹配', max: 100 }
-      ],
+      indicator: props.indicators,
       shape: 'polygon',
       splitNumber: 5,
       axisName: {
-        color: '#6B7280',
+        color: '#4B5563',
         fontWeight: 'bold',
         fontSize: 12
       },
       splitArea: {
         areaStyle: {
           color: [
-            'rgba(79, 70, 229, 0.02)',
-            'rgba(79, 70, 229, 0.04)',
-            'rgba(79, 70, 229, 0.06)',
-            'rgba(79, 70, 229, 0.08)',
-            'rgba(79, 70, 229, 0.1)'
+            'rgba(0, 102, 204, 0.02)',
+            'rgba(0, 102, 204, 0.05)',
+            'rgba(0, 102, 204, 0.08)',
+            'rgba(0, 102, 204, 0.12)',
+            'rgba(0, 102, 204, 0.18)'
           ]
         }
       },
       axisLine: {
-        lineStyle: { color: 'rgba(79, 70, 229, 0.1)' }
+        lineStyle: {
+          color: 'rgba(0, 102, 204, 0.2)'
+        }
       },
       splitLine: {
-        lineStyle: { color: 'rgba(79, 70, 229, 0.2)' }
+        lineStyle: {
+          color: 'rgba(0, 102, 204, 0.3)'
+        }
       }
     },
     series: [
       {
+        name: props.seriesName,
         type: 'radar',
         data: [
           {
-            value: [
-              props.stats.technical_depth || 0,
-              props.stats.business_scenario || 0,
-              props.stats.problem_solving || 0,
-              props.stats.communication || 0,
-              ((props.stats.technical_depth + props.stats.business_scenario + props.stats.problem_solving + props.stats.communication) / 4) || 0
-            ],
-            name: '能力分布'
+            value: finalData,
+            name: props.seriesName
           }
         ],
-        symbolSize: 8,
+        symbolSize: 6,
         areaStyle: {
-          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: 'rgba(79, 70, 229, 0.4)' },
-            { offset: 1, color: 'rgba(99, 102, 241, 0.1)' }
-          ])
+          color: 'rgba(0, 102, 204, 0.3)'
         },
         lineStyle: {
-          width: 3,
-          color: '#4F46E5'
+          width: 2,
+          color: '#0066CC'
         },
         itemStyle: {
-          color: '#4F46E5',
+          color: '#0066CC',
           borderColor: '#fff',
           borderWidth: 2
         }
       }
     ]
   }
-
+  
   chartInstance.setOption(option)
 }
 
-watch(() => props.stats, () => {
+watch(() => [props.stats, props.dataValues], () => {
   updateChart()
 }, { deep: true })
 
+watch(() => props.indicators, () => {
+  updateChart()
+}, { deep: true })
+
+const handleResize = () => {
+  chartInstance?.resize()
+}
+
 onMounted(() => {
   initChart()
-  window.addEventListener('resize', () => chartInstance?.resize())
+  window.addEventListener('resize', handleResize)
 })
 
 onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
   chartInstance?.dispose()
 })
 </script>
