@@ -32,6 +32,8 @@ CREATE TABLE IF NOT EXISTS interviews (
     total_rounds INT DEFAULT 5,
     start_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     end_time TIMESTAMP NULL,
+    repo_context TEXT NULL,         -- v3: GitHub 项目深挖 - 抓取的 repo 摘要
+    custom_questions TEXT NULL,     -- v3: GitHub 项目深挖 - LLM 生成的定制问题
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
@@ -56,10 +58,35 @@ CREATE TABLE IF NOT EXISTS evaluations (
     business_scenario_score FLOAT DEFAULT 0.0,
     problem_solving_score FLOAT DEFAULT 0.0,
     total_score FLOAT DEFAULT 0.0,
+    speech_rate_score FLOAT DEFAULT 0.0,
+    clarity_score FLOAT DEFAULT 0.0,
+    confidence_score FLOAT DEFAULT 0.0,
     report_json TEXT,
     recommendations TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (interview_id) REFERENCES interviews(id) ON DELETE CASCADE
+);
+
+-- Voice metrics table (v2: 表达分析模块)
+-- 每条用户语音回答的声学/语言特征，end_interview 时聚合为 expression_score
+CREATE TABLE IF NOT EXISTS voice_metrics (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    interview_id INT NOT NULL,
+    message_id INT NOT NULL,
+    duration_sec FLOAT,
+    wpm FLOAT,
+    pause_ratio FLOAT,
+    long_pause_count INT DEFAULT 0,
+    filler_total INT DEFAULT 0,
+    pitch_mean FLOAT,
+    pitch_std FLOAT,
+    volume_mean FLOAT,
+    volume_std FLOAT,
+    raw_json TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (interview_id) REFERENCES interviews(id) ON DELETE CASCADE,
+    FOREIGN KEY (message_id) REFERENCES messages(id) ON DELETE CASCADE,
+    INDEX idx_interview (interview_id)
 );
 
 -- Insert dummy questions for testing

@@ -22,6 +22,26 @@ class InterviewStart(BaseModel):
     difficulty: Optional[str] = "medium"
     knowledge_points: Optional[List[str]] = []
     total_rounds: Optional[int] = 5
+    repo_urls: Optional[List[str]] = []   # v3: GitHub 项目深挖（可选，≤3 个）
+
+
+class RepoAnalyzeRequest(BaseModel):
+    url: str
+
+
+class RepoSummary(BaseModel):
+    owner: str
+    name: str
+    full_name: str
+    url: str
+    description: Optional[str] = ""
+    main_language: Optional[str] = ""
+    languages: dict = {}
+    stars: int = 0
+    readme_excerpt: str = ""
+    tech_keywords: List[str] = []
+    top_level_files: List[str] = []
+    recent_commits: List[dict] = []
 
 class InterviewResponse(BaseModel):
     id: int
@@ -66,6 +86,16 @@ class EvaluationDetail(BaseModel):
     weaknesses: List[str]
     recommendations: str
     scores: Optional[dict] = None
+    # —— 表达分析三维子分（v2 新增） ——
+    speech_rate_score: Optional[float] = 0.0
+    clarity_score: Optional[float] = 0.0
+    confidence_score: Optional[float] = 0.0
+    expression_metrics: Optional[dict] = None 
+    # —— v3: GitHub 项目深挖（列表） ——
+    repo_context: Optional[List[dict]] = None      
+    custom_questions: Optional[List[dict]] = None   
+    # —— 能力提升反馈 ——
+    study_plan: Optional[dict] = None               
     created_at: datetime
 
 class VoiceResponse(BaseModel):
