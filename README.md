@@ -19,8 +19,64 @@
 - `frontend/`: 基于 Vite 的 Vue 3 响应式前端。
 - `knowledge-base/`: 供 RAG 使用的原始题库与知识点。
 
-## 🚀 快速开始
 
+## 首次拉代码后，按顺序做以下 4 步
+
+### 1. 装 ffmpeg（语音功能依赖）
+
+- 下载：https://www.gyan.dev/ffmpeg/builds/ → 选 **release essentials build**
+- 解压到 `C:\ffmpeg\`（解压后最终路径应该是 `C:\ffmpeg\bin\ffmpeg.exe`）
+- 把 `C:\ffmpeg\bin` 加到**系统 PATH**：
+
+### 2. 装 Python 依赖
+
+```powershell
+cd D:\xxx\InterviewEcho-ServiceOutsourcing\backend
+pip install -r requirements.txt
+```
+
+---
+
+### 3. 建数据库 + 跑 migration
+
+```powershell
+$env:MYSQL_PWD="你自己的MySQL密码"
+
+# 建数据库
+mysql -u root -e "CREATE DATABASE interview_echo CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+
+# 按顺序跑所有建表/迁移脚本
+cd D:\xxx\InterviewEcho-ServiceOutsourcing
+Get-Content backend\sql\init_db.sql | mysql -u root interview_echo
+Get-Content backend\sql\migration_v2_voice.sql | mysql -u root interview_echo
+Get-Content backend\sql\migration_v3_github.sql | mysql -u root interview_echo
+```
+
+**验证表都建好**：
+
+```powershell
+mysql -u root interview_echo -e "SHOW TABLES;"
+```
+
+应该看到 **6 张表**：
+
+- `users`
+- `interviews`
+- `messages`
+- `questions`
+- `evaluations`
+- `voice_metrics`
+
+---
+
+### 4. 构建 RAG 向量索引
+
+```powershell
+cd D:\xxx\InterviewEcho-ServiceOutsourcing\backend
+python -m rag.build_index
+```
+
+## 🚀 快速开始
 ### 1. 数据库初始化
 1. 确保 MySQL 8.0 运行中。
 2. 执行: `backend/sql/init_db.sql;`(请先创建数据库 interview_echo)
@@ -28,7 +84,7 @@
 ### 2. 后端配置 (Python 3.12)
 1. 进入 `backend` 目录，安装依赖: `pip install -r requirements.txt`
 2. 配置 `.env`: 配置好自己的mysql信息、大模型信息
-3. **构建 RAG 索引**: 运行 `python rag/build_index.py` (这会通过 Embedding API 向量knowledge-base中的RAG知识库)。
+3. **构建 RAG 索引**: 运行 `python -m rag.build_index` (这会通过 Embedding API 向量knowledge-base中的RAG知识库)。
 4. 启动后端: `uvicorn main:app --reload`
 
 ### 3. 前端启动

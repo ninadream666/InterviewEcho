@@ -23,9 +23,13 @@ Thumbs.db
 #scripts 整个目录
 scripts/
 
-# AI
-.claude/
-
 # RAG向量仓库
 vector_index.json
+
+
+# 表达分析测试音频（本地，每人录音不同）
+backend/tests/audio_samples/
+
+# 合并操作产生的备份文件
+*.bak
 

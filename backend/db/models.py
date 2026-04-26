@@ -33,6 +33,9 @@ class Interview(Base):
     status = Column(String(20), default="in_progress")
     start_time = Column(TIMESTAMP, default=datetime.utcnow)
     end_time = Column(TIMESTAMP, nullable=True)
+    # —— GitHub 项目深挖（v3 新增，参见 GitHub_Deep_Dive_Plan.md） ——
+    repo_context = Column(Text, nullable=True)      # JSON list：各 repo 的抓取摘要（≤ 3 个）
+    custom_questions = Column(Text, nullable=True)  # JSON list：LLM 针对 repos 生成的定制问题
 
     user = relationship("User")
     evaluations = relationship("Evaluation", uselist=False, back_populates="interview")
@@ -58,8 +61,35 @@ class Evaluation(Base):
     business_scenario_score = Column(Float, default=0.0)
     problem_solving_score = Column(Float, default=0.0)
     total_score = Column(Float, default=0.0)
+    # —— 表达分析三维子分（v2 新增，参见 docs/expression_module_contract.md） ——
+    speech_rate_score = Column(Float, default=0.0)
+    clarity_score = Column(Float, default=0.0)
+    confidence_score = Column(Float, default=0.0)
     report_json = Column(Text)
     recommendations = Column(Text)
     created_at = Column(TIMESTAMP, default=datetime.utcnow)
 
     interview = relationship("Interview", back_populates="evaluations")
+
+
+class VoiceMetrics(Base):
+    """单条用户语音回答的声学/语言特征。
+    由 services.audio_analysis.analyze_audio() 产出，
+    在 end_interview 时由 evaluation.expression_evaluator 聚合。
+    """
+    __tablename__ = "voice_metrics"
+
+    id = Column(Integer, primary_key=True, index=True)
+    interview_id = Column(Integer, ForeignKey("interviews.id", ondelete="CASCADE"), nullable=False)
+    message_id = Column(Integer, ForeignKey("messages.id", ondelete="CASCADE"), nullable=False)
+    duration_sec = Column(Float)
+    wpm = Column(Float)
+    pause_ratio = Column(Float)
+    long_pause_count = Column(Integer, default=0)
+    filler_total = Column(Integer, default=0)
+    pitch_mean = Column(Float)
+    pitch_std = Column(Float)
+    volume_mean = Column(Float)
+    volume_std = Column(Float)
+    raw_json = Column(Text)  # 完整 VoiceMetrics dict（含 segments、filler 明细）
+    created_at = Column(TIMESTAMP, default=datetime.utcnow)
