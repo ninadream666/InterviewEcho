@@ -33,3 +33,9 @@ backend/tests/audio_samples/
 # 合并操作产生的备份文件
 *.bak
 
+
+# 个人草稿文档
+docs/interrupt_strategy.md
+docs/fp_analysis_ucp.md
+docs/uat_report.md
+docs/risk_register_v0.3.md
