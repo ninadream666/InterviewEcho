@@ -36,6 +36,8 @@ class Interview(Base):
     # —— GitHub 项目深挖（v3 新增，参见 GitHub_Deep_Dive_Plan.md） ——
     repo_context = Column(Text, nullable=True)      # JSON list：各 repo 的抓取摘要（≤ 3 个）
     custom_questions = Column(Text, nullable=True)  # JSON list：LLM 针对 repos 生成的定制问题
+    # —— 简历 Persona（v4 新增，参见 docs/db_changelog_v4.md） ——
+    resume_persona = Column(Text, nullable=True)    # JSON dict：候选人简历结构化数据，注入 system prompt
 
     user = relationship("User")
     evaluations = relationship("Evaluation", uselist=False, back_populates="interview")

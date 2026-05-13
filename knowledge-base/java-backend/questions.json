@@ -534,5 +534,105 @@
     ],
     "difficulty": "easy",
     "section": "学习能力与沟通"
+  },
+  {
+    "job_type": "java-backend",
+    "category": "project",
+    "section": "项目深挖",
+    "difficulty": "medium",
+    "question": "请讲讲你设计过的一个订单系统，从下单到支付完成的核心流程是怎样的？过程中有哪些容错和幂等设计？",
+    "reference_answer": "用 STAR 框架介绍：在 XX 电商项目中负责订单中心(S/T)。核心流程为：1) 前端下单进入 Nginx → 网关 → 订单服务，订单服务先做参数校验与库存预扣（Redis + Lua 脚本保证原子性）；2) 落库 + 生成订单号（雪花算法）；3) 调用支付网关，写入 RocketMQ 异步通知库存服务真正扣减；4) 用户回跳后轮询订单状态。幂等设计上：a) 客户端 token 防重提交；b) 支付回调用唯一支付流水号 + 数据库唯一约束；c) MQ 消费者基于业务主键去重。(Action) 上线后未出现超卖与重复扣款，平均下单耗时 < 200ms (Result)。",
+    "key_points": [
+      "完整下单链路梳理",
+      "库存预扣的原子性方案",
+      "异步解耦与最终一致性",
+      "三层幂等设计",
+      "可量化的稳定性指标"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "project",
+    "section": "项目深挖",
+    "difficulty": "hard",
+    "question": "你做过的项目里，是怎么进行接口性能优化的？请举一个把响应时间从慢优化到快的具体例子。",
+    "reference_answer": "举例：商品详情接口原本平均 800ms (S/T)。分析后发现：a) N+1 查询，把多条 SKU 单独查；b) 部分字段从大表读取；c) 没有缓存。Action：1) 用 MyBatis 的 in 查询批量拉 SKU；2) 引入 Redis 缓存商品热点数据（5 分钟过期 + 后台刷新）；3) 把大字段拆冷表；4) 给慢 SQL 加复合索引并跑 explain 验证；5) 增加本地 Caffeine 二级缓存对抗 Redis 抖动。Result：P95 从 800ms 降到 90ms，DB QPS 下降 70%。",
+    "key_points": [
+      "用监控/日志定位瓶颈而非凭感觉",
+      "N+1 查询的识别与改造",
+      "多级缓存策略",
+      "SQL 优化 + 索引验证",
+      "结果可量化（P95/QPS）"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "project",
+    "section": "项目深挖",
+    "difficulty": "medium",
+    "question": "你的项目里如何做日志、监控和链路追踪？出过线上问题是怎么排查的？",
+    "reference_answer": "技术栈：ELK 做日志收集（Filebeat → Kafka → Logstash → ES → Kibana），Prometheus + Grafana 做指标监控，SkyWalking 做分布式链路追踪。线上案例：某次大促订单接口偶发超时，先看 Grafana 发现某节点 GC 时间飙升 → SkyWalking 看到该节点下游 Redis 调用 P99 > 2s → 排查到一台 Redis 主节点被慢命令拖累（KEYS *）→ 推动业务侧改用 SCAN 修复。整个排查 < 30 分钟。",
+    "key_points": [
+      "三件套技术选型与职责",
+      "由指标到链路再到日志的逐层下钻",
+      "真实事故复盘",
+      "可量化的 MTTR"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "project",
+    "section": "项目深挖",
+    "difficulty": "hard",
+    "question": "在你做过的微服务系统中，是怎么处理服务间调用失败、超时和雪崩的？",
+    "reference_answer": "采用 Spring Cloud + Sentinel 体系：1) 所有外调走 Feign，统一加超时(connect 1s / read 3s) 与重试(只对幂等接口重试 2 次)；2) Sentinel 配置 QPS 限流 + 熔断（异常比例 > 50% 触发，半开恢复）；3) 关键调用降级到本地默认值或缓存历史数据；4) MQ 解耦非核心链路（如积分、通知）。某次下游 ES 故障，Sentinel 自动熔断后主链路依然可用，影响仅限搜索功能。",
+    "key_points": [
+      "超时+重试+熔断+降级+限流的组合拳",
+      "区分核心/非核心链路",
+      "幂等性是重试的前提",
+      "故障隔离的实际效果"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "project",
+    "section": "项目深挖",
+    "difficulty": "medium",
+    "question": "项目里如果遇到数据量越来越大、单表性能不行了，你会怎么处理？讲一次实际经历。",
+    "reference_answer": "演进路径：单表 → 索引优化 → 读写分离 → 垂直拆分 → 水平分库分表。实际案例：订单表 5 千万行，查询变慢，先做归档（半年前的搬冷库）只留近 6 个月，再按用户 ID 哈希分 16 张表，用 ShardingSphere 接管 SQL 路由。同时改造 ID 生成器为雪花算法保证全局唯一。迁移期采用双写 + 数据校验脚本对账，灰度切流。结果：单表数据 < 500 万，查询 P95 回到 50ms。",
+    "key_points": [
+      "演进式而非一上来就分库",
+      "分片键的选取依据",
+      "数据迁移的双写灰度",
+      "可量化的优化结果"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "project",
+    "section": "项目深挖",
+    "difficulty": "medium",
+    "question": "你做过的项目里是怎么做权限控制的？RBAC 还是更复杂的方案？为什么这么选？",
+    "reference_answer": "采用 RBAC（用户-角色-权限-资源四张表）+ Spring Security 框架。Token 用 JWT，把 userId/roles 放 payload，权限校验走自定义注解 @PreAuthorize。前端按钮级权限通过返回的菜单树驱动。复杂场景（如数据权限：只能看本部门订单）扩展为 ABAC，用 MyBatis 拦截器自动追加 SQL where 条件。选 RBAC 因为业务相对结构化、角色固定；选 JWT 因为前后端分离 + 微服务无状态。",
+    "key_points": [
+      "RBAC 表结构设计",
+      "认证与授权分离",
+      "数据权限的 ABAC 扩展",
+      "选型依据而非堆砌方案"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "project",
+    "section": "项目深挖",
+    "difficulty": "easy",
+    "question": "你在团队中通常承担什么角色？最近一次合作中遇到分歧是怎么解决的？",
+    "reference_answer": "通常承担后端核心模块开发 + 接口对接协调的角色。最近一次分歧：前端坚持后端返回扁平数据结构、后端想返回树形，理由是后端组装树更高效。我先列出双方的成本（前端 vs 后端开发成本、性能差异），用脚本 mock 数据测了两种方案的耗时，最终发现性能差距可忽略，前端展示更顺手，所以让步给前端。事后复盘：技术分歧用数据说话，比立场争论高效。",
+    "key_points": [
+      "明确个人角色而非笼统",
+      "用数据/原型解决分歧",
+      "尊重对方关心的指标",
+      "事后复盘的习惯"
+    ]
   }
 ]
