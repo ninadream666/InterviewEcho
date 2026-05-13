@@ -30,6 +30,8 @@ class PromptManager:
                         self.prompts["repo_question_gen"] = prompt
                     elif "表达分析" in title:
                         self.prompts["expression_evaluator"] = prompt
+                    elif "简历" in title:
+                        self.prompts["resume_parser"] = prompt
                     elif "面试官" in title:
                         self.prompts["interviewer"] = prompt
                     elif "评估" in title:
@@ -97,6 +99,14 @@ class PromptManager:
             weaknesses_list=weaknesses_list,
             transcript_excerpt=transcript_excerpt,
         )
+
+    def get_resume_parser_prompt(self) -> str:
+        """
+        获取简历解析的 Prompt（无动态占位符，直接返回模板）。
+        简历文本由 services.resume_parser.parse_resume_text 在 user message 中传入，
+        不在 system prompt 中插值，避免 .format() 解析简历内容里的花括号导致报错。
+        """
+        return self.prompts.get("resume_parser", "")
 
     def get_repo_question_prompt(self, role: str, repo_summary: dict) -> str:
         """

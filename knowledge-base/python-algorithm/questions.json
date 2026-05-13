@@ -413,5 +413,119 @@
     ],
     "difficulty": "hard",
     "section": "伪需求降维拦截与向上处理"
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "project",
+    "section": "项目深挖",
+    "difficulty": "medium",
+    "question": "请讲一个你做过的机器学习/算法项目，从数据采集到模型上线的完整流程是怎样的？",
+    "reference_answer": "用 STAR：项目是用户流失预测，目标提升留存(S/T)。Action：1) 数据：从数仓拉 30 天行为日志 + 用户画像，按周抽样 100w 用户；2) 特征工程：行为序列做 RFM + 时序统计量，类别特征做 Target Encoding；3) 模型：先 LR 跑 baseline AUC=0.71，再上 LightGBM 调参 → AUC=0.83；4) 评估：除了 AUC 还看业务 KS、Top10% lift；5) 上线：模型导出 ONNX，A/B 测试 1 周对照组 vs 实验组留存率；6) 监控：PSI 监控特征漂移，模型每周重训。Result：留存率 +3pp，节省运营成本 X 万。",
+    "key_points": [
+      "完整的数据→特征→模型→评估→上线→监控链路",
+      "baseline 优先而非一上来就 SOTA",
+      "业务指标 + 技术指标并重",
+      "上线后的持续监控意识"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "project",
+    "section": "项目深挖",
+    "difficulty": "hard",
+    "question": "你做过的项目里是怎么做特征工程的？讲一个特征工程显著提升效果的案例。",
+    "reference_answer": "案例：CTR 预估模型(S/T)。原始特征只有用户 ID/商品 ID/类目，AUC=0.68。Action：1) 行为交叉：用户 × 类目历史点击率（avg encoding）；2) 时间衰减：近 1h/1d/7d 点击数分别做特征；3) 序列特征：用户最近 20 次点击的类目用 Word2Vec 做 embedding；4) 上下文：时间戳的小时/星期、是否周末；5) 用 mutual_info_score 筛掉无信号特征。Result：AUC 0.68 → 0.79，线上 CTR +18%。关键洞察：行为交叉比单 ID 信息量大得多。",
+    "key_points": [
+      "由简到繁逐层加特征",
+      "类别 × 类别交叉特征",
+      "时间衰减/序列建模",
+      "用统计量筛选无效特征",
+      "有量化的离线/在线指标"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "project",
+    "section": "项目深挖",
+    "difficulty": "medium",
+    "question": "你做过的项目中模型出现过过拟合吗？是怎么发现和解决的？",
+    "reference_answer": "案例：用户行为序列模型，训练集 AUC=0.92 但验证集只有 0.74(S/T)。Action：1) 先确认是过拟合：画 learning curve，训练曲线持续上升验证曲线早早平台；2) 数据层：检查正负样本比例(1:50 严重不平衡)，做 downsample + class_weight；3) 模型层：LightGBM 调小 num_leaves、加大 min_data_in_leaf、加 reg_alpha；4) 特征层：去掉数据泄露特征（'未来 24h 行为'提前进了训练集）；5) 加 5 折 CV 替代单次切分。Result：训练 0.85 / 验证 0.82，差距合理。",
+    "key_points": [
+      "用 learning curve 而非凭感觉",
+      "数据泄露的识别",
+      "正则化参数调优",
+      "CV 替代单次切分"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "project",
+    "section": "项目深挖",
+    "difficulty": "hard",
+    "question": "你做过推荐系统或召回排序吗？整体架构是怎样的？冷启动怎么处理？",
+    "reference_answer": "项目：电商首页推荐(S/T)。架构：1) 召回层多路并行（基于物品 CF、Word2Vec、热门、最近浏览、画像兴趣），每路 200 条；2) 粗排：DSSM 双塔模型，merge 后 Top 1000；3) 精排：DeepFM/DIN 学序列兴趣，Top 200；4) 重排：多样性打散 + 业务规则（新品保量）。冷启动：a) 用户冷启依赖画像/地域/同质用户的兴趣迁移；b) 物品冷启用图像/文本 embedding 进入 Word2Vec 召回路；c) Bandit 探索一定流量给新物品快速积累正负反馈。Result：CTR +12%、人均时长 +8%。",
+    "key_points": [
+      "召回 + 粗排 + 精排 + 重排的四阶段",
+      "多路召回 + 多模型融合",
+      "冷启动的三大解法",
+      "Bandit 探索",
+      "可量化的业务指标"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "project",
+    "section": "项目深挖",
+    "difficulty": "medium",
+    "question": "你的项目里有 NLP 或文本处理任务吗？预处理和模型选型是怎么考虑的？",
+    "reference_answer": "项目：用户评论情感分类(S/T)。预处理：1) 清洗(去 HTML 标签、URL、@用户名)；2) 分词用 jieba + 自定义业务词典；3) 去停用词；4) 长尾词替换为 <UNK>；5) 句长统一到 P95 长度。模型：先跑 TF-IDF + LR baseline F1=0.82 → BiLSTM+Attention F1=0.87 → 微调 BERT-base F1=0.91。最终选 BERT 蒸馏到 DistilBERT 上线，推理 30ms/条。关键：业务词典对垂类术语识别提升明显。",
+    "key_points": [
+      "预处理的层次化思路",
+      "baseline → 深度模型 → 预训练模型的演进",
+      "在线推理性能的取舍（蒸馏）",
+      "可量化的 F1 与延迟"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "project",
+    "section": "项目深挖",
+    "difficulty": "hard",
+    "question": "你的项目里是怎么做模型评估和 A/B 测试的？线下指标好但线上不涨怎么排查？",
+    "reference_answer": "线下评估：AUC/F1/MAP@K/NDCG 等离线指标 + 业务相关 lift。A/B：分桶按 user_id hash 切 5%/5% 起步，1 周观察 CTR/转化/留存等核心指标 + GMV。'线下涨线上不涨'排查思路：1) 数据分布漂移：PSI 检查线上 vs 训练集特征分布；2) 样本偏差：训练集是否过采样了某类用户；3) 业务指标与离线指标不一致：模型优化点击但业务关心转化；4) 系统延迟：模型变重导致曝光降级；5) 流量隔离不干净：A/B 桶有交叉。逐项排除。",
+    "key_points": [
+      "离线 + 在线两套指标",
+      "A/B 桶设计与流量隔离",
+      "数据分布/样本/指标对齐三类排查",
+      "系统层面的影响"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "project",
+    "section": "项目深挖",
+    "difficulty": "medium",
+    "question": "你做过的项目里有没有处理过类别极不平衡或样本量很小的问题？是怎么解决的？",
+    "reference_answer": "案例：欺诈识别，正样本占比 0.3%(S/T)。Action：1) 数据层：负样本 down-sample 到 1:10，正样本 SMOTE 合成；2) 损失层：用 Focal Loss + class_weight；3) 评估指标改 PR-AUC、Recall@FPR=0.01，不看 AUC；4) 阈值不取 0.5，用业务可接受的误杀率反推；5) 用半监督方法（伪标签）扩充正样本。小样本（< 1000）则上 few-shot 或预训练模型微调。Result：Recall 从 35% 提到 72%，误杀率控制 < 1%。",
+    "key_points": [
+      "采样与损失函数双管齐下",
+      "评估指标要匹配业务",
+      "决策阈值的业务驱动",
+      "半监督扩样的思路"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "project",
+    "section": "项目深挖",
+    "difficulty": "easy",
+    "question": "算法项目里你是怎么和工程团队合作落地模型的？模型从离线到上线踩过什么坑？",
+    "reference_answer": "和工程协作：1) 提前对齐特征获取方式（实时 or 离线表），把训练 pipeline 用的数据源写进文档；2) 模型导出 ONNX/PMML 或服务化 (Triton)，提供基准延迟数据；3) 提供完整的特征计算逻辑代码，避免离线/在线特征不一致。常见坑：a) 离线用 Pandas 算特征，线上用 Java 重写出 bug，最终统一用 SQL/Flink 离线在线同源；b) 模型上线后没监控 PSI，特征漂移半个月才发现；c) 训练用 float64，部署 ONNX 默认 float32 导致精度差异。这些都成了项目复盘的改进点。",
+    "key_points": [
+      "明确特征同源原则",
+      "模型导出 + 性能基准",
+      "上线后监控不是可选项",
+      "复盘并形成 SOP"
+    ]
   }
 ]

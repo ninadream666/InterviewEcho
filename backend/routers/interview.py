@@ -1,10 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 import uuid
 import shutil
 import tempfile
 from services.stt_service import stt_service
 from services.audio_analysis import analyze_audio
 from services.repo_analyzer import analyze_repo
+from services.resume_parser import parse_resume_text, parse_resume_pdf, build_persona_context
+from services.interrupt_policy import evaluate_interrupt
 from core.llm_service import generate_llm_response, evaluate_full_interview, polish_text, generate_repo_questions, generate_study_plan
 from sqlalchemy.orm import Session
 from typing import List
@@ -108,6 +110,50 @@ def get_current_user_id(authorization: str = Header(None)):
     except Exception as e:
         raise HTTPException(status_code=401, detail="Invalid Authorization Token")
 
+@router.post("/resume/parse")
+async def parse_resume_endpoint(
+    file: UploadFile = File(None),
+    text: str = Form(None),
+    user_id: int = Depends(get_current_user_id),
+):
+    """简历解析端点（W3.2.8 / FT2.1.3.2）。
+
+    两种调用方式：
+    1. multipart/form-data 上传 PDF（字段名 `file`）
+    2. multipart/form-data 仅传纯文本（字段名 `text`），或前端拼成 form 即可
+
+    返回结构化 persona（skills/projects/work_years/education/summary）。
+    解析失败不抛 500，返回空 persona + warning。前端可据此决定是否走 persona 注入。
+    """
+    if file is not None and (file.filename or "").strip():
+        try:
+            file_bytes = await file.read()
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"读取上传文件失败：{e}")
+        if not file_bytes:
+            raise HTTPException(status_code=400, detail="上传文件为空")
+        # 简单按扩展名分流；非 PDF 当作 UTF-8 文本处理
+        filename = (file.filename or "").lower()
+        if filename.endswith(".pdf"):
+            persona = await parse_resume_pdf(file_bytes)
+        else:
+            try:
+                resume_text = file_bytes.decode("utf-8", errors="ignore")
+            except Exception:
+                resume_text = ""
+            persona = await parse_resume_text(resume_text)
+    elif text and text.strip():
+        persona = await parse_resume_text(text)
+    else:
+        raise HTTPException(status_code=400, detail="请上传 PDF 文件或提交纯文本简历")
+
+    warning = ""
+    if not (persona.get("skills") or persona.get("projects") or persona.get("summary")):
+        warning = "简历解析未提取到有效信息，将不会注入 persona 上下文"
+
+    return {"persona": persona, "warning": warning}
+
+
 @router.post("/repo/analyze")
 async def analyze_repo_endpoint(data: schemas.RepoAnalyzeRequest, user_id: int = Depends(get_current_user_id)):
     """前端粘贴 GitHub URL 后立即预览抓取结果。"""
@@ -153,6 +199,14 @@ async def start_interview(data: schemas.InterviewStart, db: Session = Depends(ge
             custom_questions_json = json.dumps(all_custom_questions, ensure_ascii=False)
             print(f"[start_interview] generated {len(all_custom_questions)} custom questions total")
 
+    # v4: 简历 persona（前端先调 /resume/parse，把结果挂在 InterviewStart.resume_persona 上）
+    resume_persona_json = None
+    if data.resume_persona:
+        try:
+            resume_persona_json = json.dumps(data.resume_persona, ensure_ascii=False)
+        except Exception as e:
+            print(f"[start_interview] resume_persona 序列化失败，将忽略：{e}")
+
     new_interview = models.Interview(
         user_id=user_id,
         role=data.role,
@@ -162,6 +216,7 @@ async def start_interview(data: schemas.InterviewStart, db: Session = Depends(ge
         status="in_progress",
         repo_context=repo_context_json,
         custom_questions=custom_questions_json,
+        resume_persona=resume_persona_json,
     )
     db.add(new_interview)
     db.commit()
@@ -304,8 +359,19 @@ async def upload_voice(
         # 3. AI Polish for punctuation and homophone correction
         transcript = await polish_text(raw_transcript)
 
+        # 3.5. 从 whisper segments 估算回答总时长（供打断策略判断超时）
+        voice_duration_sec = None
+        try:
+            segments = whisper_result.get("segments") or []
+            if segments:
+                voice_duration_sec = float(segments[-1].get("end", 0.0))
+        except Exception:
+            voice_duration_sec = None
+
         # 4. Process the polished text as a message
-        ai_msg_resp, user_msg_id = await process_message_logic(interview_id, transcript, db, user_id)
+        ai_msg_resp, user_msg_id = await process_message_logic(
+            interview_id, transcript, db, user_id, duration_sec=voice_duration_sec
+        )
 
         # 5. 表达分析特征落库（A 部分实现，契约 §2.1）
         # 失败不影响用户对话主流程，仅记录日志
@@ -346,7 +412,13 @@ async def upload_voice(
             except:
                 pass
 
-async def process_message_logic(interview_id: int, content: str, db: Session, user_id: int):
+async def process_message_logic(interview_id: int, content: str, db: Session, user_id: int, duration_sec: float = None):
+    """处理一条候选人消息并生成 AI 回复。
+
+    Args:
+        duration_sec: 语音回答时长（秒），仅 upload_voice 路径有值；文本路径传 None。
+                      传入时会参与 services.interrupt_policy.evaluate_interrupt 的超时判定。
+    """
     # 1. Fetch interview context
     interview = db.query(models.Interview).filter(models.Interview.id == interview_id, models.Interview.user_id == user_id).first()
     if not interview:
@@ -466,6 +538,34 @@ async def process_message_logic(interview_id: int, content: str, db: Session, us
         force_next = "【系统指令：面试结束】请给出一个礼貌的结束语表示感谢。禁止再提出任何新问题或引导后续对话内容。"
     else:
         target_next_text = target_q_obj["question"]
+
+    # v4: 打断触发策略（W3.2.7）— 仅在非结束轮检查
+    if not is_final_move:
+        try:
+            current_q_text = last_main_q.content if last_main_q else ""
+            current_kp = target_q_obj.get("key_points", []) if isinstance(target_q_obj, dict) else []
+            interrupt = evaluate_interrupt(
+                user_text=content,
+                duration_sec=duration_sec,
+                current_question=current_q_text,
+                current_question_key_points=current_kp,
+            )
+            if interrupt.triggered and interrupt.prompt_addition:
+                force_next = (force_next + "\n" + interrupt.prompt_addition).strip()
+                print(f"[interrupt] triggered={interrupt.trigger_type} for interview={interview_id}")
+        except Exception as e:
+            print(f"[interrupt] evaluate failed (non-fatal): {type(e).__name__}: {e}")
+
+    # v4: 简历 Persona 注入（W3.2.8）— 把候选人简历摘要拼到 force_next_instruction，
+    # 让 LLM 在追问/选题时围绕其经验展开
+    if interview.resume_persona:
+        try:
+            persona_dict = json.loads(interview.resume_persona)
+            persona_ctx = build_persona_context(persona_dict)
+            if persona_ctx:
+                force_next = (persona_ctx + "\n" + force_next).strip()
+        except Exception as e:
+            print(f"[persona] inject failed (non-fatal): {type(e).__name__}: {e}")
 
     # 6. Generate AI Response
     llm_resp = await generate_llm_response(

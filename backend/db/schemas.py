@@ -23,6 +23,19 @@ class InterviewStart(BaseModel):
     knowledge_points: Optional[List[str]] = []
     total_rounds: Optional[int] = 5
     repo_urls: Optional[List[str]] = []   # v3: GitHub 项目深挖（可选，≤3 个）
+    resume_persona: Optional[dict] = None  # v4: 已解析的简历 persona（前端先调 /resume/parse 拿到）
+
+
+class ResumeParseRequest(BaseModel):
+    text: str  # 纯文本简历（前端可直接粘贴；PDF 走 /resume/parse 的 file 参数）
+
+
+class ResumePersona(BaseModel):
+    skills: List[str] = []
+    projects: List[dict] = []
+    work_years: int = 0
+    education: str = ""
+    summary: str = ""
 
 
 class RepoAnalyzeRequest(BaseModel):

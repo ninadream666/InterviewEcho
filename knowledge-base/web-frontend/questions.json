@@ -459,5 +459,104 @@
     ],
     "difficulty": "medium",
     "section": "应急处理能力"
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "project",
+    "section": "项目深挖",
+    "difficulty": "medium",
+    "question": "请描述一个你做过的中大型前端项目，前端架构是怎么设计的？目录结构和模块划分有什么考虑？",
+    "reference_answer": "用 STAR 框架。项目背景：XX 后台管理系统，30+ 路由、20+ 业务模块、多人协作(S/T)。Action：1) 技术栈选 Vue3 + Vite + Pinia + TS；2) 目录按 features 切而不是按文件类型切，每个 feature 自带 views/components/store/api/types，业务边界清晰；3) 公共能力沉淀到 src/shared（工具函数、UI 组件、HTTP 客户端、权限指令）；4) 路由按模块懒加载，公共 chunk 拆分；5) 用 unplugin-auto-import + components 减少模板冗余。Result：新成员上手时间从 1 周缩到 2 天，主包从 2MB 降到 600KB。",
+    "key_points": [
+      "按业务而非文件类型组织",
+      "公共能力下沉的边界",
+      "工程化提效手段",
+      "可量化的协作/性能收益"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "project",
+    "section": "项目深挖",
+    "difficulty": "hard",
+    "question": "你的项目里做过哪些前端性能优化？讲一个把白屏/首屏时间从慢优化到快的具体经历。",
+    "reference_answer": "案例：B 端 PC 后台首屏从 4.5s 优化到 1.2s (S/T)。Action：1) 路由级代码分割，主包不带业务模块；2) 第三方库改按需引入（lodash-es、antd、echarts），并把不常用的 echarts 图表类型动态 import；3) 静态资源接 CDN + Brotli 压缩；4) 把首屏接口由串行改并行 + SSR 关键骨架；5) 图片改 WebP + lazyload；6) 引入 PWA 二次访问读缓存。Result：Lighthouse Performance 从 42 → 92，首屏可交互(TTI) 1.2s。",
+    "key_points": [
+      "用 Lighthouse / Web Vitals 量化",
+      "代码分割 + 按需加载",
+      "网络层优化（CDN/压缩）",
+      "关键渲染路径优化",
+      "可量化的最终指标"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "project",
+    "section": "项目深挖",
+    "difficulty": "medium",
+    "question": "你的项目里是怎么做组件库或设计系统的？组件如何保证一致性和可复用性？",
+    "reference_answer": "项目维护了内部组件库，基于 Vue3 + TS + Vite library mode + Vitest。Action：1) 基础组件（Button/Input/Modal）严格遵循设计稿 Token（颜色/间距/字号变量化）；2) 业务组件（FormPro/TablePro）封装常用模式（CRUD、搜索表单）；3) 用 Storybook 写 demo + 文档，每个组件至少 5 个用例；4) ChangeLog 跟语义化版本走，breaking change 升 major；5) 提供 ESLint 规则禁止使用原生 button。Result：业务线复用率 70%+，UI 不一致 bug 减少 80%。",
+    "key_points": [
+      "设计 Token 而非硬编码样式",
+      "基础组件 vs 业务组件分层",
+      "文档/测试/版本管理三件套",
+      "可量化的复用率与质量提升"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "project",
+    "section": "项目深挖",
+    "difficulty": "medium",
+    "question": "项目中你是怎么做前端状态管理的？为什么选这个方案？复杂状态怎么拆？",
+    "reference_answer": "项目用 Pinia 替代 Vuex。选型理由：Pinia 对 TS 友好、API 更简洁、支持 Composition API、体积更小。状态拆分原则：1) 真正需要跨页面共享的才上 store（用户信息、权限菜单、全局设置）；2) 页面级状态放 setup 内 ref/reactive；3) 表单状态放表单组件本地。复杂业务（如多步骤表单）按业务域拆 store，避免巨型 store。配合 pinia-plugin-persistedstate 做关键状态持久化。",
+    "key_points": [
+      "选型有理有据",
+      "全局状态 vs 局部状态的边界",
+      "按业务域拆 store",
+      "持久化与权限隔离"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "project",
+    "section": "项目深挖",
+    "difficulty": "medium",
+    "question": "你的项目里是怎么处理跨浏览器、跨设备兼容性问题的？讲一个具体的兼容性 bug 排查经历。",
+    "reference_answer": "兼容方案：1) Browserslist 配置目标浏览器；2) PostCSS + Autoprefixer 自动加前缀；3) @vitejs/plugin-legacy 给老浏览器降级 polyfill；4) BrowserStack 做兼容回归。具体 bug：iOS Safari 15.4 以下 sticky 失效导致表头滚动错位。排查：先 BrowserStack 复现 → 翻 caniuse 确认是 -webkit-sticky 兼容；解法：用 IntersectionObserver 监听容器滚动手动给表头加 fixed 类，并在 macOS Safari 上回归。",
+    "key_points": [
+      "工具链先行（Browserslist/Polyfill）",
+      "依赖 caniuse/MDN 确认问题边界",
+      "降级实现而非死磕原属性",
+      "回归不止本机一种环境"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "project",
+    "section": "项目深挖",
+    "difficulty": "hard",
+    "question": "你的项目里有没有做过可视化、大屏或数据看板？数据量大时怎么保证流畅渲染？",
+    "reference_answer": "项目：运营数据大屏，单页 8 个图表 + 实时 WebSocket 推送(S/T)。Action：1) 图表选 ECharts，复杂关系图用 G6；2) 大数据量曲线（10w 点）开 sampling + 滚动窗口仅渲染可视区间；3) 多图表共用 ResizeObserver + requestAnimationFrame 合并 resize 事件；4) WebSocket 推送做节流，1s 内合并；5) Canvas 替代 SVG 渲染密集散点图。Result：在 8 个图同时刷新场景下 FPS 稳定 50+。",
+    "key_points": [
+      "数据量大时的抽样/虚拟化",
+      "合理选 SVG vs Canvas",
+      "事件合并与节流",
+      "FPS 等量化指标"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "project",
+    "section": "项目深挖",
+    "difficulty": "easy",
+    "question": "前端项目中你是怎么与后端、设计师协作的？接口约定和走查流程是怎样的？",
+    "reference_answer": "和后端：使用 Swagger/OpenAPI 在需求评审后立刻约定接口，把 mock 服务（apifox/yapi）开起来前后端并行开发，联调阶段对照测试用例做接口走查；和设计师：评审阶段先对齐设计 Token（颜色/字号/圆角），开发后通过截图工具 + Figma 对照像素级走查，移动端 + PC 各一次。每个迭代结束做一次 retrospective，记录'接口字段反复改'这类痛点并定流程改进。",
+    "key_points": [
+      "约定先行而非边写边问",
+      "前后端并行 + mock",
+      "设计 Token 对齐",
+      "复盘并形成流程改进"
+    ]
   }
 ]
