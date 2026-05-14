@@ -145,6 +145,107 @@ async def generate_repo_questions(role: str, repo_summary: dict) -> list[dict]:
         return []
 
 
+async def generate_resume_question(persona: dict) -> dict | None:
+    """
+    根据简历 Persona 生成 1 个针对性面试问题（纯按简历内容，不引入岗位角色）。
+
+    Args:
+        persona: /resume/parse 返回的 persona dict
+
+    Returns:
+        {"question": "...", "key_points": [...]} 或 None
+    """
+    if not persona:
+        return None
+
+    system_prompt = prompt_manager.get_resume_question_prompt(persona)
+    if not system_prompt:
+        print("[generate_resume_question] prompt template empty, skip")
+        return None
+
+    try:
+        response = await client.chat.completions.create(
+            model=settings.LLM_MODEL,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": "请根据上述候选人画像，按约定 JSON 格式生成 1 个面试问题。"},
+            ],
+            temperature=0.7,
+            response_format={"type": "json_object"},
+        )
+        content = (response.choices[0].message.content or "").strip()
+        data = json.loads(content)
+        q = data.get("question", "")
+        kp = data.get("key_points", [])
+        if not q:
+            print("[generate_resume_question] empty question returned")
+            return None
+        print(f"[generate_resume_question] generated: {q[:60]}...")
+        return {"question": q, "key_points": kp}
+    except json.JSONDecodeError as e:
+        print(f"[generate_resume_question] JSON parse error: {e}")
+        return None
+    except Exception as e:
+        print(f"[generate_resume_question] LLM error: {type(e).__name__}: {e}")
+        return None
+
+
+async def generate_free_question(role: str, category: str, difficulty: str, asked_titles: list[str], knowledge_points: str) -> dict | None:
+    """
+    题库耗尽时，用 LLM 自由发挥生成 1 个不重复的面试问题。
+
+    Args:
+        role: 岗位名
+        category: 题目类别（如 business_scenario）
+        difficulty: 难度
+        asked_titles: 已问过的题目文本列表（用于去重）
+        knowledge_points: 知识点过滤字符串
+
+    Returns:
+        {"question": "...", "key_points": [...]} 或 None
+    """
+    asked_str = "\n".join(f"- {t}" for t in (asked_titles or [])[-20:])
+    if not asked_str:
+        asked_str = "（尚无已问问题）"
+
+    system_prompt = prompt_manager.get_free_question_prompt(
+        role=role,
+        category=category,
+        difficulty=difficulty,
+        asked_questions=asked_str,
+        knowledge_points=knowledge_points or "",
+    )
+    if not system_prompt:
+        print("[generate_free_question] prompt template empty, skip")
+        return None
+
+    try:
+        response = await client.chat.completions.create(
+            model=settings.LLM_MODEL,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": "请按约定 JSON 格式生成 1 个不重复的面试问题。"},
+            ],
+            temperature=0.8,
+            response_format={"type": "json_object"},
+        )
+        content = (response.choices[0].message.content or "").strip()
+        data = json.loads(content)
+        q = data.get("question", "")
+        kp = data.get("key_points", [])
+        if not q:
+            print("[generate_free_question] empty question returned")
+            return None
+        print(f"[generate_free_question] generated: {q[:60]}...")
+        return {"question": q, "key_points": kp}
+    except json.JSONDecodeError as e:
+        print(f"[generate_free_question] JSON parse error: {e}")
+        return None
+    except Exception as e:
+        print(f"[generate_free_question] LLM error: {type(e).__name__}: {e}")
+        return None
+
+
 async def generate_study_plan(role: str, evaluation_data: dict, history: list) -> dict | None:
     """
     根据面试评估结果 + 对话历史，让 LLM 生成分周学习计划 + 资源推荐 + 快速收益项。

@@ -78,14 +78,7 @@ const handleDiscard = async () => {
     ElMessage.success('已清理未完成的面试记录')
     visible.value = false
   } catch (err) {
-    // 【核心修复】将 Mock 拦截下放到组件内，如果接口报 404 则判定为 Mock 成功
-    if (err.response?.status === 404 || !err.response) {
-      console.log('【Mock API】组件内拦截到废弃请求，模拟成功')
-      ElMessage.success('已清理未完成的面试记录')
-      visible.value = false
-    } else {
-      ElMessage.error('清理记录失败')
-    }
+    ElMessage.error('清理记录失败')
   } finally {
     discarding.value = false
   }

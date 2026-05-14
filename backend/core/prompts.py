@@ -30,8 +30,12 @@ class PromptManager:
                         self.prompts["repo_question_gen"] = prompt
                     elif "表达分析" in title:
                         self.prompts["expression_evaluator"] = prompt
+                    elif "简历提问" in title:
+                        self.prompts["resume_question_gen"] = prompt
                     elif "简历" in title:
                         self.prompts["resume_parser"] = prompt
+                    elif "自由发挥" in title:
+                        self.prompts["free_question"] = prompt
                     elif "面试官" in title:
                         self.prompts["interviewer"] = prompt
                     elif "评估" in title:
@@ -141,6 +145,52 @@ class PromptManager:
             recent_commits=repo_summary.get("recent_commits", []),
             readme_excerpt=repo_summary.get("readme_excerpt", ""),
             key_files=key_files_str,
+        )
+
+
+    def get_resume_question_prompt(self, persona: dict) -> str:
+        """获取简历提问生成的 Prompt（纯按简历内容，不引入岗位角色）。"""
+        template = self.prompts.get("resume_question_gen", "")
+        if not template:
+            return ""
+
+        projects = persona.get("projects") or []
+        projects_summary = ""
+        for p in projects[:3]:
+            name = p.get("name", "")
+            tech = ", ".join(p.get("tech", [])[:4])
+            highlights = p.get("highlights", "")
+            role_in_proj = p.get("role", "")
+            projects_summary += f"  * {name}"
+            if role_in_proj:
+                projects_summary += f" ({role_in_proj})"
+            if tech:
+                projects_summary += f"：{tech}"
+            if highlights:
+                projects_summary += f" - {highlights}"
+            projects_summary += "\n"
+        if not projects_summary:
+            projects_summary = "（未提及具体项目）"
+
+        return template.format(
+            skills=", ".join(persona.get("skills", [])[:10]) or "（未提及）",
+            projects_summary=projects_summary.strip(),
+            work_years=str(persona.get("work_years", 0)),
+            education=persona.get("education", "（未提及）"),
+            summary=persona.get("summary", "（未提及）"),
+        )
+
+    def get_free_question_prompt(self, role: str, category: str, difficulty: str, asked_questions: str, knowledge_points: str) -> str:
+        """获取自由发挥提问的 Prompt（题库耗尽时补位）。"""
+        template = self.prompts.get("free_question", "")
+        if not template:
+            return ""
+        return template.format(
+            role=role,
+            category=category,
+            difficulty=difficulty,
+            knowledge_points=knowledge_points or "不限",
+            asked_questions=asked_questions or "（尚无已问问题）",
         )
 
 

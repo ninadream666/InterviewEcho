@@ -51,7 +51,22 @@
           <el-icon class="is-loading"><component :is="Loading" /></el-icon>
           <span class="text-xs font-bold uppercase tracking-wider">AI 正在精准转录您的语音...</span>
         </div>
-        
+
+        <!-- 60s 回答倒计时 -->
+        <div
+          v-if="!sending && !ending && messages.length > 0 && messages[messages.length - 1].sender === 'ai'"
+          class="flex items-center gap-2 mb-2 px-2 py-1 rounded"
+          :class="timeLeft <= 10 ? 'text-red-400' : timeLeft <= 20 ? 'text-yellow-400' : 'text-gray-400'"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span class="text-xs font-mono font-bold tracking-wider">
+            {{ Math.floor(timeLeft / 60) }}:{{ String(timeLeft % 60).padStart(2, '0') }}
+          </span>
+          <span class="text-xs">剩余回答时间</span>
+        </div>
+
         <textarea
           v-model="inputMsg"
           rows="3"
@@ -96,7 +111,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Loading, Microphone, Sunny, Moon } from '@element-plus/icons-vue'
@@ -122,6 +137,76 @@ const isRecording = ref(false)
 const isTranscribing = ref(false)
 let mediaRecorder = null
 let audioChunks = []
+
+// 60 秒超时打断
+const TIMEOUT_SEC = 60
+const TIMEOUT_MS = TIMEOUT_SEC * 1000
+const timeLeft = ref(TIMEOUT_SEC)
+let timeoutTimer = null
+let countdownInterval = null
+
+const stopCountdown = () => {
+  if (countdownInterval) {
+    clearInterval(countdownInterval)
+    countdownInterval = null
+  }
+}
+
+const startCountdown = () => {
+  stopCountdown()
+  timeLeft.value = TIMEOUT_SEC
+  countdownInterval = setInterval(() => {
+    timeLeft.value--
+    if (timeLeft.value <= 0) {
+      stopCountdown()
+    }
+  }, 1000)
+}
+
+const clearTimeoutTimer = () => {
+  if (timeoutTimer) {
+    clearTimeout(timeoutTimer)
+    timeoutTimer = null
+  }
+  stopCountdown()
+}
+
+const startTimeoutTimer = () => {
+  clearTimeoutTimer()
+  if (ending.value) return
+  startCountdown()
+  timeoutTimer = setTimeout(() => {
+    handleTimeout()
+  }, TIMEOUT_MS)
+}
+
+const handleTimeout = async () => {
+  if (sending.value || ending.value) return
+  if (isRecording.value) {
+    ElMessage.warning('回答时间到，自动结束录音并提交...')
+    stopRecording()
+    return
+  }
+  ElMessage.warning('已超过一分钟未回答，自动提交')
+  const content = (inputMsg.value || '').trim() || '（超时未回答）'
+  messages.value.push({ sender: 'user', content })
+  inputMsg.value = ''
+  sending.value = true
+  scrollToBottom()
+  try {
+    const { data } = await api.post(`/interview/${interviewId.value}/message`, { content })
+    messages.value.push({ sender: 'ai', content: data.content })
+    if (data.is_final) {
+      ElMessage.warning('面试已完成，正在为您生成评估报告...')
+      setTimeout(() => { endInterview() }, 2500)
+    }
+  } catch (err) {
+    console.error('Timeout send error:', err)
+  } finally {
+    sending.value = false
+    scrollToBottom()
+  }
+}
 
 const startRecording = async () => {
   try {
@@ -172,7 +257,7 @@ const uploadVoice = async (blob) => {
     messages.value.push({ sender: 'ai', content: data.ai_message.content })
     
     if (data.ai_message.is_final) {
-      ElMessage.warning('面试已达到建议轮数，正在为您生成评估报告...')
+      ElMessage.warning('面试已完成，正在为您生成评估报告...')
       setTimeout(() => { endInterview() }, 2500)
     }
   } catch (err) {
@@ -247,7 +332,7 @@ const sendMessage = async () => {
     messages.value.push({ sender: 'ai', content: data.content })
     
     if (data.is_final) {
-      ElMessage.warning('面试已达到建议轮数，正在为您生成评估报告...')
+      ElMessage.warning('面试已完成，正在为您生成评估报告...')
       setTimeout(() => { endInterview() }, 2500)
     }
   } catch (err) {
@@ -279,4 +364,19 @@ const endInterview = async () => {
     ending.value = false
   }
 }
+
+// 监听新 AI 消息 → 启动 60s 超时计时
+watch(
+  () => messages.value.length,
+  () => {
+    const last = messages.value[messages.value.length - 1]
+    if (last && last.sender === 'ai') {
+      startTimeoutTimer()
+    }
+  }
+)
+
+onBeforeUnmount(() => {
+  clearTimeoutTimer()
+})
 </script>
