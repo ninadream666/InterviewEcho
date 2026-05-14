@@ -613,6 +613,15 @@ async def process_message_logic(interview_id: int, content: str, db: Session, us
         force_next_instruction=force_next
     )
 
+    # Resume / Repo 阶段：强制 MOVE_NEXT + 覆写问题原文
+    # 不允许 LLM 自行决定 FOLLOW_UP / MOVE_NEXT，杜绝跨阶段污染
+    if phase == "resume":
+        llm_resp["action"] = "MOVE_NEXT"
+        llm_resp["text"] = f"好的。{target_q_obj['question']}"
+    elif phase == "repo":
+        llm_resp["action"] = "MOVE_NEXT"
+        llm_resp["text"] = f"好的，我们换个话题。{target_q_obj['question']}"
+
     # 7. Update State
     final_is_ended = False
     msg_category = current_stage
