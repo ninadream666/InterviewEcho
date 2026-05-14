@@ -93,15 +93,7 @@ onMounted(async () => {
       }
     })
     .catch((err) => {
-      // 拦截 404 (未实现) 或 网络错误，注入假数据
-      if (err.response?.status === 404 || !err.response) {
-        console.log('【Mock API】组件内拦截到 /incomplete 请求，注入模拟数据')
-        resumeDialogRef.value.open({
-          id: 999,
-          role: 'Java后端开发工程师 (Mock)',
-          start_time: new Date().toISOString()
-        })
-      }
+      console.error('检查未完成面试失败:', err)
     })
 })
 
@@ -117,6 +109,7 @@ const startInterview = (role) => {
 const onSettingsConfirm = async (settings) => {
   // 完美恢复：若包含 GitHub 项目，后端需要抓取 + LLM 生成问题，延时到 180s
   const hasRepos = (settings.repo_urls || []).length > 0
+  const hasResume = !!settings.resume_persona
   const timeout = hasRepos ? 180000 : 30000
 
   // 显示 loading 遮罩，避免用户误以为"退回主页"
@@ -124,6 +117,9 @@ const onSettingsConfirm = async (settings) => {
   if (hasRepos) {
     startingTitle.value = '正在分析您的 GitHub 项目'
     startingHint.value = 'AI 教练正在抓取项目代码并定制面试问题，大约 30-60 秒，请勿关闭页面...'
+  } else if (hasResume) {
+    startingTitle.value = '正在注入简历上下文'
+    startingHint.value = 'AI 面试官正在熟悉您的技术背景，请稍候...'
   } else {
     startingTitle.value = '正在准备面试房间'
     startingHint.value = '请稍候...'

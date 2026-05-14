@@ -5,9 +5,9 @@ import tempfile
 from services.stt_service import stt_service
 from services.audio_analysis import analyze_audio
 from services.repo_analyzer import analyze_repo
-from services.resume_parser import parse_resume_text, parse_resume_pdf, build_persona_context
+from services.resume_parser import parse_resume_text, parse_resume_pdf
 from services.interrupt_policy import evaluate_interrupt
-from core.llm_service import generate_llm_response, evaluate_full_interview, polish_text, generate_repo_questions, generate_study_plan
+from core.llm_service import generate_llm_response, evaluate_full_interview, polish_text, generate_repo_questions, generate_study_plan, generate_resume_question, generate_free_question
 from sqlalchemy.orm import Session
 from typing import List
 import json
@@ -223,7 +223,7 @@ async def start_interview(data: schemas.InterviewStart, db: Session = Depends(ge
     db.refresh(new_interview)
 
     # Round 0: Only Introduction request (First sentence, no questions yet)
-    greeting = f"你好，我是你的{data.role}面试官。很高兴见到你。本次面试共设定为 {data.total_rounds} 轮提问。在正式开始前，请先做一个简单的自我介绍。"
+    greeting = f"你好，我是你的{data.role}面试官。很高兴见到你。在正式开始前，请先做一个简单的自我介绍。"
     ai_msg = models.Message(interview_id=new_interview.id, sender="ai", content=greeting, category="introduction")
     db.add(ai_msg)
     db.commit()
@@ -430,27 +430,46 @@ async def process_message_logic(interview_id: int, content: str, db: Session, us
     db.commit()
     db.refresh(user_msg)  
 
-    # 3. Analyze History
+    # 3. Analyze History & Detect Phase
     messages = db.query(models.Message).filter(models.Message.interview_id == interview_id).order_by(models.Message.created_at.asc()).all()
     ai_msgs = [m for m in messages if m.sender == "ai"]
-    
-    main_questions_asked = []
-    current_follow_up_count = 0
-    
-    for m in ai_msgs[1:]: 
-        if m.category and "FOLLOW_UP" not in m.category:
-            main_questions_asked.append(m)
-            current_follow_up_count = 0
-        else:
-            current_follow_up_count += 1
 
-    question_count = len(main_questions_asked)
+    # Phase detection: check which pre-round phases have been completed
+    has_resume_q = any(m.category and m.category.startswith("resume_question") for m in ai_msgs)
+    has_repo_q = any(m.category and m.category.startswith("repo_question") for m in ai_msgs)
+
+    # Count knowledge-phase main questions only (exclude intro, resume, repo)
+    knowledge_questions = []
+    all_main_questions = []
+    current_follow_up_count = 0
+
+    for m in ai_msgs[1:]:
+        cat = m.category or ""
+        if "FOLLOW_UP" in cat:
+            current_follow_up_count += 1
+        else:
+            all_main_questions.append(m)
+            if cat.startswith("resume_question") or cat.startswith("repo_question"):
+                current_follow_up_count = 0
+            else:
+                knowledge_questions.append(m)
+                current_follow_up_count = 0
+
+    question_count = len(knowledge_questions)
     n = interview.total_rounds or 6
 
-    # 4. Determine Stage & Next Target
-    # v4 新逻辑：4 段式覆盖赛题要求的全部题型
-    #   有 GitHub 深挖时：scenario → project → problem_solving → behavioral
-    #   无 GitHub 深挖时：scenario → problem_solving → behavioral
+    # Phase decision
+    has_resume = bool(interview.resume_persona)
+    has_repos = bool(interview.custom_questions)
+
+    if has_resume and not has_resume_q:
+        phase = "resume"
+    elif has_repos and not has_repo_q:
+        phase = "repo"
+    else:
+        phase = "knowledge"
+
+    # 4. Determine Stage & Next Target based on phase
     custom_questions_list = []
     if interview.custom_questions:
         try:
@@ -458,88 +477,106 @@ async def process_message_logic(interview_id: int, content: str, db: Session, us
         except Exception:
             custom_questions_list = []
 
-    has_custom = len(custom_questions_list) > 0
-    if has_custom:
-        # 4 段分布，n>=4 时每段都有；n<4 时压缩不问行为
-        scenario_end = max(1, n // 4)
-        project_end = scenario_end + max(1, n // 4)
-        solving_end = project_end + max(1, n // 4)
-        if question_count < scenario_end:
-            current_stage = "business_scenario"
-        elif question_count < project_end:
-            current_stage = "project"
-        elif question_count < solving_end:
-            current_stage = "problem_solving"
-        else:
-            current_stage = "behavioral"
-    else:
-        # 3 段分布
-        scenario_end = max(1, n // 3)
-        solving_end = scenario_end + max(1, n // 3)
-        if question_count < scenario_end:
-            current_stage = "business_scenario"
-        elif question_count < solving_end:
-            current_stage = "problem_solving"
-        else:
-            current_stage = "behavioral"
-
-    # If we are in the middle of a question, we might want the next one ready
     role_info = next((r for r in ROLES if r["name"] == interview.role), None)
     role_key = role_info["key"] if role_info else "java-backend"
     kp_list = json.loads(interview.knowledge_points) if interview.knowledge_points else []
 
-    # Logic for picking the "Next Target"
-    asked_titles = [m.content.split("接下来，")[-1] for m in main_questions_asked]  # Simple heuristic
+    # Collect asked question texts for dedup
+    asked_titles = [m.content for m in all_main_questions]
 
-    if current_stage == "project" and has_custom:
-        # 优先从定制问题里挑未问过的
+    if phase == "resume":
+        try:
+            persona_dict = json.loads(interview.resume_persona)
+        except Exception:
+            persona_dict = {}
+        resume_q = await generate_resume_question(persona_dict)
+        if resume_q and resume_q.get("question"):
+            target_q_obj = resume_q
+        else:
+            target_q_obj = {"question": "能详细介绍一下你最有代表性的项目经历吗？", "key_points": []}
+        current_stage = "resume_question"
+        target_next_text = target_q_obj["question"]
+
+    elif phase == "repo":
         available_custom = [q for q in custom_questions_list if q.get("question") not in asked_titles]
         if available_custom:
             target_q_obj = random.choice(available_custom)
         else:
-            # 定制问完了，降级到静态 project 题库
-            potential_next = get_questions_by_category(role_key, "project", interview.difficulty, kp_list)
-            available_next = [q for q in potential_next if q["question"] not in asked_titles]
-            target_q_obj = random.choice(available_next if available_next else potential_next) if potential_next else {"question": "继续谈谈你的项目经验吧。", "key_points": []}
-    else:
-        potential_next = get_questions_by_category(role_key, current_stage, interview.difficulty, kp_list)
+            target_q_obj = {"question": "能深入谈谈你在这个项目中的具体技术贡献吗？", "key_points": []}
+        current_stage = "repo_question"
+        target_next_text = target_q_obj["question"]
 
-        # 降级 1：若带难度过滤后没题（典型场景：behavioral 题库难度分布不全），去掉 knowledge_points 过滤
+    else:  # phase == "knowledge"
+        has_custom = len(custom_questions_list) > 0
+        if has_custom:
+            scenario_end = max(1, n // 4)
+            project_end = scenario_end + max(1, n // 4)
+            solving_end = project_end + max(1, n // 4)
+            if question_count < scenario_end:
+                current_stage = "business_scenario"
+            elif question_count < project_end:
+                current_stage = "project"
+            elif question_count < solving_end:
+                current_stage = "problem_solving"
+            else:
+                current_stage = "behavioral"
+        else:
+            scenario_end = max(1, n // 3)
+            solving_end = scenario_end + max(1, n // 3)
+            if question_count < scenario_end:
+                current_stage = "business_scenario"
+            elif question_count < solving_end:
+                current_stage = "problem_solving"
+            else:
+                current_stage = "behavioral"
+
+        # Question selection with exhaustion handling (仅从静态题库选，repo 专属阶段已问过)
+        potential_next = get_questions_by_category(role_key, current_stage, interview.difficulty, kp_list)
         if not potential_next and kp_list:
             potential_next = get_questions_by_category(role_key, current_stage, interview.difficulty, None)
-
-        # 降级 2：换一种难度兜底（优先 medium）
         if not potential_next:
             for fallback_diff in ["中等", "简单", "困难"]:
                 potential_next = get_questions_by_category(role_key, current_stage, fallback_diff, None)
                 if potential_next:
                     break
-
         available_next = [q for q in potential_next if q["question"] not in asked_titles]
-        target_q_obj = random.choice(available_next if available_next else potential_next) if potential_next else {"question": "请继续。", "key_points": []}
-    
+        if available_next:
+            target_q_obj = random.choice(available_next)
+        elif potential_next:
+            target_q_obj = random.choice(potential_next)
+        else:
+            # 题库耗尽 → LLM 自由发挥
+            free_q = await generate_free_question(
+                role=interview.role,
+                category=current_stage,
+                difficulty=interview.difficulty,
+                asked_titles=asked_titles,
+                knowledge_points=", ".join(kp_list) if kp_list else "",
+            )
+            target_q_obj = free_q if free_q else {"question": "请继续。", "key_points": []}
+
+        target_next_text = target_q_obj["question"]
+
     # 5. Prepare LLM Context
     history_str = ""
-    for m in messages[-6:]: # Last 3 rounds
+    for m in messages[-6:]:
         role_name = "面试官" if m.sender == "ai" else "候选人"
         history_str += f"{role_name}: {m.content}\n"
 
-    last_main_q = main_questions_asked[-1] if main_questions_asked else ai_msgs[0]
-    
+    last_main_q = all_main_questions[-1] if all_main_questions else ai_msgs[0]
+
     force_next = ""
     if current_follow_up_count >= 2:
         force_next = "【系统指令：强制切换】当前话题已追问满 2 次，请务必结束当前话题，给出一个简短评价并过渡到下一个问题。"
 
-    # Check if this is the absolute last round
+    # Check if this is the last knowledge round
     is_final_move = False
-    if question_count >= n:
+    if phase == "knowledge" and question_count >= n:
         is_final_move = True
         target_next_text = "面试即将结束，请做一个结语。"
         force_next = "【系统指令：面试结束】请给出一个礼貌的结束语表示感谢。禁止再提出任何新问题或引导后续对话内容。"
-    else:
-        target_next_text = target_q_obj["question"]
 
-    # v4: 打断触发策略（W3.2.7）— 仅在非结束轮检查
+    # Interrupt policy — only in non-final rounds
     if not is_final_move:
         try:
             current_q_text = last_main_q.content if last_main_q else ""
@@ -556,22 +593,19 @@ async def process_message_logic(interview_id: int, content: str, db: Session, us
         except Exception as e:
             print(f"[interrupt] evaluate failed (non-fatal): {type(e).__name__}: {e}")
 
-    # v4: 简历 Persona 注入（W3.2.8）— 把候选人简历摘要拼到 force_next_instruction，
-    # 让 LLM 在追问/选题时围绕其经验展开
-    if interview.resume_persona:
-        try:
-            persona_dict = json.loads(interview.resume_persona)
-            persona_ctx = build_persona_context(persona_dict)
-            if persona_ctx:
-                force_next = (persona_ctx + "\n" + force_next).strip()
-        except Exception as e:
-            print(f"[persona] inject failed (non-fatal): {type(e).__name__}: {e}")
+    # Resume / Repo 阶段：强制锁定提问内容，防止 LLM 因 {role} 不匹配而自行改写
+    if phase == "resume":
+        force_next = (f"【简历提问阶段 — 请直接以下文原句作为你的提问，只可加一句简短过渡，不得改变问题措辞和方向】"
+                      f"\n{target_next_text}\n" + force_next).strip()
+    elif phase == "repo":
+        force_next = (f"【项目深挖阶段 — 请直接以下文原句作为你的提问，只可加一句简短过渡，不得改变问题措辞和方向】"
+                      f"\n{target_next_text}\n" + force_next).strip()
 
     # 6. Generate AI Response
     llm_resp = await generate_llm_response(
         role=interview.role,
         question=last_main_q.content,
-        expected_points="技术准确性、实践经验", # Can be more dynamic if we store key_points
+        expected_points="技术准确性、实践经验",
         conversation_history=history_str,
         target_next_question=target_next_text,
         difficulty=interview.difficulty,
@@ -581,22 +615,22 @@ async def process_message_logic(interview_id: int, content: str, db: Session, us
 
     # 7. Update State
     final_is_ended = False
-    # Only end if we have asked exactly N main questions AND the AI says MOVE_NEXT (meaning no more follow-ups for the last question)
-    if question_count >= n and llm_resp["action"] == "MOVE_NEXT":
-        final_is_ended = True
-        interview.status = "completed"
-        db.commit()
-
-    # Save AI Message
-    # Category tag: "Main" vs "FollowUp"
     msg_category = current_stage
     if llm_resp["action"] == "FOLLOW_UP":
         msg_category = f"{current_stage}_FOLLOW_UP"
 
+    if phase == "knowledge" and question_count >= n and llm_resp["action"] == "MOVE_NEXT":
+        final_is_ended = True
+        interview.status = "completed"
+        db.commit()
+        ai_content = "面试已结束，感谢你的参与~"
+    else:
+        ai_content = llm_resp["text"]
+
     ai_msg = models.Message(
         interview_id=interview_id,
         sender="ai",
-        content=llm_resp["text"],
+        content=ai_content,
         category=msg_category
     )
     db.add(ai_msg)
@@ -604,11 +638,9 @@ async def process_message_logic(interview_id: int, content: str, db: Session, us
     db.refresh(ai_msg)
 
     # 8. Format Response for Schema
-    # MessageResponse expects id, sender, content, created_at, and is_final.
     response = schemas.MessageResponse.model_validate(ai_msg)
     response.is_final = final_is_ended
-    
-    # 返回值为 Tuple，包含新生成的 user_msg 的主键 ID
+
     return response, user_msg.id
 
 @router.get("/history", response_model=List[schemas.EvaluationSummary])
