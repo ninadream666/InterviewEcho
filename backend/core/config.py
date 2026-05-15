@@ -12,11 +12,20 @@ class Settings(BaseSettings):
     
     DB_HOST: str = os.getenv("DB_HOST", "localhost")
     DB_USER: str = os.getenv("DB_USER", "root")
-    DB_PASS: str = os.getenv("DB_PASS", "root")
+    DB_PASS: str = os.getenv("DB_PASS") or os.getenv("DB_PASSWORD", "root")
     DB_PORT: str = os.getenv("DB_PORT", "3306")
     DB_NAME: str = os.getenv("DB_NAME", "interview_echo")
 
     CORS_ORIGINS: list = os.getenv("CORS_ORIGINS", "*").split(",")
+
+    JUDGE0_BASE_URL: str = os.getenv("JUDGE0_BASE_URL", "http://127.0.0.1:2358")
+    JUDGE0_TIMEOUT_SECONDS: float = float(os.getenv("JUDGE0_TIMEOUT_SECONDS", "12"))
+    JUDGE0_POLL_INTERVAL_SECONDS: float = float(os.getenv("JUDGE0_POLL_INTERVAL_SECONDS", "0.6"))
+    JUDGE0_MAX_POLL_ATTEMPTS: int = int(os.getenv("JUDGE0_MAX_POLL_ATTEMPTS", "90"))
+    CODE_MAX_SOURCE_LENGTH: int = int(os.getenv("CODE_MAX_SOURCE_LENGTH", "20000"))
+    CODE_MAX_TEST_CASES: int = int(os.getenv("CODE_MAX_TEST_CASES", "30"))
+    CODE_MAX_CONCURRENT_JUDGE_CASES: int = int(os.getenv("CODE_MAX_CONCURRENT_JUDGE_CASES", "8"))
+    CODE_OUTPUT_LIMIT: int = int(os.getenv("CODE_OUTPUT_LIMIT", "4000"))
 
 settings = Settings()
 

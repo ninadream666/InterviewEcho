@@ -31,13 +31,13 @@
             >
               模拟面试大厅
             </router-link>
-            <a 
-              href="javascript:void(0)" 
-              @click="handleComingSoon"
-              class="nav-link px-1 pt-1 text-sm font-medium text-gray-500 hover:text-[#0066CC] transition-colors"
+            <router-link 
+              to="/code" 
+              class="nav-link px-1 pt-1 text-sm font-medium transition-colors"
+              :class="[$route.path.startsWith('/code') ? 'text-[#0066CC] border-b-2 border-[#0066CC] font-semibold' : 'text-gray-500 hover:text-[#0066CC]']"
             >
               题库练习
-            </a>
+            </router-link>
             <router-link 
               to="/profile" 
               class="nav-link px-1 pt-1 text-sm font-medium transition-colors"
@@ -108,7 +108,6 @@
 <script setup>
 import { useAuthStore } from '@/stores/auth'
 import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
 
 const authStore = useAuthStore()
 const router = useRouter()
@@ -118,10 +117,6 @@ const handleLogout = () => {
   router.push('/login')
 }
 
-// 给后端同学的注释：这里是“题库练习”的占位点击事件，后续若要开发，将 a 标签改为 router-link 即可
-const handleComingSoon = () => {
-  ElMessage.info('题库练习功能开发中，敬请期待！')
-}
 </script>
 
 <style scoped>

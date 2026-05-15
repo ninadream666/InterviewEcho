@@ -1,4 +1,4 @@
-# InterviewEcho - AI 模拟面试与能力提升平台
+﻿# InterviewEcho - AI 模拟面试与能力提升平台
 
 这是一个深度整合了 **RAG (检索增强生成)** 与 **大型语言模型** 的 AI 模拟面试与能力提升平台，专为计算机相关专业学生打造。
 
@@ -50,6 +50,7 @@ cd D:\xxx\InterviewEcho-ServiceOutsourcing
 Get-Content backend\sql\init_db.sql | mysql -u root interview_echo
 Get-Content backend\sql\migration_v2_voice.sql | mysql -u root interview_echo
 Get-Content backend\sql\migration_v3_github.sql | mysql -u root interview_echo
+Get-Content backend\sql\migration_v5_code_practice.sql | mysql -u root interview_echo
 ```
 
 **验证表都建好**：
@@ -58,7 +59,7 @@ Get-Content backend\sql\migration_v3_github.sql | mysql -u root interview_echo
 mysql -u root interview_echo -e "SHOW TABLES;"
 ```
 
-应该看到 **6 张表**：
+应该看到核心业务表和代码练习表：
 
 - `users`
 - `interviews`
@@ -66,6 +67,9 @@ mysql -u root interview_echo -e "SHOW TABLES;"
 - `questions`
 - `evaluations`
 - `voice_metrics`
+- `code_problems`
+- `code_test_cases`
+- `code_submissions`
 
 ---
 
@@ -90,3 +94,29 @@ python -m rag.build_index
 ### 3. 前端启动
 1. 进入 `frontend` 目录。
 2. `npm install` && `npm run dev`
+
+### 4. 代码练习 Judge0（Docker）
+题库练习只走 Docker 版 Judge0。先启动 Docker Desktop，然后在项目根目录运行：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\start_judge0.ps1
+```
+
+首次启动会拉取 Judge0、Redis、PostgreSQL 镜像，时间取决于网络环境。启动完成后可检查：
+
+```text
+http://127.0.0.1:2358/system_info
+```
+
+后端保持以下配置即可：
+
+```env
+JUDGE0_BASE_URL=http://127.0.0.1:2358
+JUDGE0_TIMEOUT_SECONDS=12
+JUDGE0_POLL_INTERVAL_SECONDS=0.6
+JUDGE0_MAX_POLL_ATTEMPTS=90
+CODE_MAX_SOURCE_LENGTH=20000
+CODE_MAX_TEST_CASES=30
+CODE_MAX_CONCURRENT_JUDGE_CASES=8
+CODE_OUTPUT_LIMIT=4000
+```
