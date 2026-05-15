@@ -7,6 +7,8 @@ import DashboardView from '@/views/DashboardView.vue'
 import InterviewRoomView from '@/views/InterviewRoomView.vue'
 import ReportView from '@/views/ReportView.vue'
 import ProfileView from '@/views/ProfileView.vue'
+import CodePracticeView from '@/views/CodePracticeView.vue'
+import CodeProblemView from '@/views/CodeProblemView.vue'
 
 const routes = [
   { 
@@ -31,6 +33,18 @@ const routes = [
     name: 'Profile', 
     component: ProfileView, 
     meta: { requiresAuth: true } 
+  },
+  {
+    path: '/code',
+    name: 'CodePractice',
+    component: CodePracticeView,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/code/problems/:problemId',
+    name: 'CodeProblem',
+    component: CodeProblemView,
+    meta: { requiresAuth: true }
   },
   { 
     path: '/interview/:role', 
