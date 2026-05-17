@@ -54,7 +54,7 @@ const nameColorClass = computed(() => {
 
 // 动态计算气泡的 Tailwind 样式类
 const bubbleClasses = computed(() => {
-  const baseClasses = 'text-sm leading-relaxed p-4 inline-block border max-w-[85%] break-words shadow-sm'
+  const baseClasses = 'text-sm leading-relaxed p-3 sm:p-4 inline-block border max-w-[90%] sm:max-w-[85%] break-words shadow-sm'
   
   if (props.theme === 'dark') {
     if (isInterviewer.value) {

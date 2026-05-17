@@ -1,25 +1,25 @@
 <template>
-  <div class="max-w-7xl mx-auto px-4 py-8 space-y-6">
+  <div class="max-w-7xl mx-auto px-4 py-4 sm:py-8 space-y-6">
     <button class="inline-flex items-center gap-2 text-sm font-semibold text-[#0066CC] hover:underline decoration-2 underline-offset-4" type="button" @click="router.push('/code')">
       <el-icon><Back /></el-icon>
       返回题库
     </button>
 
-    <div v-if="loading" class="bg-white rounded-xl shadow-sm border border-slate-100 py-24 flex items-center justify-center text-slate-400">
+    <div v-if="loading" class="bg-white rounded-xl shadow-sm border border-slate-100 py-12 sm:py-24 flex items-center justify-center text-slate-400">
       <el-icon class="is-loading text-2xl mr-2 text-[#0066CC]"><Loading /></el-icon>
       正在加载题目
     </div>
 
-    <div v-else-if="!problem" class="bg-white rounded-xl shadow-sm border border-slate-100 py-24 text-center text-slate-400">
+    <div v-else-if="!problem" class="bg-white rounded-xl shadow-sm border border-slate-100 py-12 sm:py-24 text-center text-slate-400">
       没有找到这道题
     </div>
 
     <template v-else>
-      <section class="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
+      <section class="bg-white rounded-xl shadow-sm border border-slate-100 p-4 sm:p-6">
         <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-5">
           <div class="min-w-0">
             <p class="text-sm font-semibold text-[#0066CC] uppercase tracking-wider mb-2">Hot100 / ACM</p>
-            <h1 class="text-3xl font-bold text-slate-900 tracking-tight">{{ problem.title }}</h1>
+            <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">{{ problem.title }}</h1>
             <p class="text-slate-600 mt-4 leading-relaxed max-w-4xl">{{ problem.description }}</p>
           </div>
           <div class="flex flex-wrap gap-2 shrink-0">
@@ -35,13 +35,13 @@
 
       <div class="grid grid-cols-1 xl:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] gap-6 items-start">
         <article class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
-          <div class="px-6 py-4 border-b border-slate-100">
+          <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100">
             <h2 class="text-lg font-bold text-slate-800 flex items-center">
               <span class="w-1.5 h-5 bg-[#0066CC] rounded-full mr-2"></span>
               题面
             </h2>
           </div>
-          <div class="p-6 space-y-6">
+          <div class="p-4 sm:p-6 space-y-6">
             <StatementBlock title="输入格式" :text="problem.input_format" />
             <StatementBlock title="输出格式" :text="problem.output_format" />
 
@@ -79,7 +79,7 @@
 
         <section class="space-y-6">
           <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
-            <div class="px-6 py-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <h2 class="text-lg font-bold text-slate-800 flex items-center">
                 <span class="w-1.5 h-5 bg-[#0066CC] rounded-full mr-2"></span>
                 代码编辑
@@ -97,7 +97,7 @@
 
             <textarea v-model="sourceCode" spellcheck="false" class="w-full min-h-[460px] resize-y bg-[#0f172a] text-slate-100 p-5 font-mono text-sm leading-6 outline-none border-0 block"></textarea>
 
-            <div class="px-6 py-4 border-t border-slate-100 flex flex-col sm:flex-row gap-3 sm:justify-end">
+            <div class="px-4 sm:px-6 py-3 sm:py-4 border-t border-slate-100 flex flex-col sm:flex-row gap-3 sm:justify-end">
               <button class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg border border-[#0066CC] text-[#0066CC] text-sm font-semibold hover:bg-[#E6F0FA] transition-colors disabled:opacity-60 disabled:cursor-not-allowed" type="button" :disabled="busy || !problem.sample_count" @click="runCode">
                 <el-icon :class="{ 'is-loading': running }"><Loading v-if="running" /><VideoPlay v-else /></el-icon>
                 运行样例
@@ -110,16 +110,16 @@
           </div>
 
           <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
-            <div class="px-6 py-4 border-b border-slate-100">
+            <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100">
               <h2 class="text-lg font-bold text-slate-800 flex items-center">
                 <span class="w-1.5 h-5 bg-[#0066CC] rounded-full mr-2"></span>
                 运行结果
               </h2>
             </div>
 
-            <div v-if="!result" class="py-14 text-center text-slate-400">运行样例或提交后，结果会显示在这里</div>
+            <div v-if="!result" class="py-8 sm:py-14 text-center text-slate-400">运行样例或提交后，结果会显示在这里</div>
 
-            <div v-else class="p-6 space-y-4">
+            <div v-else class="p-4 sm:p-6 space-y-4">
               <div :class="['rounded-xl border p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2', resultSummaryClass(result.status)]">
                 <div>
                   <p class="text-xs font-semibold uppercase tracking-wider opacity-70">{{ resultMode === 'submit' ? 'Submit' : 'Run' }}</p>
@@ -139,15 +139,15 @@
                   </div>
                   <p v-if="item.message" class="text-sm text-slate-600 mb-3">{{ item.message }}</p>
                   <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <div v-if="item.input !== null && item.input !== undefined">
+                    <div v-if="item.input !== null && item.input !== undefined" class="min-w-0">
                       <p class="text-xs font-semibold text-slate-500 mb-1">输入</p>
                       <pre class="code-block">{{ item.input || '(空输入)' }}</pre>
                     </div>
-                    <div v-if="item.expected_output !== null && item.expected_output !== undefined">
+                    <div v-if="item.expected_output !== null && item.expected_output !== undefined" class="min-w-0">
                       <p class="text-xs font-semibold text-slate-500 mb-1">期望</p>
                       <pre class="code-block">{{ item.expected_output || '(空输出)' }}</pre>
                     </div>
-                    <div v-if="item.actual_output !== null && item.actual_output !== undefined">
+                    <div v-if="item.actual_output !== null && item.actual_output !== undefined" class="min-w-0">
                       <p class="text-xs font-semibold text-slate-500 mb-1">实际</p>
                       <pre class="code-block">{{ item.actual_output || '(空输出)' }}</pre>
                     </div>
@@ -160,18 +160,18 @@
           </div>
 
           <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
-            <div class="px-6 py-4 border-b border-slate-100">
+            <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100">
               <h2 class="text-lg font-bold text-slate-800 flex items-center">
                 <span class="w-1.5 h-5 bg-[#0066CC] rounded-full mr-2"></span>
                 本题提交
               </h2>
             </div>
-            <div v-if="submissionLoading" class="py-12 flex items-center justify-center text-slate-400">
+            <div v-if="submissionLoading" class="py-8 sm:py-12 flex items-center justify-center text-slate-400">
               <el-icon class="is-loading text-2xl mr-2 text-[#0066CC]"><Loading /></el-icon>
               正在读取提交
             </div>
             <div v-else-if="submissions.length" class="divide-y divide-slate-100">
-              <div v-for="item in submissions.slice(0, 6)" :key="item.id" class="px-6 py-4 flex items-center justify-between gap-3">
+              <div v-for="item in submissions.slice(0, 6)" :key="item.id" class="px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-3">
                 <div class="min-w-0">
                   <strong class="block text-sm text-slate-900">{{ item.status }}</strong>
                   <span class="text-xs text-slate-500">{{ languageLabel(item.language) }} · {{ item.passed_count }}/{{ item.total_count }} · {{ formatDateTime(item.created_at) }}</span>
@@ -179,7 +179,7 @@
                 <span :class="['shrink-0 px-2.5 py-1 rounded-full text-xs font-semibold border', statusPillClass(item.status)]">{{ item.status }}</span>
               </div>
             </div>
-            <div v-else class="py-12 text-center text-slate-400">本题还没有正式提交</div>
+            <div v-else class="py-8 sm:py-12 text-center text-slate-400">本题还没有正式提交</div>
           </div>
         </section>
       </div>

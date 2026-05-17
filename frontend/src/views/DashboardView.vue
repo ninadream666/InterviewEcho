@@ -6,7 +6,7 @@
       v-if="starting"
       class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm"
     >
-      <div class="bg-white rounded-2xl shadow-2xl px-10 py-8 max-w-md text-center">
+      <div class="bg-white rounded-2xl shadow-2xl px-6 py-6 sm:px-10 sm:py-8 max-w-md text-center">
         <svg class="animate-spin mx-auto h-12 w-12 text-[#0066CC] mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
@@ -19,7 +19,7 @@
     <!-- BEGIN: JobSelectionSection -->
     <section id="job-selection" class="py-6 px-4 max-w-7xl mx-auto" data-purpose="job-selection-grid">
       <div class="text-center mb-12">
-        <h2 class="text-3xl font-bold text-slate-800 mb-4">选择您的目标职位</h2>
+        <h2 class="text-2xl sm:text-3xl font-bold text-slate-800 mb-4">选择您的目标职位</h2>
         <p class="text-slate-500">针对性模拟面试，覆盖核心技术栈，助您做好万全准备</p>
       </div>
       
@@ -28,7 +28,7 @@
           v-for="role in roles" 
           :key="role.id"
           @click="startInterview(role)"
-          class="group relative bg-white p-8 rounded-2xl border border-slate-200 transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:border-[#0066CC] cursor-pointer" 
+          class="group relative bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:border-[#0066CC] cursor-pointer" 
         >
           <div class="w-14 h-14 bg-blue-50 text-[#0066CC] rounded-xl flex items-center justify-center mb-6 group-hover:bg-[#0066CC] group-hover:text-white transition-colors duration-300">
             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

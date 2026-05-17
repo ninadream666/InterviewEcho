@@ -2,7 +2,7 @@
   <el-dialog
     v-model="visible"
     :title="`开始 ${roleName} 面试`"
-    width="550px"
+    width="95%"
     class="custom-clean-dialog"
     :show-close="false"
     destroy-on-close
@@ -17,7 +17,7 @@
             :key="d"
             @click="difficulty = d"
             :class="[
-              'py-3 rounded-lg font-bold transition-colors border',
+              'py-2 sm:py-3 text-sm sm:text-base rounded-lg font-bold transition-colors border',
               difficulty === d
                 ? 'bg-[#E6F0FA] border-[#0066CC] text-[#0066CC]'
                 : 'bg-white border-gray-200 text-gray-600 hover:border-[#0066CC]'
@@ -147,159 +147,9 @@
         </div>
       </div>
 
-      <!-- 简历上传 (v4) -->
-      <div>
-        <label class="block text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2 flex justify-between items-center">
-          <span>简历上传 (可选)</span>
-          <span class="text-xs text-gray-400 normal-case tracking-normal">AI 将根据你的真实经历定制面试问题</span>
-        </label>
+      <!-- 简历上传抽离组件 (v4) -->
+      <ResumeUpload v-model="resumePersona" />
 
-        <!-- 未解析时：上传入口 -->
-        <div v-if="!resumePersona">
-          <!-- 模式切换 -->
-          <div class="flex gap-2 mb-3">
-            <button
-              @click="resumeMode = 'pdf'"
-              :class="[
-                'px-3 py-1.5 text-xs rounded-lg border transition-colors',
-                resumeMode === 'pdf'
-                  ? 'bg-[#0066CC] text-white border-[#0066CC]'
-                  : 'bg-white text-gray-600 border-gray-200 hover:border-[#0066CC]'
-              ]"
-            >
-              上传 PDF
-            </button>
-            <button
-              @click="resumeMode = 'text'"
-              :class="[
-                'px-3 py-1.5 text-xs rounded-lg border transition-colors',
-                resumeMode === 'text'
-                  ? 'bg-[#0066CC] text-white border-[#0066CC]'
-                  : 'bg-white text-gray-600 border-gray-200 hover:border-[#0066CC]'
-              ]"
-            >
-              粘贴文本
-            </button>
-          </div>
-
-          <!-- PDF 模式 -->
-          <div v-if="resumeMode === 'pdf'" class="mb-3">
-            <label
-              class="flex items-center gap-3 px-3 py-3 text-sm border border-dashed border-gray-200 rounded-lg cursor-pointer hover:border-[#0066CC] transition-colors"
-            >
-              <input
-                type="file"
-                accept=".pdf"
-                class="hidden"
-                @change="handleResumeFileChange"
-              />
-              <svg class="w-5 h-5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-              </svg>
-              <span :class="resumeFile ? 'text-gray-700' : 'text-gray-400'">
-                {{ resumeFile ? resumeFile.name : '点击选择 PDF 简历文件' }}
-              </span>
-            </label>
-          </div>
-
-          <!-- 文本模式 -->
-          <div v-else class="mb-3">
-            <el-input
-              v-model="resumeText"
-              type="textarea"
-              :rows="5"
-              placeholder="在此粘贴简历文本内容（纯文本或 Markdown）"
-              class="resume-textarea"
-            />
-          </div>
-
-          <!-- 解析按钮 -->
-          <button
-            @click="parseResume"
-            :disabled="resumeParsing || (!resumeFile && !resumeText.trim())"
-            class="w-full py-2 text-sm rounded-lg border border-[#0066CC] text-[#0066CC] hover:bg-[#E6F0FA] transition-colors disabled:border-gray-200 disabled:text-gray-400 disabled:hover:bg-white"
-          >
-            <span v-if="resumeParsing" class="inline-flex items-center gap-2">
-              <el-icon class="is-loading"><Loading /></el-icon>
-              解析中...
-            </span>
-            <span v-else>开始解析</span>
-          </button>
-        </div>
-
-        <!-- 已解析时：展示结果 -->
-        <div v-else>
-          <div class="bg-[#E6F0FA]/40 border border-[#0066CC]/20 rounded-lg px-4 py-3 space-y-3">
-            <!-- 总体画像 -->
-            <p class="text-sm text-gray-700 leading-relaxed">
-              <span class="font-semibold text-[#0066CC]">画像：</span>
-              {{ resumePersona.summary || '（未提取到）' }}
-            </p>
-
-            <!-- 基本信息行 -->
-            <div class="flex gap-4 text-xs text-gray-600">
-              <span v-if="resumePersona.education">
-                <span class="text-gray-400">学历：</span>{{ resumePersona.education }}
-              </span>
-              <span>
-                <span class="text-gray-400">经验：</span>{{ resumePersona.work_years != null ? resumePersona.work_years + ' 年' : '未知' }}
-              </span>
-            </div>
-
-            <!-- 技能标签 -->
-            <div v-if="resumePersona.skills && resumePersona.skills.length > 0">
-              <div class="text-xs text-gray-400 mb-1.5">技能栈</div>
-              <div class="flex flex-wrap gap-1.5">
-                <el-tag
-                  v-for="skill in resumePersona.skills"
-                  :key="skill"
-                  size="small"
-                  class="!bg-white !border-[#0066CC]/30 !text-[#0066CC] !text-xs"
-                >
-                  {{ skill }}
-                </el-tag>
-              </div>
-            </div>
-
-            <!-- 项目列表 -->
-            <div v-if="resumePersona.projects && resumePersona.projects.length > 0">
-              <div class="text-xs text-gray-400 mb-1.5">主要项目</div>
-              <div class="space-y-1.5">
-                <div
-                  v-for="(proj, i) in resumePersona.projects"
-                  :key="i"
-                  class="bg-white rounded-lg px-3 py-2 text-xs border border-[#0066CC]/10"
-                >
-                  <div class="flex items-center gap-2 mb-0.5">
-                    <span class="font-semibold text-gray-800">{{ proj.name || '未命名项目' }}</span>
-                    <span v-if="proj.role" class="text-gray-400">· {{ proj.role }}</span>
-                  </div>
-                  <div v-if="proj.tech && proj.tech.length" class="text-gray-500 mb-0.5">
-                    {{ proj.tech.join(' / ') }}
-                  </div>
-                  <div v-if="proj.highlights" class="text-gray-600">{{ proj.highlights }}</div>
-                </div>
-              </div>
-            </div>
-
-            <!-- 重新上传 / 移除 -->
-            <button
-              @click="clearResume"
-              class="w-full py-1.5 text-xs text-gray-500 border border-dashed border-gray-200 rounded-lg hover:border-red-300 hover:text-red-500 transition-colors"
-            >
-              移除，重新上传
-            </button>
-          </div>
-        </div>
-
-        <!-- 解析警告 -->
-        <div
-          v-if="resumeWarning"
-          class="mt-2 px-3 py-2 bg-yellow-50 border border-yellow-200 rounded-lg text-xs text-yellow-700"
-        >
-          {{ resumeWarning }}
-        </div>
-      </div>
     </div>
 
     <template #footer>
@@ -320,6 +170,7 @@
 import { ref } from 'vue'
 import { Loading } from '@element-plus/icons-vue'
 import api from '@/api'
+import ResumeUpload from '@/components/business/ResumeUpload.vue'
 
 const props = defineProps({
   roleName: String,
@@ -340,26 +191,27 @@ const repoSlots = ref([
   { url: '', analyzing: false, summary: null, error: '' }
 ])
 
-// v4: 简历上传与解析
-const resumeMode = ref('pdf')
-const resumeFile = ref(null)
-const resumeText = ref('')
-const resumeParsing = ref(false)
+// v4: 简历上传数据
 const resumePersona = ref(null)
-const resumeWarning = ref('')
 
 const open = async (roleKey) => {
   visible.value = true
   loading.value = true
   selectedSections.value = []
-  // 每次打开都重置 repo 输入和 resume 状态
+  
+  // 重置 repo 状态
   repoSlots.value = [{ url: '', analyzing: false, summary: null, error: '' }]
-  resumeMode.value = 'pdf'
-  resumeFile.value = null
-  resumeText.value = ''
-  resumeParsing.value = false
+  
+  // 初始化全局简历状态
   resumePersona.value = null
-  resumeWarning.value = ''
+  const savedPersona = localStorage.getItem('global_resume_persona')
+  if (savedPersona) {
+    try {
+      resumePersona.value = JSON.parse(savedPersona)
+    } catch (e) {
+      console.warn('Failed to parse global resume persona', e)
+    }
+  }
 
   const targetKey = roleKey || props.roleKey
   if (!targetKey) {
@@ -412,48 +264,6 @@ const analyzeRepoSlot = async (idx) => {
   }
 }
 
-// v4: 简历解析
-const handleResumeFileChange = (e) => {
-  const file = e.target?.files?.[0]
-  if (file) {
-    resumeFile.value = file
-    resumeWarning.value = ''
-  }
-}
-
-const parseResume = async () => {
-  resumeParsing.value = true
-  resumeWarning.value = ''
-  try {
-    const formData = new FormData()
-    if (resumeMode.value === 'pdf' && resumeFile.value) {
-      formData.append('file', resumeFile.value)
-    } else if (resumeMode.value === 'text' && resumeText.value.trim()) {
-      formData.append('text', resumeText.value.trim())
-    } else {
-      resumeWarning.value = '请先选择 PDF 文件或粘贴简历文本'
-      return
-    }
-    const { data } = await api.post('/interview/resume/parse', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-      timeout: 60000
-    })
-    resumePersona.value = data.persona
-    resumeWarning.value = data.warning || ''
-  } catch (err) {
-    resumeWarning.value = err.response?.data?.detail || err.message || '简历解析请求失败'
-  } finally {
-    resumeParsing.value = false
-  }
-}
-
-const clearResume = () => {
-  resumePersona.value = null
-  resumeFile.value = null
-  resumeText.value = ''
-  resumeWarning.value = ''
-}
-
 const handleConfirm = () => {
   // 收集所有非空 URL（不要求必须先点"分析"，后端会再次抓取兜底）
   // 但如果分析过且失败了，就跳过这条，避免明知失败还提交
@@ -477,6 +287,7 @@ defineExpose({ open })
 <style>
 .custom-clean-dialog {
   border-radius: 12px !important;
+  max-width: 550px !important;
 }
 
 .custom-clean-dialog .el-dialog__header {
@@ -489,10 +300,5 @@ defineExpose({ open })
   font-weight: bold;
   color: #1F2937;
   font-size: 1.25rem;
-}
-
-.resume-textarea .el-textarea__inner {
-  font-size: 13px;
-  line-height: 1.6;
 }
 </style>

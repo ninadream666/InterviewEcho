@@ -1,9 +1,9 @@
 <template>
-  <div class="max-w-7xl mx-auto px-4 py-8 space-y-6">
+  <div class="max-w-7xl mx-auto px-4 py-4 sm:py-8 space-y-6">
     <section class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5">
       <div>
         <p class="text-sm font-semibold text-[#0066CC] uppercase tracking-wider mb-2">Hot100 ACM</p>
-        <h1 class="text-3xl font-bold text-slate-900 tracking-tight">题库练习</h1>
+        <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">题库练习</h1>
         <p class="text-slate-500 mt-3 max-w-2xl leading-relaxed">
           使用完整程序读取 stdin、输出 stdout，贴近笔试与现场编码的练习方式。
         </p>
@@ -19,7 +19,7 @@
     </section>
 
     <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex items-center justify-between">
+      <div class="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-slate-100 flex items-center justify-between">
         <div>
           <p class="text-sm font-medium text-slate-500 uppercase tracking-wider">题目总数</p>
           <h3 class="text-3xl font-bold text-slate-900 mt-1">{{ totalCount }}</h3>
@@ -28,7 +28,7 @@
           <el-icon class="text-3xl"><Document /></el-icon>
         </div>
       </div>
-      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex items-center justify-between">
+      <div class="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-slate-100 flex items-center justify-between">
         <div>
           <p class="text-sm font-medium text-slate-500 uppercase tracking-wider">已开放判题</p>
           <h3 class="text-3xl font-bold text-slate-900 mt-1">{{ judgableCount }}</h3>
@@ -37,7 +37,7 @@
           <el-icon class="text-3xl"><Cpu /></el-icon>
         </div>
       </div>
-      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex items-center justify-between">
+      <div class="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-slate-100 flex items-center justify-between">
         <div>
           <p class="text-sm font-medium text-slate-500 uppercase tracking-wider">当前通过</p>
           <h3 class="text-3xl font-bold text-slate-900 mt-1">{{ solvedCount }}</h3>
@@ -48,7 +48,7 @@
       </div>
     </section>
 
-    <section class="bg-white rounded-xl shadow-sm border border-slate-100 p-5">
+    <section class="bg-white rounded-xl shadow-sm border border-slate-100 p-4 sm:p-5">
       <div class="grid grid-cols-1 md:grid-cols-[1fr_180px_220px] gap-3">
         <el-input v-model="keyword" clearable placeholder="搜索题名或 slug" size="large" @keyup.enter="fetchProblems">
           <template #prefix>
@@ -67,7 +67,7 @@
 
     <div class="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_360px] gap-6">
       <section class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
-        <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+        <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100 flex items-center justify-between">
           <div>
             <h2 class="text-lg font-bold text-slate-800 flex items-center">
               <span class="w-1.5 h-5 bg-[#0066CC] rounded-full mr-2"></span>
@@ -78,7 +78,7 @@
           <span class="text-sm text-slate-400">{{ totalCount }} 题</span>
         </div>
 
-        <div v-if="loading" class="py-20 flex items-center justify-center text-slate-400">
+        <div v-if="loading" class="py-12 sm:py-20 flex items-center justify-center text-slate-400">
           <el-icon class="is-loading text-2xl mr-2 text-[#0066CC]"><Loading /></el-icon>
           正在整理题库
         </div>
@@ -88,7 +88,7 @@
             v-for="problem in visibleProblems"
             :key="problem.id"
             type="button"
-            class="w-full px-6 py-4 text-left hover:bg-slate-50 transition-colors grid grid-cols-[48px_minmax(0,1fr)_auto] md:grid-cols-[56px_minmax(0,1fr)_120px_96px_24px] gap-3 items-center"
+            class="w-full px-4 sm:px-6 py-3 sm:py-4 text-left hover:bg-slate-50 transition-colors grid grid-cols-[48px_minmax(0,1fr)_auto] md:grid-cols-[56px_minmax(0,1fr)_120px_96px_24px] gap-3 items-center"
             @click="goProblem(problem.id)"
           >
             <span class="text-sm font-bold text-slate-400 tabular-nums">{{ String(problem.id).padStart(2, '0') }}</span>
@@ -114,16 +114,16 @@
           </button>
         </div>
 
-        <div v-else class="py-20 text-center text-slate-400">没有匹配的题目</div>
+        <div v-else class="py-12 sm:py-20 text-center text-slate-400">没有匹配的题目</div>
 
-        <div v-if="!loading && problemTotalPages > 1" class="px-6 py-4 border-t border-slate-100 flex items-center justify-between">
+        <div v-if="!loading && problemTotalPages > 1" class="px-4 sm:px-6 py-3 sm:py-4 border-t border-slate-100 flex items-center justify-between">
           <span class="text-sm text-slate-400">第 {{ problemPage }} / {{ problemTotalPages }} 页</span>
           <el-pagination v-model:current-page="problemPage" background layout="prev, pager, next" :page-size="pageSize" :total="problems.length" />
         </div>
       </section>
 
       <aside class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden h-fit">
-        <div class="px-6 py-4 border-b border-slate-100">
+        <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100">
           <h2 class="text-lg font-bold text-slate-800 flex items-center">
             <span class="w-1.5 h-5 bg-[#0066CC] rounded-full mr-2"></span>
             最近提交
@@ -131,12 +131,12 @@
           <p class="text-sm text-slate-500 mt-1">只记录正式提交，样例运行不会进入历史。</p>
         </div>
 
-        <div v-if="historyLoading" class="py-16 flex items-center justify-center text-slate-400">
+        <div v-if="historyLoading" class="py-12 sm:py-16 flex items-center justify-center text-slate-400">
           <el-icon class="is-loading text-2xl mr-2 text-[#0066CC]"><Loading /></el-icon>
           正在读取历史
         </div>
         <div v-else-if="visibleSubmissions.length" class="divide-y divide-slate-100">
-          <button v-for="item in visibleSubmissions" :key="item.id" type="button" class="w-full px-6 py-4 text-left hover:bg-slate-50 transition-colors" @click="goProblem(item.problem_id)">
+          <button v-for="item in visibleSubmissions" :key="item.id" type="button" class="w-full px-4 sm:px-6 py-3 sm:py-4 text-left hover:bg-slate-50 transition-colors" @click="goProblem(item.problem_id)">
             <div class="flex items-start gap-3">
               <span :class="['mt-1.5 w-2.5 h-2.5 rounded-full shrink-0', statusDotClass(item.status)]"></span>
               <div class="min-w-0">
@@ -150,7 +150,7 @@
             </div>
           </button>
         </div>
-        <div v-else class="py-16 text-center text-slate-400">还没有正式提交</div>
+        <div v-else class="py-12 sm:py-16 text-center text-slate-400">还没有正式提交</div>
       </aside>
     </div>
   </div>
