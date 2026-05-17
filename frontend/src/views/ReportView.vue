@@ -88,6 +88,15 @@
           </div>
         </div>
 
+        <!-- 🌟 NEW: 评估维度明细面板 (W4.5.8) 🌟 -->
+        <div v-if="report" class="pt-10 border-t border-gray-200">
+          <div class="mb-8">
+            <h1 class="text-2xl font-extrabold text-gray-900 tracking-tight">评估维度明细</h1>
+            <p class="text-gray-500 mt-2 text-sm">多维度能力的详细得分、权重占比及判定依据</p>
+          </div>
+          <EvalDimensionPanel :report="report" />
+        </div>
+
         <!-- 🌟 V2: 表达能力深度诊断 🌟 -->
         <div v-if="report.expression_metrics" class="pt-10 border-t border-gray-200">
           <div class="mb-8">
@@ -410,6 +419,7 @@ import api from '@/api'
 import { ElMessage } from 'element-plus'
 import RadarChart from '@/components/analytics/RadarChart.vue'
 import ExpressionLineChart from '@/components/analytics/ExpressionLineChart.vue'
+import EvalDimensionPanel from '@/components/business/EvalDimensionPanel.vue'
 
 const route = useRoute()
 const router = useRouter()

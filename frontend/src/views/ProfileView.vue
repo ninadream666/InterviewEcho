@@ -35,6 +35,22 @@
       </div>
     </section>
 
+    <!-- Global Resume Section (W4.2.4) -->
+    <section class="bg-white p-6 rounded-xl shadow-sm border border-slate-100" data-purpose="resume-section">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 border-b border-slate-100 pb-4 gap-2">
+        <h2 class="text-lg font-bold text-slate-800 flex items-center">
+          <span class="w-1.5 h-5 bg-[#0066CC] rounded-full mr-2"></span>
+          我的全局简历画像
+        </h2>
+        <span class="text-sm text-slate-500 bg-slate-50 px-3 py-1 rounded-full border border-slate-200">在此解析一次，发起面试时自动带入上下文</span>
+      </div>
+      <ResumeUpload 
+        v-model="globalResumePersona" 
+        hide-title 
+        @update:modelValue="saveGlobalResume" 
+      />
+    </section>
+
     <!-- ChartSection -->
     <section class="bg-white p-6 rounded-xl shadow-sm border border-slate-100" data-purpose="middle-chart-section">
       <div class="flex items-center justify-between mb-6 border-b border-slate-100 pb-4">
@@ -115,13 +131,27 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/api'
 import LineChart from '@/components/analytics/LineChart.vue'
+import ResumeUpload from '@/components/business/ResumeUpload.vue'
 
 const router = useRouter()
 const history = ref([])
 const filterRole = ref('All')
 const filterDifficulty = ref('All')
 
+// 全局简历状态
+const globalResumePersona = ref(null)
+
 onMounted(async () => {
+  // 加载全局保存的简历数据
+  const savedPersona = localStorage.getItem('global_resume_persona')
+  if (savedPersona) {
+    try {
+      globalResumePersona.value = JSON.parse(savedPersona)
+    } catch (e) {
+      console.warn('Failed to parse saved resume persona', e)
+    }
+  }
+
   try {
     const { data } = await api.get('/interview/history')
     history.value = data
@@ -129,6 +159,15 @@ onMounted(async () => {
     console.error('Failed to fetch history:', err)
   }
 })
+
+// 保存简历画像到本地存储
+const saveGlobalResume = (val) => {
+  if (val) {
+    localStorage.setItem('global_resume_persona', JSON.stringify(val))
+  } else {
+    localStorage.removeItem('global_resume_persona')
+  }
+}
 
 const availableRoles = computed(() => {
   const rs = new Set(history.value.map(h => h.role))
