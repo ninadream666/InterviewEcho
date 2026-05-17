@@ -1,6 +1,6 @@
 <template>
   <div class="space-y-4">
-    <div v-for="(dim, index) in dimensionDetails" :key="index" class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex flex-col md:flex-row items-start md:items-center gap-6 hover:border-[#0066CC]/30 transition-colors">
+    <div v-for="(dim, index) in dimensionDetails" :key="index" class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-5 flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-6 hover:border-[#0066CC]/30 transition-colors">
       
       <!-- 维度名称与权重 -->
       <div class="w-full md:w-1/5 shrink-0">

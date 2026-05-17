@@ -4,7 +4,7 @@
     <div class="flex justify-between items-center px-4 py-3 border-b" :class="theme === 'dark' ? 'border-[#333333]' : 'border-gray-200'">
       <div class="flex items-center gap-3">
         <span class="font-bold text-sm">代码编辑器</span>
-        <select v-model="language" class="text-xs px-3 py-1.5 rounded-md border focus:outline-none transition-colors" :class="theme === 'dark' ? 'bg-[#2A2A2A] border-[#444] text-gray-200 focus:border-[#0066CC]' : 'bg-gray-50 border-gray-200 focus:border-[#0066CC]'">
+        <select v-model="language" class="text-xs px-2 sm:px-3 py-1.5 rounded-md border focus:outline-none transition-colors" :class="theme === 'dark' ? 'bg-[#2A2A2A] border-[#444] text-gray-200 focus:border-[#0066CC]' : 'bg-gray-50 border-gray-200 focus:border-[#0066CC]'">
           <option value="python">Python</option>
           <option value="java">Java</option>
           <option value="cpp">C++</option>
@@ -38,15 +38,15 @@
     <div class="h-56 border-t flex flex-col shadow-[0_-4px_10px_rgba(0,0,0,0.02)]" :class="theme === 'dark' ? 'border-[#333333] bg-[#121212]' : 'border-gray-200 bg-white'">
       <div class="flex justify-between items-center px-4 py-2 border-b" :class="theme === 'dark' ? 'border-[#333333]' : 'border-gray-50 bg-gray-50/50'">
         <span class="text-xs font-bold uppercase tracking-wider text-gray-500">控制台输出</span>
-        <div class="flex gap-2">
-          <button @click="runCode" :disabled="isRunning" class="text-xs px-4 py-1.5 rounded-lg font-bold transition-all border border-[#0066CC] text-[#0066CC] hover:bg-blue-50 dark:hover:bg-[#0066CC]/10 disabled:opacity-50">
+        <div class="flex flex-wrap gap-2">
+          <button @click="runCode" :disabled="isRunning" class="text-xs px-3 sm:px-4 py-1.5 rounded-lg font-bold transition-all border border-[#0066CC] text-[#0066CC] hover:bg-blue-50 dark:hover:bg-[#0066CC]/10 disabled:opacity-50">
             <span class="flex items-center gap-1">
               <svg v-if="!isRunning" class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
               <svg v-else class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
               {{ isRunning ? '运行中...' : '运行测试' }}
             </span>
           </button>
-          <button @click="submitCode" class="text-xs px-4 py-1.5 rounded-lg font-bold transition-all bg-[#0066CC] text-white hover:bg-blue-700 active:scale-95 shadow-sm">
+          <button @click="submitCode" class="text-xs px-3 sm:px-4 py-1.5 rounded-lg font-bold transition-all bg-[#0066CC] text-white hover:bg-blue-700 active:scale-95 shadow-sm">
             提交代码给面试官
           </button>
         </div>

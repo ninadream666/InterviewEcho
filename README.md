@@ -120,3 +120,142 @@ CODE_MAX_TEST_CASES=30
 CODE_MAX_CONCURRENT_JUDGE_CASES=8
 CODE_OUTPUT_LIMIT=4000
 ```
+
+```
+InterviewEcho
+├─ .env.example
+├─ backend
+│  ├─ .env
+│  ├─ core
+│  │  ├─ config.py
+│  │  ├─ llm_service.py
+│  │  ├─ prompts.py
+│  │  ├─ role_criteria.py
+│  │  └─ __init__.py
+│  ├─ db
+│  │  ├─ code_problem_bank.py
+│  │  ├─ database.py
+│  │  ├─ models.py
+│  │  ├─ schemas.py
+│  │  ├─ seed_code_problems.py
+│  │  └─ __init__.py
+│  ├─ evaluation
+│  │  ├─ expression_evaluator.py
+│  │  ├─ expression_rubric.md
+│  │  ├─ filler_words.py
+│  │  └─ __init__.py
+│  ├─ main.py
+│  ├─ migrate_scores.py
+│  ├─ rag
+│  │  ├─ build_index.py
+│  │  ├─ chroma_db
+│  │  └─ __init__.py
+│  ├─ requirements.txt
+│  ├─ routers
+│  │  ├─ auth.py
+│  │  ├─ code.py
+│  │  ├─ interview.py
+│  │  └─ __init__.py
+│  ├─ services
+│  │  ├─ audio_analysis.py
+│  │  ├─ interrupt_policy.py
+│  │  ├─ judge0_service.py
+│  │  ├─ rag_service.py
+│  │  ├─ repo_analyzer.py
+│  │  ├─ resume_parser.py
+│  │  ├─ stt_service.py
+│  │  └─ __init__.py
+│  ├─ sql
+│  │  ├─ init_db.sql
+│  │  ├─ migration_v2_voice.sql
+│  │  ├─ migration_v3_github.sql
+│  │  ├─ migration_v4_resume.sql
+│  │  ├─ migration_v5_code_practice.sql
+│  │  └─ __init__.py
+│  ├─ tests
+│  │  ├─ mock_voice_metrics.json
+│  │  ├─ test_audio_analysis.py
+│  │  ├─ test_b_integration.py
+│  │  ├─ test_expression_evaluator.py
+│  │  └─ test_repo_analyzer.py
+│  ├─ test_live.py
+│  ├─ test_pipeline.py
+│  └─ test_whisper.py
+├─ docs
+│  ├─ db_changelog_v4.md
+│  ├─ expression_module_contract.md
+│  └─ workflow.md
+├─ frontend
+│  ├─ .env
+│  ├─ index.html
+│  ├─ package-lock.json
+│  ├─ package.json
+│  ├─ playwright-report
+│  │  └─ index.html
+│  ├─ playwright.config.js
+│  ├─ postcss.config.js
+│  ├─ src
+│  │  ├─ api
+│  │  │  └─ index.js
+│  │  ├─ App.vue
+│  │  ├─ components
+│  │  │  ├─ analytics
+│  │  │  │  ├─ ExpressionLineChart.vue
+│  │  │  │  ├─ LineChart.vue
+│  │  │  │  └─ RadarChart.vue
+│  │  │  └─ business
+│  │  │     ├─ ChatBubble.vue
+│  │  │     ├─ CodeEditor.vue
+│  │  │     ├─ EvalDimensionPanel.vue
+│  │  │     ├─ InterviewSettingsDialog.vue
+│  │  │     ├─ ResumeDialog.vue
+│  │  │     └─ ResumeUpload.vue
+│  │  ├─ layouts
+│  │  │  ├─ DefaultLayout.vue
+│  │  │  └─ InterviewLayout.vue
+│  │  ├─ main.js
+│  │  ├─ router
+│  │  │  └─ index.js
+│  │  ├─ stores
+│  │  │  └─ auth.js
+│  │  ├─ style.css
+│  │  └─ views
+│  │     ├─ CodePracticeView.vue
+│  │     ├─ CodeProblemView.vue
+│  │     ├─ DashboardView.vue
+│  │     ├─ HomeView.vue
+│  │     ├─ InterviewRoomView.vue
+│  │     ├─ LoginView.vue
+│  │     ├─ ProfileView.vue
+│  │     └─ ReportView.vue
+│  ├─ tailwind.config.js
+│  ├─ test-results
+│  │  └─ .last-run.json
+│  ├─ tests
+│  │  └─ e2e
+│  │     ├─ code_interview.spec.js
+│  │     └─ golden_path.spec.js
+│  └─ vite.config.js
+├─ knowledge-base
+│  ├─ build_vector_db.py
+│  ├─ build_vector_db_incremental.py
+│  ├─ java-backend
+│  │  ├─ core_tech.md
+│  │  ├─ interview_evaluation_rubrics.md
+│  │  ├─ interview_excellent_answers.md
+│  │  └─ questions.json
+│  ├─ python-algorithm
+│  │  ├─ core_tech.md
+│  │  ├─ interview_evaluation_rubrics.md
+│  │  ├─ interview_excellent_answers.md
+│  │  └─ questions.json
+│  ├─ README.md
+│  ├─ system_prompts.md
+│  └─ web-frontend
+│     ├─ core_tech.md
+│     ├─ interview_evaluation_rubrics.md
+│     ├─ interview_excellent_answers.md
+│     └─ questions.json
+└─ README.md
+
+```

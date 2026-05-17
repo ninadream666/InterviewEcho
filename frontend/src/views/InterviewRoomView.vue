@@ -1,35 +1,36 @@
 <template>
   <!-- 使用原版的深色沉浸式 Layout 作为外层容器，并通过 @end-interview 触发后端的真正结束逻辑 -->
-  <InterviewLayout :role="role" @end-interview="endInterview">
+  <InterviewLayout ref="layoutRef" :role="role" @end-interview="endInterview">
     
-    <!-- 内部容器：根据 isDarkMode 动态切换全局背景。采用横向 flex 布局以支持代码模式分屏 -->
-    <div class="flex h-full w-full overflow-hidden transition-colors duration-500" :class="isDarkMode ? 'bg-[#121212]' : 'bg-[#F3F4F6]'">
+    <!-- 内部容器：根据 isDarkMode 动态切换全局背景。采用 flex-col md:flex-row 以支持手机端上下分屏，电脑端左右分屏 -->
+    <div class="flex flex-col md:flex-row h-full w-full overflow-hidden transition-colors duration-500" :class="isDarkMode ? 'bg-[#121212]' : 'bg-[#F3F4F6]'">
       
-      <!-- 左侧/中央：聊天面板。如果是代码模式，宽度缩为 40% -->
-      <div class="flex flex-col h-full transition-all duration-500 ease-in-out" :class="[isCodeMode ? 'w-[40%] border-r' : 'w-full', isDarkMode ? 'border-[#333333]' : 'border-gray-200']">
+      <!-- 左侧/中央/上半部分：聊天面板。如果是代码模式，手机端高度缩为一半，电脑端宽度缩为 40% -->
+      <!-- 增加 relative 属性，将悬浮按钮固定在这个面板层级，而不是随内容滚动 -->
+      <div class="flex flex-col relative transition-all duration-500 ease-in-out" :class="[isCodeMode ? 'h-1/2 md:h-full md:w-[40%] border-b md:border-b-0 md:border-r' : 'h-full w-full', isDarkMode ? 'border-[#333333]' : 'border-gray-200']">
         
-        <!-- Chat Area -->
-        <div class="flex-grow p-6 md:p-10 overflow-y-auto space-y-6 relative transition-colors duration-500" :class="isDarkMode ? 'bg-[#121212]' : 'bg-[#F3F4F6]'" ref="chatArea">
-          
-          <!-- 主题及模式切换悬浮按钮 -->
-          <div class="absolute top-4 right-4 z-10 flex gap-2">
-            <button 
-              @click="isCodeMode = !isCodeMode"
-              :class="isDarkMode ? 'bg-[#1E1E1E] text-gray-400 border-[#333333] hover:text-[#0066CC]' : 'bg-white text-gray-500 border-gray-200 hover:text-[#0066CC]'"
-              class="px-3 py-1.5 rounded-full text-xs font-bold border shadow-sm transition-all flex items-center gap-1.5"
-            >
-              <el-icon><Monitor v-if="!isCodeMode" /><ChatLineRound v-else /></el-icon>
-              {{ isCodeMode ? '退出代码模式' : '代码面试模式' }}
-            </button>
-            <button 
-              @click="isDarkMode = !isDarkMode"
-              :class="isDarkMode ? 'bg-[#1E1E1E] text-gray-400 border-[#333333] hover:text-white' : 'bg-white text-gray-500 border-gray-200 hover:text-[#0066CC]'"
-              class="px-3 py-1.5 rounded-full text-xs font-bold border shadow-sm transition-all flex items-center gap-1.5"
-            >
-              <el-icon><Sunny v-if="isDarkMode" /><Moon v-else /></el-icon>
-              {{ isDarkMode ? '浅色模式' : '深色沉浸' }}
-            </button>
-          </div>
+        <!-- 主题及模式切换悬浮按钮 (固定在当前面板的右上方，不随聊天内容滚动) -->
+        <div class="absolute top-4 right-4 z-20 flex gap-2">
+          <button 
+            @click="isCodeMode = !isCodeMode"
+            :class="isDarkMode ? 'bg-[#1E1E1E] text-gray-400 border-[#333333] hover:text-[#0066CC]' : 'bg-white text-gray-500 border-gray-200 hover:text-[#0066CC]'"
+            class="px-3 py-1.5 rounded-full text-xs font-bold border shadow-sm transition-all flex items-center gap-1.5"
+          >
+            <el-icon><Monitor v-if="!isCodeMode" /><ChatLineRound v-else /></el-icon>
+            {{ isCodeMode ? '退出代码模式' : '代码面试模式' }}
+          </button>
+          <button 
+            @click="isDarkMode = !isDarkMode"
+            :class="isDarkMode ? 'bg-[#1E1E1E] text-gray-400 border-[#333333] hover:text-white' : 'bg-white text-gray-500 border-gray-200 hover:text-[#0066CC]'"
+            class="px-3 py-1.5 rounded-full text-xs font-bold border shadow-sm transition-all flex items-center gap-1.5"
+          >
+            <el-icon><Sunny v-if="isDarkMode" /><Moon v-else /></el-icon>
+            {{ isDarkMode ? '浅色模式' : '深色沉浸' }}
+          </button>
+        </div>
+
+        <!-- Chat Area (增加顶部内边距 pt-16 md:pt-20，防止内容被上方悬浮按钮遮挡) -->
+        <div class="flex-grow p-6 md:p-10 pt-16 md:pt-20 overflow-y-auto space-y-6 transition-colors duration-500" :class="isDarkMode ? 'bg-[#121212]' : 'bg-[#F3F4F6]'" ref="chatArea">
           
           <div v-if="messages.length === 0" class="flex flex-col items-center justify-center h-full text-gray-500">
             <el-icon class="is-loading text-4xl mb-4 text-[#0066CC]"><component :is="Loading" /></el-icon>
@@ -51,8 +52,8 @@
           </div>
         </div>
 
-        <!-- Input Area -->
-        <div class="p-4 md:px-10 border-t transition-colors duration-500" :class="isDarkMode ? 'bg-[#1E1E1E] border-[#333333]' : 'bg-white border-gray-200'">
+        <!-- Input Area (手机端适当缩小内边距) -->
+        <div class="p-3 sm:p-4 md:px-10 border-t transition-colors duration-500" :class="isDarkMode ? 'bg-[#1E1E1E] border-[#333333]' : 'bg-white border-gray-200'">
           
           <div v-if="isRecording" class="flex items-center gap-2 mb-2 px-2 py-1 text-red-400 rounded animate-pulse">
             <div class="w-2 h-2 bg-red-500 rounded-full"></div>
@@ -119,8 +120,9 @@
         </div>
       </div>
 
-      <!-- 右侧面板：代码编辑器。仅在 isCodeMode 开启时渲染 (W4.3.6) -->
-      <div v-if="isCodeMode" class="w-[60%] h-full flex flex-col shadow-[-4px_0_15px_rgba(0,0,0,0.05)] z-20">
+      <!-- 右侧/下半部分面板：代码编辑器。仅在 isCodeMode 开启时渲染 (W4.3.6) -->
+      <!-- 手机端高度占一半，电脑端宽度占 60% -->
+      <div v-if="isCodeMode" class="h-1/2 md:h-full md:w-[60%] flex flex-col shadow-[-4px_0_15px_rgba(0,0,0,0.05)] z-20">
         <CodeEditor :theme="isDarkMode ? 'dark' : 'light'" @submit="handleCodeSubmit" />
       </div>
 
@@ -137,6 +139,9 @@ import api from '@/api'
 import ChatBubble from '@/components/business/ChatBubble.vue'
 import InterviewLayout from '@/layouts/InterviewLayout.vue'
 import CodeEditor from '@/components/business/CodeEditor.vue'
+
+// 获取 Layout 组件实例，以便调用其暴露的方法
+const layoutRef = ref(null)
 
 // 核心主题状态：默认为深色暗黑风
 const isDarkMode = ref(true)
@@ -379,6 +384,13 @@ const handleCodeSubmit = async ({ code, language, output }) => {
 // 接收来自InterviewLayout组件的结束事件
 const endInterview = async () => {
   ending.value = true
+  clearTimeoutTimer() // 停止本地的回答动态倒计时
+  
+  // 停止顶栏的全局时间倒计时
+  if (layoutRef.value && layoutRef.value.stopTimer) {
+    layoutRef.value.stopTimer()
+  }
+
   ElMessage.info('正在为整场面试进行深度评估，这可能需要几十秒，请勿关闭页面...')
   try {
     // LLM 评估通常 15-60s，单独覆盖全局 10s 超时，避免误报失败

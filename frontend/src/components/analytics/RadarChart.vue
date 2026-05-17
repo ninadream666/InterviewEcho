@@ -1,5 +1,5 @@
 <template>
-  <div ref="chartRef" class="w-full h-full min-h-[300px]"></div>
+  <div ref="chartRef" class="w-full h-full min-h-[250px] sm:min-h-[300px]"></div>
 </template>
 
 <script setup>

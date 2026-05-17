@@ -15,7 +15,7 @@
             <span class="text-xl font-bold text-gray-900 tracking-tight">InterviewEcho</span>
           </div>
 
-          <!-- Center: Primary Navigation -->
+          <!-- Center: Primary Navigation (Desktop) -->
           <nav class="hidden md:flex space-x-8">
             <router-link 
               to="/" 
@@ -48,7 +48,7 @@
           </nav>
 
           <!-- Right: Notifications and User Profile -->
-          <div class="flex items-center space-x-4">
+          <div class="flex items-center space-x-2 sm:space-x-4">
             <!-- Notification Bell -->
             <button aria-label="Notifications" class="p-2 rounded-full text-gray-400 hover:text-[#0066CC] focus:outline-none transition-colors">
               <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -68,15 +68,36 @@
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
+
+            <!-- Mobile Menu Hamburger Button -->
+            <button 
+              @click="isMobileMenuOpen = !isMobileMenuOpen" 
+              class="md:hidden p-2 rounded-md text-gray-400 hover:text-[#0066CC] focus:outline-none"
+            >
+              <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path v-if="!isMobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
           </div>
 
+        </div>
+      </div>
+
+      <!-- Mobile Menu Dropdown -->
+      <div v-show="isMobileMenuOpen" class="md:hidden border-t border-gray-200 bg-white">
+        <div class="px-2 pt-2 pb-3 space-y-1">
+          <router-link to="/" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#0066CC] hover:bg-gray-50" @click="isMobileMenuOpen = false">首页</router-link>
+          <router-link to="/dashboard" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#0066CC] hover:bg-gray-50" @click="isMobileMenuOpen = false">模拟面试大厅</router-link>
+          <router-link to="/code" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#0066CC] hover:bg-gray-50" @click="isMobileMenuOpen = false">题库练习</router-link>
+          <router-link to="/profile" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#0066CC] hover:bg-gray-50" @click="isMobileMenuOpen = false">面试历史与分析</router-link>
         </div>
       </div>
     </header>
     <!-- END: MainHeader -->
 
     <!-- BEGIN: MainContent -->
-    <main class="flex-grow flex items-start justify-center p-6 sm:p-10 lg:p-12">
+    <main class="flex-grow flex items-start justify-center p-4 sm:p-6 lg:p-12">
       <div class="w-full max-w-7xl mx-auto">
         <!-- 路由出口，渲染具体的页面内容 -->
         <router-view v-slot="{ Component }">
@@ -91,7 +112,7 @@
     <!-- BEGIN: Footer -->
     <footer class="bg-white border-t border-gray-200 py-6 mt-auto">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500">
-        <div class="mb-4 md:mb-0">
+        <div class="mb-4 md:mb-0 text-center md:text-left">
           © 2026 InterviewEcho. 面向计算机相关学生的AI模拟面试平台.
         </div>
         <div class="flex space-x-6">
@@ -106,11 +127,13 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useRouter } from 'vue-router'
 
 const authStore = useAuthStore()
 const router = useRouter()
+const isMobileMenuOpen = ref(false)
 
 const handleLogout = () => {
   authStore.logout()

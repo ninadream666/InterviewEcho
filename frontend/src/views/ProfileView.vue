@@ -53,17 +53,17 @@
 
     <!-- ChartSection -->
     <section class="bg-white p-6 rounded-xl shadow-sm border border-slate-100" data-purpose="middle-chart-section">
-      <div class="flex items-center justify-between mb-6 border-b border-slate-100 pb-4">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 border-b border-slate-100 pb-4 gap-4 sm:gap-2">
         <h2 class="text-lg font-bold text-slate-800 flex items-center">
           <span class="w-1.5 h-5 bg-[#0066CC] rounded-full mr-2"></span>
           近期能力成长曲线
         </h2>
-        <div class="flex gap-3">
-          <select v-model="filterRole" class="border border-slate-200 text-sm rounded-md px-3 py-1.5 text-slate-600 focus:outline-none focus:border-[#0066CC]">
+        <div class="flex flex-col sm:flex-row w-full sm:w-auto gap-3 sm:gap-2">
+          <select v-model="filterRole" class="w-full sm:w-auto border border-slate-200 text-sm rounded-md px-3 py-1.5 text-slate-600 focus:outline-none focus:border-[#0066CC]">
             <option value="All">全部岗位</option>
             <option v-for="role in availableRoles" :key="role" :value="role">{{ role }}</option>
           </select>
-          <select v-model="filterDifficulty" class="border border-slate-200 text-sm rounded-md px-3 py-1.5 text-slate-600 focus:outline-none focus:border-[#0066CC]">
+          <select v-model="filterDifficulty" class="w-full sm:w-auto border border-slate-200 text-sm rounded-md px-3 py-1.5 text-slate-600 focus:outline-none focus:border-[#0066CC]">
             <option value="All">全部难度</option>
             <option value="简单">简单</option>
             <option value="中等">中等</option>
@@ -75,7 +75,7 @@
       <div v-if="history.length === 0" class="h-64 flex items-center justify-center bg-slate-50 rounded-lg border border-dashed border-slate-200">
         <p class="text-slate-400 font-medium">暂无数据，请先完成一次模拟面试</p>
       </div>
-      <div v-else class="h-80 w-full rounded-lg bg-white" data-purpose="chart-container">
+      <div v-else class="h-64 sm:h-80 w-full rounded-lg bg-white" data-purpose="chart-container">
         <LineChart :history="history" :filter-role="filterRole" :filter-difficulty="filterDifficulty" />
       </div>
     </section>
@@ -89,24 +89,24 @@
         <table class="w-full text-left border-collapse">
           <thead>
             <tr class="bg-slate-50">
-              <th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase">日期</th>
-              <th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase">目标岗位</th>
-              <th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase">难度</th>
-              <th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase">最终得分</th>
-              <th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase text-right">操作</th>
+              <th class="px-4 py-2 sm:px-6 sm:py-3 text-xs font-semibold text-slate-500 uppercase">日期</th>
+              <th class="px-4 py-2 sm:px-6 sm:py-3 text-xs font-semibold text-slate-500 uppercase">目标岗位</th>
+              <th class="px-4 py-2 sm:px-6 sm:py-3 text-xs font-semibold text-slate-500 uppercase">难度</th>
+              <th class="px-4 py-2 sm:px-6 sm:py-3 text-xs font-semibold text-slate-500 uppercase">最终得分</th>
+              <th class="px-4 py-2 sm:px-6 sm:py-3 text-xs font-semibold text-slate-500 uppercase text-right">操作</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
             <tr v-for="item in filteredHistory" :key="item.id" class="hover:bg-slate-50 transition-colors">
-              <td class="px-6 py-4 text-sm text-slate-600">{{ formatDateTime(item.created_at) }}</td>
-              <td class="px-6 py-4 text-sm font-medium text-slate-900">{{ item.role }}</td>
-              <td class="px-6 py-4">
+              <td class="px-4 py-3 sm:px-6 sm:py-4 text-sm text-slate-600">{{ formatDateTime(item.created_at) }}</td>
+              <td class="px-4 py-3 sm:px-6 sm:py-4 text-sm font-medium text-slate-900">{{ item.role }}</td>
+              <td class="px-4 py-3 sm:px-6 sm:py-4">
                 <span :class="['px-2.5 py-0.5 rounded-full text-xs font-medium border', getDifficultyClass(item.difficulty)]">
                   {{ item.difficulty }}
                 </span>
               </td>
-              <td class="px-6 py-4 text-sm font-bold text-slate-900">{{ item.total_score.toFixed(1) }}</td>
-              <td class="px-6 py-4 text-right">
+              <td class="px-4 py-3 sm:px-6 sm:py-4 text-sm font-bold text-slate-900">{{ item.total_score.toFixed(1) }}</td>
+              <td class="px-4 py-3 sm:px-6 sm:py-4 text-right">
                 <button 
                   @click="router.push({ name: 'Report', params: { id: item.id } })"
                   class="text-[#0066CC] text-sm font-semibold hover:underline decoration-2 underline-offset-4 cursor-pointer"
@@ -116,7 +116,7 @@
               </td>
             </tr>
             <tr v-if="filteredHistory.length === 0">
-              <td colspan="5" class="px-6 py-10 text-center text-slate-400">暂无符合条件的历史记录哦～</td>
+              <td colspan="5" class="px-4 py-6 sm:px-6 sm:py-10 text-center text-slate-400">暂无符合条件的历史记录哦～</td>
             </tr>
           </tbody>
         </table>

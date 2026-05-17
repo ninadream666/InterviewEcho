@@ -1,6 +1,6 @@
 <template>
   <div class="w-full">
-    <label v-if="!hideTitle" class="block text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2 flex justify-between items-center">
+    <label v-if="!hideTitle" class="block text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1 sm:gap-0">
       <span>简历上传 (可选)</span>
       <span class="text-xs text-gray-400 normal-case tracking-normal">AI 将根据你的真实经历定制面试问题</span>
     </label>

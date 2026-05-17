@@ -1,9 +1,9 @@
 <template>
   <div class="bg-transparent w-full">
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 min-h-[600px] w-full p-8 md:p-12 max-w-7xl mx-auto mt-6 mb-12">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 min-h-[600px] w-full p-4 sm:p-8 md:p-12 max-w-7xl mx-auto mt-2 sm:mt-6 mb-12">
       
       <!-- 头部信息 -->
-      <div class="mb-8 border-b border-gray-200 pb-6 flex justify-between items-end">
+      <div class="mb-8 border-b border-gray-200 pb-6 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4">
         <div>
           <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">面试评估报告</h1>
           <p class="text-gray-500 mt-2 text-sm" v-if="report">
@@ -33,7 +33,7 @@
           <!-- 左侧：雷达图能力可视化 (5/12) -->
           <div class="w-full md:w-5/12 flex flex-col items-center">
             <h3 class="text-lg font-bold text-gray-800 mb-4 self-start">多维度能力图谱</h3>
-            <div class="w-full h-[350px] bg-gray-50 rounded-lg p-4 border border-gray-100 flex items-center justify-center">
+            <div class="w-full h-[280px] sm:h-[350px] bg-gray-50 rounded-lg p-4 border border-gray-100 flex items-center justify-center">
               <RadarChart :stats="{
                 technical_depth: report.content_score,
                 communication: report.expression_score,
@@ -88,7 +88,7 @@
           </div>
         </div>
 
-        <!-- 🌟 NEW: 评估维度明细面板 (W4.5.8) 🌟 -->
+        <!-- 评估维度明细面板 (W4.5.8) -->
         <div v-if="report" class="pt-10 border-t border-gray-200">
           <div class="mb-8">
             <h1 class="text-2xl font-extrabold text-gray-900 tracking-tight">评估维度明细</h1>
@@ -97,7 +97,7 @@
           <EvalDimensionPanel :report="report" />
         </div>
 
-        <!-- 🌟 V2: 表达能力深度诊断 🌟 -->
+        <!-- V2: 表达能力深度诊断 -->
         <div v-if="report.expression_metrics" class="pt-10 border-t border-gray-200">
           <div class="mb-8">
             <h1 class="text-2xl font-extrabold text-gray-900 tracking-tight">表达沟通专项分析</h1>
@@ -108,7 +108,7 @@
             <!-- 左侧：表达图表可视化 (5/12) -->
             <div class="w-full md:w-5/12 flex flex-col items-center">
               <h3 class="text-lg font-bold text-gray-800 mb-4 self-start">表达综合雷达</h3>
-              <div class="w-full h-[250px] bg-gray-50 rounded-lg p-4 border border-gray-100 flex items-center justify-center mb-6">
+              <div class="w-full h-[200px] sm:h-[250px] bg-gray-50 rounded-lg p-4 border border-gray-100 flex items-center justify-center mb-6">
                 <RadarChart 
                   :indicators="[
                     { name: '语速节奏', max: 100 },
@@ -121,7 +121,7 @@
               </div>
               
               <h3 class="text-lg font-bold text-gray-800 mb-4 self-start">语速波动曲线 (wpm)</h3>
-              <div class="w-full h-[220px] bg-gray-50 rounded-lg p-2 border border-gray-100">
+              <div class="w-full h-[200px] sm:h-[220px] bg-gray-50 rounded-lg p-2 border border-gray-100">
                 <ExpressionLineChart :data="report.expression_metrics.per_message" />
               </div>
             </div>
@@ -193,9 +193,9 @@
             </div>
           </div>
         </div>
-        <!-- 🌟 V2 End 🌟 -->
+        <!-- V2 End -->
 
-        <!-- 🔮 V3: GitHub 项目深挖专项 🔮 -->
+        <!-- V3: GitHub 项目深挖专项 -->
         <div v-if="report.repo_context && report.repo_context.length > 0" class="pt-10 border-t border-gray-200">
           <div class="mb-8">
             <h1 class="text-2xl font-extrabold text-gray-900 tracking-tight">GitHub 项目深挖专项</h1>
@@ -210,7 +210,7 @@
               class="bg-[#E6F0FA]/40 border border-[#0066CC]/20 rounded-xl p-6"
             >
               <!-- Repo 头部 -->
-              <div class="flex items-start justify-between mb-4 pb-4 border-b border-[#0066CC]/15">
+              <div class="flex flex-col sm:flex-row items-start justify-between mb-4 pb-4 border-b border-[#0066CC]/15 gap-3">
                 <div class="flex-1">
                   <div class="flex items-center gap-3 mb-2">
                     <span class="w-1.5 h-5 bg-[#0066CC] rounded-full"></span>
@@ -222,7 +222,7 @@
                   </div>
                   <p class="text-sm text-gray-600 ml-4">{{ repo.description || '（无项目描述）' }}</p>
                 </div>
-                <div class="flex flex-col items-end gap-1 text-xs text-gray-500 shrink-0 ml-4">
+                <div class="flex flex-row sm:flex-col items-center sm:items-end gap-2 sm:gap-1 text-xs text-gray-500 shrink-0 ml-0 sm:ml-4 mt-2 sm:mt-0">
                   <span class="px-2 py-0.5 rounded-full bg-white border border-[#0066CC]/30 text-[#0066CC] font-medium">
                     {{ repo.main_language || '未知语言' }}
                   </span>
@@ -287,7 +287,7 @@
             </div>
           </div>
         </div>
-        <!-- 🔮 V3 End 🔮 -->
+        <!-- V3 End -->
 
         <!-- V4: 能力提升计划（赛题 3)4)a） -->
         <div v-if="report.study_plan" class="pt-10 border-t border-gray-200">

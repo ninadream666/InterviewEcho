@@ -2,7 +2,7 @@
   <el-dialog
     v-model="visible"
     :title="`开始 ${roleName} 面试`"
-    width="550px"
+    width="95%"
     class="custom-clean-dialog"
     :show-close="false"
     destroy-on-close
@@ -17,7 +17,7 @@
             :key="d"
             @click="difficulty = d"
             :class="[
-              'py-3 rounded-lg font-bold transition-colors border',
+              'py-2 sm:py-3 text-sm sm:text-base rounded-lg font-bold transition-colors border',
               difficulty === d
                 ? 'bg-[#E6F0FA] border-[#0066CC] text-[#0066CC]'
                 : 'bg-white border-gray-200 text-gray-600 hover:border-[#0066CC]'
@@ -287,6 +287,7 @@ defineExpose({ open })
 <style>
 .custom-clean-dialog {
   border-radius: 12px !important;
+  max-width: 550px !important;
 }
 
 .custom-clean-dialog .el-dialog__header {

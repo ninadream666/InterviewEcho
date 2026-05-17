@@ -1,17 +1,17 @@
 <template>
-  <div class="flex items-center justify-center min-h-[90vh] bg-[#F9FAFB]">
+  <div class="flex items-center justify-center min-h-[90vh] bg-[#F9FAFB] p-4 sm:p-0">
     <div class="w-full max-w-md p-1">
-      <div class="bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border border-gray-100 p-10 relative">
+      <div class="bg-white rounded-[2rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden border border-gray-100 p-6 sm:p-8 md:p-10 relative">
         <!-- Decoration -->
         <div class="absolute -top-12 -right-12 w-40 h-40 bg-primary opacity-5 rounded-full"></div>
         <div class="absolute -bottom-12 -left-12 w-40 h-40 bg-secondary opacity-5 rounded-full"></div>
 
         <div class="relative z-10">
-          <div class="text-center mb-10">
-            <h1 class="text-3xl font-black text-gray-900 tracking-tight mb-2">
+          <div class="text-center mb-8 sm:mb-10">
+            <h1 class="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight mb-2">
               {{ isRegister ? '创建新账号' : '欢迎回来' }}
             </h1>
-            <p class="text-gray-400 font-medium">
+            <p class="text-sm sm:text-base text-gray-400 font-medium">
               {{ isRegister ? '加入 InterviewEcho，开启您的 AI 面试之旅' : '模拟面试，从 InterviewEcho 开始' }}
             </p>
           </div>
@@ -37,10 +37,10 @@
               ></el-input>
             </el-form-item>
 
-            <div class="mt-10 space-y-4">
+            <div class="mt-8 sm:mt-10 space-y-4">
               <el-button 
                 type="primary" 
-                class="w-full !rounded-[1.2rem] !py-7 !text-lg !font-bold shadow-lg shadow-indigo-100 transition-all hover:scale-[1.02] active:scale-95" 
+                class="w-full !rounded-[1rem] sm:!rounded-[1.2rem] !py-6 sm:!py-7 !text-base sm:!text-lg !font-bold shadow-lg shadow-indigo-100 transition-all hover:scale-[1.02] active:scale-95" 
                 @click="handleSubmit" 
                 :loading="loading"
               >

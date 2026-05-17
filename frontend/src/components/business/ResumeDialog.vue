@@ -2,7 +2,7 @@
   <el-dialog
     v-model="visible"
     title="检测到未完成的面试"
-    width="450px"
+    width="95%"
     class="custom-clean-dialog"
     :show-close="false"
     :close-on-click-modal="false"
@@ -34,8 +34,8 @@
     </div>
 
     <template #footer>
-      <div class="flex gap-4 pt-2">
-        <el-button @click="handleDiscard" :loading="discarding" class="!px-6 !border-gray-200 !text-gray-600 hover:!bg-red-50 hover:!text-red-500 hover:!border-red-200 transition-colors">
+      <div class="flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 pt-2">
+        <el-button @click="handleDiscard" :loading="discarding" class="!w-full sm:!w-auto !px-6 !border-gray-200 !text-gray-600 hover:!bg-red-50 hover:!text-red-500 hover:!border-red-200 transition-colors">
           放弃记录
         </el-button>
         <button 
@@ -95,6 +95,7 @@ defineExpose({ open })
 <style scoped>
 :deep(.custom-clean-dialog) {
   border-radius: 12px !important;
+  max-width: 450px !important;
 }
 :deep(.custom-clean-dialog .el-dialog__header) {
   border-bottom: 1px solid #F3F4F6;
