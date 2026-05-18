@@ -8,9 +8,35 @@ def _dump(value):
     return json.dumps(value, ensure_ascii=False)
 
 
+def _remove_retired_hot100_problems(db, active_problem_ids):
+    retired_problems = (
+        db.query(models.CodeProblem)
+        .filter(models.CodeProblem.source == "Hot100")
+        .filter(models.CodeProblem.id.notin_(active_problem_ids))
+        .all()
+    )
+    for problem in retired_problems:
+        db.query(models.CodeTestCase).filter(models.CodeTestCase.problem_id == problem.id).delete(
+            synchronize_session=False
+        )
+        has_submission = (
+            db.query(models.CodeSubmission.id)
+            .filter(models.CodeSubmission.problem_id == problem.id)
+            .first()
+        )
+        if has_submission:
+            problem.is_active = False
+        else:
+            db.delete(problem)
+
+
 def seed_code_problems(db):
     """Insert or refresh Hot100 ACM problem metadata and test cases."""
-    for order_index, item in enumerate(get_hot100_problems(), start=1):
+    problems = get_hot100_problems()
+    active_problem_ids = [item["id"] for item in problems]
+    _remove_retired_hot100_problems(db, active_problem_ids)
+
+    for order_index, item in enumerate(problems, start=1):
         problem = db.query(models.CodeProblem).filter(models.CodeProblem.id == item["id"]).first()
         fields = {
             "title": item["title"],
