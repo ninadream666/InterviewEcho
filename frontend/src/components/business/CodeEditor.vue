@@ -17,6 +17,16 @@
       </button>
     </div>
 
+    <!-- Problem Description Area (展示题目要求) -->
+    <div v-if="problem" class="px-4 py-3 border-b overflow-y-auto max-h-40 shadow-inner" :class="theme === 'dark' ? 'border-[#333333] bg-[#1A1A1A]' : 'border-gray-200 bg-gray-50'">
+      <div class="font-bold text-base mb-1">{{ problem.title }}</div>
+      <div class="text-xs mb-3 flex gap-2">
+        <span class="px-2 py-0.5 rounded font-medium" :class="theme === 'dark' ? 'bg-blue-900/40 text-blue-300' : 'bg-blue-100 text-blue-700'">{{ problem.difficulty }}</span>
+        <span v-for="tag in problem.tags" :key="tag" class="px-2 py-0.5 rounded" :class="theme === 'dark' ? 'bg-[#2A2A2A] text-gray-400' : 'bg-gray-200 text-gray-600'">{{ tag }}</span>
+      </div>
+      <div class="text-sm whitespace-pre-wrap leading-relaxed" :class="theme === 'dark' ? 'text-gray-300' : 'text-gray-600'" v-html="problem.description"></div>
+    </div>
+
     <!-- Monaco Editor Container -->
     <div class="flex-grow relative overflow-hidden">
       <vue-monaco-editor
@@ -65,7 +75,8 @@ import { codeApi } from '@/api'
 import { ElMessage } from 'element-plus'
 
 const props = defineProps({
-  theme: { type: String, default: 'dark' }
+  theme: { type: String, default: 'dark' },
+  problem: { type: Object, default: null }
 })
 
 const emit = defineEmits(['submit'])
@@ -85,33 +96,44 @@ const defaultCodes = {
 }
 
 const resetCode = () => {
-  code.value = defaultCodes[language.value]
+  code.value = props.problem?.starter_code?.[language.value] || defaultCodes[language.value]
   output.value = ''
   outputError.value = false
 }
 
-// 语言改变时，如果代码为空或还是旧语言的默认代码，则自动切换为新语言的默认代码
-watch(language, (newLang, oldLang) => {
-  if (!code.value || code.value === defaultCodes[oldLang]) {
-    code.value = defaultCodes[newLang]
+// 语言或题目改变时，如果代码为空或还是旧的默认代码，则自动切换为新代码模板
+watch([language, () => props.problem], ([newLang, newProblem], [oldLang, oldProblem] = []) => {
+  const defaultCode = defaultCodes[newLang]
+  const backendCode = newProblem?.starter_code?.[newLang]
+  
+  const oldDefaultCode = oldLang ? defaultCodes[oldLang] : null
+  const oldBackendCode = oldProblem?.starter_code?.[oldLang]
+
+  if (!code.value || code.value === oldDefaultCode || code.value === oldBackendCode) {
+    code.value = backendCode || defaultCode
   }
-}, { immediate: true })
+}, { immediate: true, deep: true })
 
 const runCode = async () => {
   if (!code.value.trim()) {
     ElMessage.warning('代码不能为空，请输入代码后再运行')
     return
   }
+  if (!props.problem) {
+    ElMessage.warning('暂无题目信息，无法运行测试')
+    return
+  }
+  
   isRunning.value = true
   output.value = '代码提交给 Judge0 评测沙箱运行中，请稍候...'
   outputError.value = false
   try {
-    const { data } = await codeApi.run({
+    const { data } = await codeApi.run(props.problem.id, {
       language: language.value,
       source_code: code.value
     })
     
-    // 兼容后端 Judge0 封装的可能返回结构 (stdout, stderr, compile_output 等)
+    // 兼容后端Judge0封装的可能返回结构 (stdout, stderr, compile_output 等)
     if (data.stderr || data.compile_output) {
       outputError.value = true
       output.value = data.compile_output || data.stderr

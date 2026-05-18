@@ -36,8 +36,10 @@ export const evaluationApi = {
 
 // 代码面试模块（W4.3.5 / W5.3 扩展）
 export const codeApi = {
-  run: (data) => instance.post('/code/run', data),
-  submit: (data) => instance.post('/code/submit', data)
+  getProblems: (params) => instance.get('/code/problems', { params }),
+  getProblemDetail: (problemId) => instance.get(`/code/problems/${problemId}`),
+  run: (problemId, data) => instance.post(`/code/problems/${problemId}/run`, data),
+  submit: (problemId, data) => instance.post(`/code/problems/${problemId}/submit`, data)
 }
 
 export default instance
