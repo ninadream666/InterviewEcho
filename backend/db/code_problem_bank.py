@@ -621,8 +621,4 @@ def build_placeholder_problem(index, spec):
 
 
 def get_hot100_problems():
-    problems = list(JUDGABLE_PROBLEMS)
-    next_id = len(problems) + 1
-    for offset, spec in enumerate(PLACEHOLDER_SPECS[: max(0, 100 - len(problems))]):
-        problems.append(build_placeholder_problem(next_id + offset, spec))
-    return problems
+    return list(JUDGABLE_PROBLEMS)

@@ -9,7 +9,6 @@
           <option value="java">Java</option>
           <option value="cpp">C++</option>
           <option value="javascript">JavaScript</option>
-          <option value="go">Go</option>
         </select>
       </div>
       <button @click="resetCode" class="text-xs px-3 py-1.5 rounded-md border hover:opacity-80 transition-opacity" :class="theme === 'dark' ? 'border-[#444] bg-[#2A2A2A] text-gray-300' : 'border-gray-200 bg-gray-50 text-gray-600'">
@@ -92,7 +91,6 @@ const defaultCodes = {
   java: 'public class Main {\n    public static void main(String[] args) {\n        // 在此处编写你的算法逻辑\n    }\n}',
   cpp: '#include <iostream>\nusing namespace std;\n\nint main() {\n    // 在此处编写你的算法逻辑\n    return 0;\n}',
   javascript: 'function solution() {\n    // 在此处编写你的算法逻辑\n}\n\nsolution();',
-  go: 'package main\n\nimport "fmt"\n\nfunc main() {\n    // 在此处编写你的算法逻辑\n}'
 }
 
 const resetCode = () => {
@@ -114,6 +112,58 @@ watch([language, () => props.problem], ([newLang, newProblem], [oldLang, oldProb
   }
 }, { immediate: true, deep: true })
 
+const displayText = (value) => {
+  if (value === null || value === undefined || value === '') return '（无输出）'
+  return String(value)
+}
+
+const formatCaseResult = (item) => {
+  const lines = [
+    `[用例 ${item.index}] ${item.passed ? '通过' : '未通过'}（${item.status || 'Unknown'}）`
+  ]
+  if (item.input !== null && item.input !== undefined) {
+    lines.push(`[输入]\n${displayText(item.input)}`)
+  }
+  if (item.expected_output !== null && item.expected_output !== undefined) {
+    lines.push(`[期望输出]\n${displayText(item.expected_output)}`)
+  }
+  if (item.actual_output !== null && item.actual_output !== undefined) {
+    lines.push(`[实际输出]\n${displayText(item.actual_output)}`)
+  }
+  if (item.message) {
+    lines.push(`[提示]\n${item.message}`)
+  }
+  if (item.stderr) {
+    lines.push(`[运行错误]\n${item.stderr}`)
+  }
+  if (item.compile_output) {
+    lines.push(`[编译输出]\n${item.compile_output}`)
+  }
+  if (item.runtime !== null && item.runtime !== undefined) {
+    lines.push(`[运行时间] ${item.runtime} s`)
+  }
+  if (item.memory !== null && item.memory !== undefined) {
+    lines.push(`[内存] ${item.memory} KB`)
+  }
+  return lines.join('\n')
+}
+
+const formatRunResponse = (data) => {
+  const results = Array.isArray(data?.results) ? data.results : []
+  const passed = data?.passed_count ?? results.filter((item) => item.passed).length
+  const total = data?.total_count ?? results.length
+  const lines = [
+    `[运行状态] ${data?.status || 'Unknown'}`,
+    `[通过用例] ${passed}/${total}`
+  ]
+  if (!results.length) {
+    lines.push('', '（暂无测试结果）')
+    return lines.join('\n')
+  }
+  lines.push('', ...results.map(formatCaseResult))
+  return lines.join('\n\n')
+}
+
 const runCode = async () => {
   if (!code.value.trim()) {
     ElMessage.warning('代码不能为空，请输入代码后再运行')
@@ -132,22 +182,8 @@ const runCode = async () => {
       language: language.value,
       source_code: code.value
     })
-    
-    // 兼容后端Judge0封装的可能返回结构 (stdout, stderr, compile_output 等)
-    if (data.stderr || data.compile_output) {
-      outputError.value = true
-      output.value = data.compile_output || data.stderr
-    } else {
-      let resultStr = ''
-      if (data.status && data.status.description) {
-        resultStr += `[执行状态] ${data.status.description}\n`
-      }
-      if (data.time) resultStr += `[执行时间] ${data.time} s\n`
-      if (data.memory) resultStr += `[内存消耗] ${data.memory} KB\n\n`
-      
-      resultStr += `[标准输出]\n${data.stdout || '（无输出）'}`
-      output.value = resultStr
-    }
+    outputError.value = data.status !== 'Accepted' || (data.results || []).some((item) => !item.passed)
+    output.value = formatRunResponse(data)
   } catch (err) {
     outputError.value = true
     output.value = err.response?.data?.detail || err.message || '运行请求失败，请检查后端 Judge0 评测服务是否已启动。'
