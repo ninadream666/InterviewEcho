@@ -123,7 +123,7 @@
       <!-- 右侧/下半部分面板：代码编辑器。仅在 isCodeMode 开启时渲染 (W4.3.6) -->
       <!-- 手机端高度占一半，电脑端宽度占 60% -->
       <div v-if="isCodeMode" class="h-1/2 md:h-full md:w-[60%] flex flex-col shadow-[-4px_0_15px_rgba(0,0,0,0.05)] z-20">
-        <CodeEditor :theme="isDarkMode ? 'dark' : 'light'" @submit="handleCodeSubmit" />
+        <CodeEditor :theme="isDarkMode ? 'dark' : 'light'" :problem="currentProblem" @submit="handleCodeSubmit" />
       </div>
 
     </div>
@@ -135,7 +135,7 @@ import { ref, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Loading, Microphone, Sunny, Moon, Monitor, ChatLineRound } from '@element-plus/icons-vue'
-import api from '@/api'
+import api, { codeApi } from '@/api'
 import ChatBubble from '@/components/business/ChatBubble.vue'
 import InterviewLayout from '@/layouts/InterviewLayout.vue'
 import CodeEditor from '@/components/business/CodeEditor.vue'
@@ -148,6 +148,9 @@ const isDarkMode = ref(true)
 
 // 代码面试模式状态 (W4.3.6)
 const isCodeMode = ref(false)
+
+// 当前正在作答的题目
+const currentProblem = ref(null)
 
 const route = useRoute()
 const router = useRouter()
@@ -374,8 +377,9 @@ const sendMessage = async () => {
 const handleCodeSubmit = async ({ code, language, output }) => {
   if (sending.value || ending.value) return
   
+  const title = currentProblem.value?.title || '未知题目'
   // 将代码片段与运行结果包装为结构化文本发送给 AI
-  const content = `我完成了代码编写（语言：${language}）。\n\n【我的代码】：\n\`\`\`${language}\n${code}\n\`\`\`\n\n【控制台运行结果】：\n${output || '无输出'}`
+  const content = `我完成了题目《${title}》的代码编写（语言：${language}）。\n\n【我的代码】：\n\`\`\`${language}\n${code}\n\`\`\`\n\n【控制台运行结果】：\n${output || '无输出'}\n\n请你作为面试官，点评一下我的代码的时间复杂度和空间复杂度，并指出可以优化的点。`
   
   inputMsg.value = content
   await sendMessage()
@@ -410,10 +414,34 @@ const endInterview = async () => {
 }
 
 // 监听代码模式切换，动态重置超时时间
-watch(isCodeMode, () => {
+watch(isCodeMode, async (newVal) => {
   const last = messages.value[messages.value.length - 1]
   if (last && last.sender === 'ai' && !sending.value && !ending.value) {
     startTimeoutTimer()
+  }
+
+  // 新增：进入代码模式且当前没有抽题时，自动从题库抽题并通知 AI
+  if (newVal && !currentProblem.value) {
+    try {
+      const { data: listData } = await codeApi.getProblems();
+      if (listData.items && listData.items.length > 0) {
+        // 随机抽选一题
+        const randomItem = listData.items[Math.floor(Math.random() * listData.items.length)];
+        
+        // 获取题目完整详情（含 description 和 starter_code）
+        const { data: detailData } = await codeApi.getProblemDetail(randomItem.id);
+        currentProblem.value = detailData;
+
+        // 构造候选人发言，自动提交给 AI，强行带入代码面试场景
+        const contextMessage = `面试官你好，我已切换到代码面试模式。系统为我分配的算法题是《${currentProblem.value.title}》。\n你能简要说明一下这道题的考察重点吗？接下来我会在编辑器里作答。`;
+        
+        inputMsg.value = contextMessage;
+        await sendMessage();
+      }
+    } catch (err) {
+      console.error('拉取题库失败:', err);
+      ElMessage.error('无法获取代码题，请检查网络或后端服务');
+    }
   }
 })
 

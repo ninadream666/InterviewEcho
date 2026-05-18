@@ -78,11 +78,19 @@ test.describe('代码面试交互测试 (Code Mode)', () => {
     // 验证超时倒计时是否动态重置为了 30 分钟
     await expect(timerDisplay).toContainText(/30:00|29:5\d/)
 
+    // 【新增修复】：等待前端自动拉取了题目并向AI发送了上下文说明
+    // 使用正则匹配允许文本略微差异，只要包含核心句即可
+    await expect(page.locator('text=/面试官你好，我已切换到代码面试模式/')).toBeVisible({ timeout: 15000 })
+
+    // 【新增修复】：务必等待 AI 对自动抽题上下文做出回复结束（即"发送中..."消失），避免此时点击"提交代码"被防抖直接 return
+    await expect(page.locator('text=发送中...')).toBeHidden({ timeout: 45000 })
+
     // 模拟提交代码动作
     await page.locator('button', { hasText: '提交代码给面试官' }).click()
 
-    // 验证气泡流中是否成功追加了包含代码片段格式的对话记录
-    await expect(page.locator('text=我完成了代码编写（语言：python）')).toBeVisible()
+    // 【核心修复】：更新断言文案，兼容动态插入的《题目名称》和额外请求语。使用正则 /.*/ 匹配动态部分
+    await expect(page.locator('text=/我完成了题目《.*》的代码编写（语言：python）/')).toBeVisible()
+    await expect(page.locator('text=/点评一下我的代码的时间复杂度和空间复杂度/')).toBeVisible()
     
     // 验证 AI 面试官成功进入思考/打字状态
     await expect(page.locator('text=发送中...')).toBeVisible()
