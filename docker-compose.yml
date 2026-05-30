@@ -1,0 +1,127 @@
+# ============================================================
+# InterviewEcho - Docker Compose (W3.6.3)
+# 一键启动：docker compose up -d
+# Judge0 代码判题使用独立 Compose，见 scripts/start_judge0.ps1
+# ============================================================
+
+version: "3.9"
+
+services:
+  # ---- MySQL 8.0 数据库 ----
+  mysql:
+    image: mysql:8.0
+    container_name: interview-echo-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASS:-interview_echo_2024}
+      MYSQL_DATABASE: interview_echo
+      MYSQL_CHARSET: utf8mb4
+      MYSQL_COLLATION: utf8mb4_unicode_ci
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./backend/sql/init_db.sql:/docker-entrypoint-initdb.d/01_init.sql:ro
+      - ./backend/sql/migration_v2_voice.sql:/docker-entrypoint-initdb.d/02_voice.sql:ro
+      - ./backend/sql/migration_v3_github.sql:/docker-entrypoint-initdb.d/03_github.sql:ro
+      - ./backend/sql/migration_v4_resume.sql:/docker-entrypoint-initdb.d/04_resume.sql:ro
+      - ./backend/sql/migration_v5_code_practice.sql:/docker-entrypoint-initdb.d/05_code_practice.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASS:-interview_echo_2024}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ---- Redis 缓存 ----
+  redis:
+    image: redis:7-alpine
+    container_name: interview-echo-redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # ---- FastAPI 后端 ----
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: interview-echo-backend
+    restart: unless-stopped
+    environment:
+      # LLM
+      LLM_API_KEY: ${LLM_API_KEY}
+      LLM_BASE_URL: ${LLM_BASE_URL:-https://api.openai.com/v1}
+      LLM_MODEL: ${LLM_MODEL:-gpt-3.5-turbo-1106}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-text-embedding-3-small}
+      # 数据库
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASS: ${DB_PASS:-interview_echo_2024}
+      DB_NAME: interview_echo
+      # Redis
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      # Judge0（外部服务 — 地址指向宿主机或独立容器）
+      JUDGE0_BASE_URL: ${JUDGE0_BASE_URL:-http://host.docker.internal:2358}
+      JUDGE0_TIMEOUT_SECONDS: ${JUDGE0_TIMEOUT_SECONDS:-12}
+      JUDGE0_POLL_INTERVAL_SECONDS: ${JUDGE0_POLL_INTERVAL_SECONDS:-0.6}
+      JUDGE0_MAX_POLL_ATTEMPTS: ${JUDGE0_MAX_POLL_ATTEMPTS:-90}
+      CODE_MAX_SOURCE_LENGTH: ${CODE_MAX_SOURCE_LENGTH:-20000}
+      CODE_MAX_TEST_CASES: ${CODE_MAX_TEST_CASES:-30}
+      CODE_MAX_CONCURRENT_JUDGE_CASES: ${CODE_MAX_CONCURRENT_JUDGE_CASES:-8}
+      CODE_OUTPUT_LIMIT: ${CODE_OUTPUT_LIMIT:-4000}
+      # CORS
+      CORS_ORIGINS: ${CORS_ORIGINS:-*}
+    ports:
+      - "${APP_PORT:-8000}:8000"
+    volumes:
+      # RAG 向量索引持久化
+      - rag_data:/app/rag
+      # 挂载 knowledge-base（构建索引时需要）
+      - ./knowledge-base:/app/../knowledge-base:ro
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: >
+      sh -c "
+        python -m rag.build_index || echo '[warn] RAG index build skipped';
+        uvicorn main:app --host 0.0.0.0 --port 8000
+      "
+
+  # ---- Vue 3 前端（开发模式） ----
+  frontend:
+    image: node:20-alpine
+    container_name: interview-echo-frontend
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+      - frontend_node_modules:/app/node_modules
+    ports:
+      - "${FRONTEND_PORT:-5173}:5173"
+    environment:
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8000}
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    depends_on:
+      - backend
+
+volumes:
+  mysql_data:
+    driver: local
+  redis_data:
+    driver: local
+  rag_data:
+    driver: local
+  frontend_node_modules:
+    driver: local
