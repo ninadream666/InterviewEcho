@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# IDE
+.vscode/
+.idea/
+
+# 测试音频（本地文件，每人不同）
+tests/audio_samples/
+
+# 环境变量（通过 docker-compose 注入）
+.env
+
+# Git
+.git/
+.gitignore
+
+# 数据库
+*.db
+*.sqlite
