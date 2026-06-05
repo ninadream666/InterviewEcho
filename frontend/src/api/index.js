@@ -1,8 +1,27 @@
+/**
+ * 模块名称：API 客户端（api/index）
+ * 功能描述：基于 Axios 的 HTTP 客户端封装，提供所有后端 API 的统一调用接口。
+ *
+ * 功能模块：
+ * - resumeApi：简历解析
+ * - evaluationApi：面试评估与报告
+ * - interviewApi：面试会话管理
+ * - codeApi：代码题库与判题
+ *
+ * 特性：
+ * - 请求拦截器：自动注入 Authorization Token
+ * - 响应拦截器：统一处理 401 未授权错误
+ */
 import axios from 'axios'
 import { useAuthStore } from '@/stores/auth'
 
+const apiBaseUrl =
+  import.meta.env.VITE_API_URL ||
+  import.meta.env.VITE_API_BASE_URL ||
+  'http://localhost:8000/api'
+
 const instance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000/api',
+  baseURL: apiBaseUrl,
   timeout: 10000,
 })
 
@@ -32,6 +51,11 @@ export const resumeApi = {
 
 export const evaluationApi = {
   getEvaluation: (evalId) => instance.get(`/interview/${evalId}/evaluation`)
+}
+
+export const interviewApi = {
+  getState: (interviewId) => instance.get(`/interview/${interviewId}/state`),
+  submitCode: (interviewId, data) => instance.post(`/interview/${interviewId}/code/submit`, data, { timeout: 120000 })
 }
 
 // 代码面试模块（W4.3.5 / W5.3 扩展）

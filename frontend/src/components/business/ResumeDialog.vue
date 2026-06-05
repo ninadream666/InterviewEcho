@@ -53,6 +53,7 @@
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import api from '@/api'
+import { formatShanghaiMonthDayChinese } from '@/utils/datetime'
 
 const emit = defineEmits(['resume'])
 
@@ -66,9 +67,7 @@ const open = (data) => {
 }
 
 const formatTime = (timeStr) => {
-  if (!timeStr) return ''
-  const d = new Date(timeStr)
-  return `${d.getMonth() + 1}月${d.getDate()}日 ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+  return formatShanghaiMonthDayChinese(timeStr)
 }
 
 const handleDiscard = async () => {

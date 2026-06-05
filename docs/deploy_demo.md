@@ -80,13 +80,16 @@ vim .env
 LLM_API_KEY=sk-your-actual-key
 LLM_BASE_URL=https://api.deepseek.com
 LLM_MODEL=deepseek-chat
-EMBEDDING_MODEL=text-embedding-3-small
+LLM_EMBEDDING_MODEL=text-embedding-3-small
 
 # 数据库密码（修改默认值！）
 DB_PASS=<strong-random-password>
 
 # CORS（限制为你的域名或服务器 IP）
 CORS_ORIGINS=http://<your-server-ip>:5173
+
+# 前端 API 地址
+VITE_API_URL=http://<your-server-ip>:8000/api
 
 # Judge0（使用同一台服务器的 Docker Judge0）
 JUDGE0_BASE_URL=http://127.0.0.1:2358
@@ -101,7 +104,7 @@ JUDGE0_BASE_URL=http://127.0.0.1:2358
 ```bash
 cd /opt/InterviewEcho
 
-# 启动所有核心服务（后端 + 前端 + MySQL + Redis）
+# 启动所有核心服务（后端 + 前端 + MySQL）
 docker compose up -d
 
 # 查看启动日志
