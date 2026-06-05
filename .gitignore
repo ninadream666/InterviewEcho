@@ -1,12 +1,17 @@
 # Python
 **/__pycache__/
 *.pyc
+.pytest_cache/
+.env
 venv/
 .venv/
+backend/.env
+backend/tests/test_app.db
 
 # Node
 node_modules/
 dist/
+frontend/playwright-report/
 
 # 数据库
 *.db
@@ -28,6 +33,7 @@ scripts/*
 
 # RAG向量仓库
 vector_index.json
+backend/rag/chroma_db/
 
 
 # 表达分析测试音频（本地，每人录音不同）

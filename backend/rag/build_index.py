@@ -1,3 +1,12 @@
+"""
+模块名称：RAG 向量索引构建器（build_index）
+功能描述：从 knowledge-base 目录读取所有 Markdown 文件，分块后生成向量嵌入，
+构建可供 RAG 检索的向量索引文件（vector_index.json）。
+
+运行方式：
+    cd backend && python -m app.cli.build_rag_index
+"""
+
 import os
 import json
 import numpy as np
@@ -6,13 +15,13 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Configuration
+# 知识库目录路径
 KNOWLEDGE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "knowledge-base"))
 OUTPUT_FILE = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "rag", "vector_index.json"))
 
-# Setup Client
+# 初始化嵌入模型客户端
 LLM_API_KEY = os.getenv("LLM_API_KEY", "")
-from core.config import settings
+from app.core.config import settings
 client = OpenAI(api_key=settings.LLM_API_KEY, base_url=settings.LLM_BASE_URL)
 
 def get_embedding(text):

@@ -5,6 +5,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 import * as echarts from 'echarts'
+import { formatShanghaiChartLabel, parseUtcLike } from '@/utils/datetime'
 
 const props = defineProps({
   history: {
@@ -41,12 +42,9 @@ const initChart = () => {
 const updateChart = () => {
   if (!chartInstance) return
 
-  const sortedHistory = [...props.history].sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
+  const sortedHistory = [...props.history].sort((a, b) => parseUtcLike(a.created_at) - parseUtcLike(b.created_at))
   
-  const uniqueDates = Array.from(new Set(sortedHistory.map(item => {
-    const d = new Date(item.created_at)
-    return `${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
-  })))
+  const uniqueDates = Array.from(new Set(sortedHistory.map(item => formatShanghaiChartLabel(item.created_at))))
 
   let series = []
   
@@ -63,10 +61,7 @@ const updateChart = () => {
             name: `${role}-${diff}`,
             type: 'line',
             data: uniqueDates.map(dateStr => {
-              const matching = roleDiffData.find(item => {
-                const d = new Date(item.created_at)
-                return `${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}` === dateStr
-              })
+              const matching = roleDiffData.find(item => formatShanghaiChartLabel(item.created_at) === dateStr)
               return matching ? { value: matching.total_score, difficulty: matching.difficulty } : null
             }),
             smooth: true,
@@ -83,10 +78,7 @@ const updateChart = () => {
       name: diff,
       type: 'line',
       data: uniqueDates.map(dateStr => {
-        const matching = roleData.find(item => {
-          const d = new Date(item.created_at)
-          return `${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}` === dateStr && item.difficulty === diff
-        })
+        const matching = roleData.find(item => formatShanghaiChartLabel(item.created_at) === dateStr && item.difficulty === diff)
         return matching ? { value: matching.total_score, difficulty: matching.difficulty } : null
       }),
       smooth: true,
@@ -100,10 +92,7 @@ const updateChart = () => {
       name: role,
       type: 'line',
       data: uniqueDates.map(dateStr => {
-        const matching = diffData.find(item => {
-          const d = new Date(item.created_at)
-          return `${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}` === dateStr && item.role === role
-        })
+        const matching = diffData.find(item => formatShanghaiChartLabel(item.created_at) === dateStr && item.role === role)
         return matching ? { value: matching.total_score, difficulty: matching.difficulty } : null
       }),
       smooth: true,
@@ -117,10 +106,7 @@ const updateChart = () => {
       name: `${props.filterRole} (${props.filterDifficulty})`,
       type: 'line',
       data: uniqueDates.map(dateStr => {
-        const matching = filteredData.find(item => {
-          const d = new Date(item.created_at)
-          return `${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}` === dateStr
-        })
+        const matching = filteredData.find(item => formatShanghaiChartLabel(item.created_at) === dateStr)
         return matching ? { value: matching.total_score, difficulty: matching.difficulty } : null
       }),
       smooth: true,

@@ -6,7 +6,7 @@
 `force_next_instruction` 中的指令片段。
 
 被以下位置调用：
-- routers/interview.py :: process_message_logic
+- app/services/interview_runtime.py :: process_message_logic
 
 设计原则：
 1. 规则优先，零外部依赖（不调 LLM），保证零成本、零延迟、可单测。

@@ -1,6 +1,17 @@
+"""
+模块名称：代码题库（code_problem_bank）
+功能描述：定义面试代码题库的基础数据结构和辅助函数。
+
+包含：
+- 各语言（Python/Java/C++/JavaScript）的起始代码模板
+- 题目工厂函数（problem / tc）
+- 题目的 CRUD 操作（筛选、排序、分页）
+"""
+
 from copy import deepcopy
 
 
+# 各语言的默认起始代码模板
 BASE_STARTER_CODE = {
     "python": """import sys
 

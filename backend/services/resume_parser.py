@@ -6,8 +6,8 @@
 3. 把 persona 序列化成可注入 system prompt 的中文段落
 
 被以下位置调用：
-- routers/interview.py :: POST /resume/parse
-- routers/interview.py :: process_message_logic（注入 Persona 上下文）
+- app/api/routes/interview_aux.py :: POST /resume/parse
+- app/services/interview_runtime.py :: process_message_logic（注入 Persona 上下文）
 """
 
 import json

@@ -14,7 +14,7 @@ B 的本地调试脚本 -- 演示如何用 mock 数据测试 score_expression()
     2. 去 evaluation/expression_evaluator.py 实现 score_expression
     3. 再跑此脚本 -> 看到打印出的评分结果
     4. 反复改 rubric 阈值 + 跑此脚本，直到分数符合预期
-    5. 接入到 routers/interview.py 的 end_interview
+    5. 接入到 app.services.interview_runtime 的评估链路
 """
 import json
 import os

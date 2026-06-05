@@ -1,7 +1,7 @@
 import json
 
-from db import models
-from db.code_problem_bank import get_hot100_problems
+from app.db import models
+from db.default_code_problem_bank import get_default_code_problems
 
 
 def _dump(value):
@@ -31,8 +31,8 @@ def _remove_retired_hot100_problems(db, active_problem_ids):
 
 
 def seed_code_problems(db):
-    """Insert or refresh Hot100 ACM problem metadata and test cases."""
-    problems = get_hot100_problems()
+    """Insert or refresh the default ACM problem metadata and test cases."""
+    problems = get_default_code_problems()
     active_problem_ids = [item["id"] for item in problems]
     _remove_retired_hot100_problems(db, active_problem_ids)
 

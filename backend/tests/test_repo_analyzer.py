@@ -16,7 +16,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from services.repo_analyzer import analyze_repo, parse_repo_url
+from app.services.repo_analyzer import analyze_repo, parse_repo_url
 
 
 def test_parse_url():

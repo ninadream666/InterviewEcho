@@ -1,20 +1,49 @@
+"""
+模块名称：提示词管理器（prompts）
+功能描述：从 Markdown 文件中加载和管理 LLM 系统提示词模板。
+
+工作原理：
+1. 读取 knowledge-base/system_prompts.md 文件
+2. 用正则解析各个 System Prompt 段落
+3. 将模板按用途分类存储（面试官/评估者/简历解析/项目深挖/自由发挥/学习计划/表达分析）
+4. 对外暴露 get_xxx_prompt() 方法，支持动态参数格式化
+
+提示词模板命名规则：
+- interviewer：面试官角色提示词
+- evaluator：面试评估者角色提示词
+- resume_parser：简历解析结构化提示词
+- resume_question_gen：简历深挖问题生成
+- repo_question_gen：项目深挖问题生成
+- free_question：自由发挥知识题生成
+- study_plan：学习计划生成
+- expression_evaluator：表达评分提示词
+"""
+
 import os
+import re
+
 
 class PromptManager:
+    """管理所有 LLM 系统提示词模板的加载与格式化。"""
+
     def __init__(self, prompt_file_path: str):
+        """
+        Args:
+            prompt_file_path: system_prompts.md 文件的路径。
+        """
         self.prompt_file_path = prompt_file_path
         self.prompts = {}
         self.load_prompts()
 
     def load_prompts(self):
+        """从 Markdown 文件中解析所有 System Prompt 模板并存储到 self.prompts 字典。"""
         if not os.path.exists(self.prompt_file_path):
             return
-        
+
         with open(self.prompt_file_path, "r", encoding="utf-8") as f:
             content = f.read()
-            
-        # Very basic parser for the markdown sections defined in system_prompts.md
-        import re
+
+        # 按 "## N. 标题" 分段
         sections = re.split(r"## \d+\. ", content)
         for section in sections:
             if "System Prompt:" in section:
@@ -41,7 +70,28 @@ class PromptManager:
                     elif "评估" in title:
                         self.prompts["evaluator"] = prompt
 
+    # ============================================================
+    # 各类 Prompt 获取方法
+    # ============================================================
+
     def get_interviewer_prompt(self, role, question, expected_points, conversation_history, target_next_question, difficulty="medium", knowledge_points="", force_next_instruction="", rag_context=""):
+        """
+        获取面试官角色的 System Prompt（已填入当前上下文）。
+
+        Args:
+            role: 岗位名称。
+            question: 当前正在问的问题文本。
+            expected_points: 期望候选人回答的关键点。
+            conversation_history: 对话历史（list[dict] 或格式化字符串）。
+            target_next_question: 下一道要问的题目文本。
+            difficulty: 难度。
+            knowledge_points: 知识点范围。
+            force_next_instruction: 强制跳题指令（打断策略输出）。
+            rag_context: RAG 检索到的知识库上下文。
+
+        Returns:
+            str: 格式化后的完整 System Prompt。
+        """
         template = self.prompts.get("interviewer", "")
         return template.format(
             role=role,
@@ -56,6 +106,18 @@ class PromptManager:
         )
 
     def get_evaluator_prompt(self, interview_transcript, excellent_answers_context="", role="", role_specific_criteria=""):
+        """
+        获取评估者角色的 System Prompt。
+
+        Args:
+            interview_transcript: 完整面试对话记录。
+            excellent_answers_context: RAG 检索到的优秀回答参考。
+            role: 岗位名称。
+            role_specific_criteria: 岗位特定的评估侧重标准。
+
+        Returns:
+            str: 格式化后的评估 Prompt。
+        """
         template = self.prompts.get("evaluator", "")
         # 兼容老 prompt 不含某些占位符的情况：仅替换存在的占位符
         format_kwargs = {
@@ -76,17 +138,20 @@ class PromptManager:
     def get_expression_evaluator_prompt(self):
         """
         获取表达分析评估专家的 Prompt。
-        注意：此Prompt中没有动态变量占位符，且包含原生JSON格式，因此直接返回，避免使用.format()
+
+        注意：此 Prompt 中没有动态变量占位符，且包含原生 JSON 格式，
+        因此直接返回，避免使用 .format() 导致花括号冲突。
         """
         return self.prompts.get("expression_evaluator", "")
 
     def get_study_plan_prompt(self, role: str, evaluation_data: dict, transcript_excerpt: str) -> str:
         """
         获取学习计划生成的 Prompt。
+
         Args:
-            role: 岗位
-            evaluation_data: evaluate_full_interview 返回的 dict
-            transcript_excerpt: 面试对话精选片段
+            role: 岗位。
+            evaluation_data: evaluate_full_interview 返回的 dict。
+            transcript_excerpt: 面试对话精选片段。
         """
         template = self.prompts.get("study_plan", "")
         if not template:
@@ -107,6 +172,7 @@ class PromptManager:
     def get_resume_parser_prompt(self) -> str:
         """
         获取简历解析的 Prompt（无动态占位符，直接返回模板）。
+
         简历文本由 services.resume_parser.parse_resume_text 在 user message 中传入，
         不在 system prompt 中插值，避免 .format() 解析简历内容里的花括号导致报错。
         """
@@ -115,9 +181,10 @@ class PromptManager:
     def get_repo_question_prompt(self, role: str, repo_summary: dict) -> str:
         """
         获取项目深挖问题生成的 Prompt。
+
         Args:
-            role: 岗位名（如"Java后端开发工程师"）
-            repo_summary: repo_analyzer.analyze_repo() 的返回值
+            role: 岗位名（如 "Java后端开发工程师"）。
+            repo_summary: repo_analyzer.analyze_repo() 的返回值。
         """
         template = self.prompts.get("repo_question_gen", "")
         if not template:
@@ -146,7 +213,6 @@ class PromptManager:
             readme_excerpt=repo_summary.get("readme_excerpt", ""),
             key_files=key_files_str,
         )
-
 
     def get_resume_question_prompt(self, persona: dict) -> str:
         """获取简历提问生成的 Prompt（纯按简历内容，不引入岗位角色）。"""
@@ -194,5 +260,6 @@ class PromptManager:
         )
 
 
+# 全局单例：自动从 knowledge-base 加载提示词模板
 PROMPT_FILE = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "knowledge-base", "system_prompts.md"))
 prompt_manager = PromptManager(PROMPT_FILE)

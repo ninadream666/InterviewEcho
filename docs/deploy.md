@@ -10,7 +10,7 @@
 | 方式 | 适合场景 | 复杂度 | 说明 |
 |------|---------|--------|------|
 | **Docker Compose（推荐）** | UAT / 演示 / 小规模部署 | ⭐⭐ | 一键拉起全部服务 |
-| **手动部署** | 本地开发 / 调试 | ⭐⭐⭐ | 需手动安装 MySQL、Redis、Node.js、Python |
+| **手动部署** | 本地开发 / 调试 | ⭐⭐⭐ | 需手动安装 MySQL、Node.js、Python |
 | **云服务器部署** | 生产演示 | ⭐⭐⭐⭐ | 见 `docs/deploy_demo.md` |
 
 ---
@@ -39,7 +39,9 @@ copy .env.example .env
 | `LLM_API_KEY` | 大模型 API Key | `sk-xxxxxxxx` |
 | `LLM_BASE_URL` | 大模型接口地址 | `https://api.deepseek.com` |
 | `LLM_MODEL` | 模型名称 | `deepseek-chat` |
+| `LLM_EMBEDDING_MODEL` | Embedding 模型 | `text-embedding-3-small` |
 | `DB_PASS` | MySQL root 密码 | `interview_echo_2024` |
+| `VITE_API_URL` | 前端 API 地址 | `http://localhost:8000/api` |
 
 ### 2.3 启动全部服务
 
@@ -49,9 +51,10 @@ docker compose up -d
 ```
 
 首次启动会自动：
-1. 拉取 `mysql:8.0`、`redis:7-alpine`、`node:20-alpine` 镜像
-2. 构建 `backend` 镜像（安装 Python 依赖 + 构建 RAG 索引）
-3. 创建数据库表结构（init_db.sql + 4 个 migration）
+1. 拉取 `mysql:8.0`、`node:20-alpine` 镜像
+2. 构建 `backend` 镜像
+3. 显式执行 `alembic upgrade head`
+4. 执行题库 seed 与 RAG 索引构建
 4. 启动前端 Vite 开发服务器
 
 ### 2.4 启动 Judge0（代码判题）
@@ -105,27 +108,34 @@ docker compose down -v
 | Python | ≥ 3.12 |
 | Node.js | ≥ 20.x |
 | MySQL | 8.0 |
-| Redis | ≥ 7.0（可选，用于缓存） |
 | FFmpeg | 最新 stable（语音处理依赖） |
 | Docker Desktop | 仅 Judge0 需要 |
 
 ### 3.2 后端部署
 
 ```powershell
-# 1. 进入 backend
-cd backend
-
-# 2. 安装 Python 依赖
-pip install -r requirements.txt
-
-# 3. 配置 .env（复制模板并填入真实值）
+# 1. 项目根目录创建 .env
 copy .env.example .env
 
-# 4. 构建 RAG 索引
-python -m rag.build_index
+# 2. 进入 backend
+cd backend
 
-# 5. 启动
-uvicorn main:app --host 0.0.0.0 --port 8000
+# 3. 安装 Python 依赖
+python -m venv .venv
+.\.venv\Scripts\activate
+pip install -r requirements.txt
+
+# 4. 数据库迁移
+alembic upgrade head
+
+# 5. 题库 seed
+python -m app.cli.seed_code_problems
+
+# 6. 构建 RAG 索引
+python -m app.cli.build_rag_index
+
+# 7. 启动
+uvicorn main:app --reload
 ```
 
 ### 3.3 前端部署
@@ -151,12 +161,9 @@ npm run build
 $env:MYSQL_PWD="your_password"
 
 mysql -u root -e "CREATE DATABASE IF NOT EXISTS interview_echo CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-
-Get-Content backend\sql\init_db.sql | mysql -u root interview_echo
-Get-Content backend\sql\migration_v2_voice.sql | mysql -u root interview_echo
-Get-Content backend\sql\migration_v3_github.sql | mysql -u root interview_echo
-Get-Content backend\sql\migration_v4_resume.sql | mysql -u root interview_echo
-Get-Content backend\sql\migration_v5_code_practice.sql | mysql -u root interview_echo
+cd backend
+.\.venv\Scripts\activate
+alembic upgrade head
 ```
 
 ---

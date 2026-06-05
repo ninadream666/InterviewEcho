@@ -24,8 +24,8 @@ from pprint import pprint
 # 让 import 能找到上层包（backend/）
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from services.stt_service import stt_service
-from services.audio_analysis import analyze_audio
+from app.services.audio_analysis import analyze_audio
+from app.services.stt_service import stt_service
 
 SAMPLES_DIR = os.path.join(os.path.dirname(__file__), "audio_samples")
 

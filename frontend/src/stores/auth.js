@@ -1,3 +1,16 @@
+/**
+ * 模块名称：认证状态管理（stores/auth）
+ * 功能描述：基于 Pinia 的用户认证状态管理，管理 Token 持久化和登录/登出逻辑。
+ *
+ * 状态：
+ * - token：认证 Token（持久化到 localStorage）
+ * - user：当前登录用户信息
+ *
+ * 操作：
+ * - login(username, password)：登录并保存 Token
+ * - register(username, password)：注册新用户
+ * - logout()：清除 Token 和用户信息
+ */
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 

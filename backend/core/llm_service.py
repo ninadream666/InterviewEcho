@@ -1,3 +1,21 @@
+"""
+模块名称：LLM 大语言模型服务（llm_service）
+功能描述：封装与 OpenAI 兼容 API 的全部交互逻辑，是面试系统 AI 能力的核心引擎。
+
+核心职责：
+1. 对话生成（generate_llm_response）：面试官追问/跳题决策
+2. 文本润色（polish_text）：对 Whisper 转写文本添加标点、修正错词
+3. 定制问题生成（generate_repo_questions / generate_resume_question / generate_free_question）
+4. 代码审查（generate_code_review）：对提交的代码做点评
+5. 综合评估（evaluate_full_interview）：内容维度打分 + 亮点/弱点提取
+6. 学习计划（generate_study_plan）：根据弱项生成个性化提升方案
+
+配置：
+- LLM_API_KEY / LLM_BASE_URL / LLM_MODEL 均从 app.core.config.settings 读取
+- 使用 AsyncOpenAI 客户端，支持 DeepSeek 等兼容 API
+- 所有 LLM 调用失败时降级兜底，不阻塞主流程
+"""
+
 import os
 import json
 from openai import AsyncOpenAI
@@ -5,7 +23,7 @@ from core.config import settings
 from core.prompts import prompt_manager
 from services.rag_service import rag_service
 
-# Initialize the OpenAI-compatible client
+# 全局 AsyncOpenAI 客户端（复用连接池）
 client = AsyncOpenAI(
     api_key=settings.LLM_API_KEY,
     base_url=settings.LLM_BASE_URL
@@ -244,6 +262,47 @@ async def generate_free_question(role: str, category: str, difficulty: str, aske
     except Exception as e:
         print(f"[generate_free_question] LLM error: {type(e).__name__}: {e}")
         return None
+
+
+async def generate_code_review(role: str, problem_title: str, problem_description: str, language: str, source_code: str, result_summary: str) -> str:
+    prompt = f"""
+你是一位资深 {role} 面试官。请对候选人的代码作答给出一次简洁、专业的面试反馈。
+
+题目：{problem_title}
+题意摘要：{problem_description}
+语言：{language}
+
+判题结果：
+{result_summary}
+
+候选人代码：
+```{language}
+{source_code}
+```
+
+请使用中文输出一段 120~220 字的点评，必须包含：
+1. 是否通过以及结果解读
+2. 时间复杂度和空间复杂度判断
+3. 1~2 个可优化点
+
+不要输出标题，不要使用 Markdown 列表。
+""".strip()
+
+    fallback = f"你这道《{problem_title}》整体思路已经表达出来了。建议你在说明核心数据结构选择的同时，明确补充时间复杂度和空间复杂度，并再检查一下边界条件、异常输入与代码可读性，这会让你的工程表达更完整。"
+
+    try:
+        response = await client.chat.completions.create(
+            model=settings.LLM_MODEL,
+            messages=[
+                {"role": "system", "content": "你是一名严格但鼓励式的技术面试官。"},
+                {"role": "user", "content": prompt},
+            ],
+            temperature=0.4,
+        )
+        return (response.choices[0].message.content or "").strip() or fallback
+    except Exception as e:
+        print(f"[generate_code_review] LLM error: {type(e).__name__}: {e}")
+        return fallback
 
 
 async def generate_study_plan(role: str, evaluation_data: dict, history: list) -> dict | None:
