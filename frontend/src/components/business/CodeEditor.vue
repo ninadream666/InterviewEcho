@@ -17,13 +17,72 @@
     </div>
 
     <!-- Problem Description Area (展示题目要求) -->
-    <div v-if="problem" class="px-4 py-3 border-b overflow-y-auto max-h-40 shadow-inner" :class="theme === 'dark' ? 'border-[#333333] bg-[#1A1A1A]' : 'border-gray-200 bg-gray-50'">
+    <div v-if="problem" class="px-4 py-3 border-b overflow-y-auto max-h-72 shadow-inner" :class="theme === 'dark' ? 'border-[#333333] bg-[#1A1A1A]' : 'border-gray-200 bg-gray-50'">
       <div class="font-bold text-base mb-1">{{ problem.title }}</div>
-      <div class="text-xs mb-3 flex gap-2">
+      <div class="text-xs mb-3 flex gap-2 flex-wrap">
         <span class="px-2 py-0.5 rounded font-medium" :class="theme === 'dark' ? 'bg-blue-900/40 text-blue-300' : 'bg-blue-100 text-blue-700'">{{ problem.difficulty }}</span>
         <span v-for="tag in problem.tags" :key="tag" class="px-2 py-0.5 rounded" :class="theme === 'dark' ? 'bg-[#2A2A2A] text-gray-400' : 'bg-gray-200 text-gray-600'">{{ tag }}</span>
       </div>
-      <div class="text-sm whitespace-pre-wrap leading-relaxed" :class="theme === 'dark' ? 'text-gray-300' : 'text-gray-600'" v-html="problem.description"></div>
+      <div class="space-y-4">
+        <section>
+          <div class="text-[11px] font-bold uppercase tracking-wider mb-1.5" :class="theme === 'dark' ? 'text-gray-500' : 'text-gray-500'">题目描述</div>
+          <div class="text-sm whitespace-pre-wrap leading-relaxed" :class="theme === 'dark' ? 'text-gray-300' : 'text-gray-600'" v-html="problem.description"></div>
+        </section>
+
+        <section v-if="problem.input_format">
+          <div class="text-[11px] font-bold uppercase tracking-wider mb-1.5" :class="theme === 'dark' ? 'text-gray-500' : 'text-gray-500'">输入格式</div>
+          <div class="text-sm whitespace-pre-wrap leading-relaxed" :class="theme === 'dark' ? 'text-gray-300' : 'text-gray-600'">{{ problem.input_format }}</div>
+        </section>
+
+        <section v-if="problem.output_format">
+          <div class="text-[11px] font-bold uppercase tracking-wider mb-1.5" :class="theme === 'dark' ? 'text-gray-500' : 'text-gray-500'">输出格式</div>
+          <div class="text-sm whitespace-pre-wrap leading-relaxed" :class="theme === 'dark' ? 'text-gray-300' : 'text-gray-600'">{{ problem.output_format }}</div>
+        </section>
+
+        <section v-if="problem.samples?.length">
+          <div class="text-[11px] font-bold uppercase tracking-wider mb-2" :class="theme === 'dark' ? 'text-gray-500' : 'text-gray-500'">样例</div>
+          <div class="space-y-3">
+            <div
+              v-for="(sample, index) in problem.samples"
+              :key="`${problem.id}-sample-${index}`"
+              class="rounded-lg border p-3"
+              :class="theme === 'dark' ? 'border-[#333333] bg-[#121212]' : 'border-gray-200 bg-white/80'"
+            >
+              <div class="text-[11px] font-semibold mb-2" :class="theme === 'dark' ? 'text-gray-400' : 'text-gray-500'">Sample {{ index + 1 }}</div>
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                <div>
+                  <div class="text-[11px] font-semibold mb-1" :class="theme === 'dark' ? 'text-gray-500' : 'text-gray-500'">输入</div>
+                  <pre class="text-xs whitespace-pre-wrap break-words rounded-md p-2" :class="theme === 'dark' ? 'bg-[#1E1E1E] text-gray-200' : 'bg-gray-100 text-gray-700'">{{ displayText(sample.input) }}</pre>
+                </div>
+                <div>
+                  <div class="text-[11px] font-semibold mb-1" :class="theme === 'dark' ? 'text-gray-500' : 'text-gray-500'">输出</div>
+                  <pre class="text-xs whitespace-pre-wrap break-words rounded-md p-2" :class="theme === 'dark' ? 'bg-[#1E1E1E] text-gray-200' : 'bg-gray-100 text-gray-700'">{{ displayText(sample.output) }}</pre>
+                </div>
+              </div>
+              <div
+                v-if="sample.explanation"
+                class="mt-2 text-xs whitespace-pre-wrap leading-relaxed"
+                :class="theme === 'dark' ? 'text-gray-400' : 'text-gray-500'"
+              >{{ sample.explanation }}</div>
+            </div>
+          </div>
+        </section>
+
+        <section v-if="problem.constraints?.length">
+          <div class="text-[11px] font-bold uppercase tracking-wider mb-1.5" :class="theme === 'dark' ? 'text-gray-500' : 'text-gray-500'">约束</div>
+          <ul class="space-y-1.5">
+            <li
+              v-for="(constraint, index) in problem.constraints"
+              :key="`${problem.id}-constraint-${index}`"
+              class="text-sm leading-relaxed flex items-start gap-2"
+              :class="theme === 'dark' ? 'text-gray-300' : 'text-gray-600'"
+            >
+              <span class="shrink-0 mt-1.5 w-1.5 h-1.5 rounded-full" :class="theme === 'dark' ? 'bg-blue-300' : 'bg-[#0066CC]'"></span>
+              <span>{{ constraint }}</span>
+            </li>
+          </ul>
+        </section>
+      </div>
     </div>
 
     <!-- Monaco Editor Container -->
