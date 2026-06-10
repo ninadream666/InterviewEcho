@@ -152,7 +152,8 @@ const isTranscribing = ref(false)
 let mediaRecorder = null
 let audioChunks = []
 
-const showCodePanel = computed(() => interviewState.value?.phase === 'code' && !!currentProblem.value)
+const isCodePhase = computed(() => interviewState.value?.phase === 'code')
+const showCodePanel = computed(() => isCodePhase.value && !!currentProblem.value)
 const phaseLabel = computed(() => {
   const phase = interviewState.value?.phase
   const map = {
@@ -166,7 +167,7 @@ const phaseLabel = computed(() => {
   return map[phase] || '当前阶段：准备中'
 })
 
-const getTimeoutSec = () => (showCodePanel.value ? 1800 : 60)
+const getTimeoutSec = () => (isCodePhase.value ? 1800 : 60)
 const timeLeft = ref(getTimeoutSec())
 let timeoutTimer = null
 let countdownInterval = null
@@ -239,7 +240,7 @@ const handleTimeout = async () => {
     stopRecording()
     return
   }
-  ElMessage.warning(`已超过${showCodePanel.value ? '三十' : '一'}分钟未回答，自动提交`)
+  ElMessage.warning(`已超过${isCodePhase.value ? '三十' : '一'}分钟未回答，自动提交`)
   const content = (inputMsg.value || '').trim() || '（超时未回答）'
   messages.value.push({ sender: 'user', content })
   inputMsg.value = ''
@@ -454,7 +455,7 @@ watch(
   }
 )
 
-watch(showCodePanel, () => {
+watch(() => interviewState.value?.phase, () => {
   const last = messages.value[messages.value.length - 1]
   if (last && last.sender === 'ai' && !sending.value && !ending.value) {
     startTimeoutTimer()
