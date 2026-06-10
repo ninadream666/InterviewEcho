@@ -429,28 +429,104 @@ async def _rag_retrieve_for_evaluation(history: list, top_k: int = 3) -> str:
     return "\n\n".join(all_snippets[:3])
 
 
-async def evaluate_full_interview(history: list, role: str = ""):
+def _stringify_list(values: list[str]) -> str:
+    if not values:
+        return "（未提供）"
+    return "、".join(str(value) for value in values if value)
+
+
+def _build_resume_summary(resume_persona: dict | None) -> str:
+    if not resume_persona:
+        return "（本场面试未提供简历画像）"
+
+    projects = resume_persona.get("projects") or []
+    project_lines = []
+    for project in projects[:3]:
+        if isinstance(project, dict):
+            title = project.get("name") or project.get("title") or "未命名项目"
+            desc = project.get("description") or project.get("summary") or ""
+            project_lines.append(f"- {title}: {desc}".strip())
+        else:
+            project_lines.append(f"- {project}")
+
+    summary_parts = [
+        f"教育背景：{resume_persona.get('education') or '未提供'}",
+        f"工作年限：{resume_persona.get('work_years') if resume_persona.get('work_years') is not None else '未提供'}",
+        f"核心技能：{_stringify_list(resume_persona.get('skills') or [])}",
+        f"个人总结：{resume_persona.get('summary') or '未提供'}",
+        "项目经历：",
+        "\n".join(project_lines) if project_lines else "- 未提供",
+    ]
+    return "\n".join(summary_parts)
+
+
+def _normalize_round_feedback(evaluations: list[dict]) -> list[dict]:
+    normalized = []
+    for index, item in enumerate(evaluations, start=1):
+        question = (item.get("question") or "").strip()
+        answer_summary = (item.get("answer_summary") or "").strip()
+        improved_example = (item.get("improved_example") or "").strip()
+        strengths = item.get("strengths") or []
+        issues = item.get("issues") or []
+        if not any([question, answer_summary, improved_example, strengths, issues]):
+            continue
+        normalized.append(
+            {
+                "round": int(item.get("round") or index),
+                "question": question,
+                "answer_summary": answer_summary,
+                "strengths": [str(entry) for entry in strengths if str(entry).strip()],
+                "issues": [str(entry) for entry in issues if str(entry).strip()],
+                "improved_example": improved_example,
+            }
+        )
+    return normalized
+
+
+async def evaluate_full_interview(history: list, role: str = "", resume_persona: dict | None = None):
     """
     Generate the final evaluation report for the complete interview.
 
     Args:
         history: 消息列表
         role: 岗位名（用于注入岗位差异化评估标准）
+        resume_persona: 候选人结构化简历画像
     """
     # 1. Build a rich transcript with categories and context
     transcript_parts = []
+    round_blocks = []
+    pending_question = None
+    pending_category = ""
+    round_index = 0
     for m in history:
         if m.sender == "ai":
             category_text = f"【分类: {m.category}】" if m.category else ""
             transcript_parts.append(f"面试官: {m.content} {category_text}")
+            pending_question = m.content
+            pending_category = m.category or ""
         else:
             transcript_parts.append(f"面试者: {m.content}")
+            if (m.content or "").strip():
+                round_index += 1
+                round_blocks.append(
+                    "\n".join(
+                        [
+                            f"第 {round_index} 轮",
+                            f"面试官问题：{pending_question or '（未记录）'}",
+                            f"问题分类：{pending_category or '未标注'}",
+                            f"候选人回答：{m.content}",
+                        ]
+                    )
+                )
 
     transcript = "\n".join(transcript_parts)
+    if round_blocks:
+        transcript = transcript + "\n\n【按轮次整理的问答摘要】\n" + "\n\n".join(round_blocks)
 
     # 2. 获取岗位特定评估标准
     from core.role_criteria import get_role_criteria
     role_specific_criteria = get_role_criteria(role)
+    resume_summary = _build_resume_summary(resume_persona)
 
     # 3. 加载该岗位的"优秀回答范例"作为评分参照
     excellent_answers_context = _load_excellent_answers_for_role(role)
@@ -473,6 +549,7 @@ async def evaluate_full_interview(history: list, role: str = ""):
         excellent_answers_context=excellent_answers_context,
         role=role,
         role_specific_criteria=role_specific_criteria,
+        resume_summary=resume_summary,
     )
     
     try:
@@ -485,6 +562,7 @@ async def evaluate_full_interview(history: list, role: str = ""):
         
         # 3. Process the evaluations to get the average
         evals = data.get("evaluations", [])
+        round_feedback = _normalize_round_feedback(evals)
         scores = {
             "content_score": [],
             "expression_score": [],
@@ -517,12 +595,15 @@ async def evaluate_full_interview(history: list, role: str = ""):
             "total_score": total_score,
             "highlights": summary.get("strengths", []),
             "weaknesses": summary.get("weaknesses", []),
-            "recommendations": summary.get("recommendations", "继续努力！")
+            "recommendations": summary.get("recommendations", "继续努力！"),
+            "evaluations": evals,
+            "round_feedback": round_feedback,
         }
         
     except Exception as e:
         print(f"Error generating report: {e}")
         return {
             "content_score": 0, "expression_score": 0, "business_scenario_score": 0, "problem_solving_score": 0,
-            "total_score": 0, "highlights": ["评估生成失败"], "weaknesses": [], "recommendations": "请重试。"
+            "total_score": 0, "highlights": ["评估生成失败"], "weaknesses": [], "recommendations": "请重试。",
+            "evaluations": [], "round_feedback": []
         }

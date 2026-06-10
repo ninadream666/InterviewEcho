@@ -558,5 +558,997 @@
       "设计 Token 对齐",
       "复盘并形成流程改进"
     ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "problem_solving",
+    "section": "CSS与页面布局",
+    "difficulty": "easy",
+    "question": "你能说说 position 属性中 relative 和 absolute 的区别以及可能的应用场景吗？",
+    "key_points": [
+      "relative：元素相对其正常文档流中的位置进行偏移",
+      "absolute：元素完全脱离文档流，相对于最近的定位父元素定位",
+      "应用场景：relative常用于微调布局，absolute常用于实现悬浮元素或特定位置的布局"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "problem_solving",
+    "section": "CSS与页面布局",
+    "difficulty": "easy",
+    "question": "如何用 CSS 画出一个等边三角形？可以简单描述一下实现原理。",
+    "key_points": [
+      "通过设置宽度和高度为0，并利用 border 的不同颜色和宽度来绘制",
+      "指定 border 的四个方向，仅一个方向有颜色，其它为 transparent",
+      "原理：通过 border 的斜线拼接，构成三角形视觉效果"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "problem_solving",
+    "section": "CSS与页面布局",
+    "difficulty": "easy",
+    "question": "CSS 中如何实现一个元素固定在页面底部？有哪些方式可以实现？",
+    "key_points": [
+      "使用 position: fixed; 设置 bottom: 0 来固定元素位置",
+      "使用 position: absolute; 并设置 bottom: 0，前提是父元素要有 relative 定位",
+      "其他方式如使用 flexbox 或 grid 布局，将元素对齐到容器的底部"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "problem_solving",
+    "section": "CSS与页面布局",
+    "difficulty": "hard",
+    "question": "在一个复杂的响应式布局中，你应该如何设计网格系统来确保页面在各种设备上的一致表现？请描述你的思路。",
+    "key_points": [
+      "需要提到使用 CSS Grid 或 Flexbox 等布局技术，并指出适用场景。",
+      "提到如何结合媒体查询定义断点，并灵活调整网格的列数/宽度。",
+      "描述如何处理边界情况，比如容器内容溢出或极端屏幕大小。"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "problem_solving",
+    "section": "CSS与页面布局",
+    "difficulty": "hard",
+    "question": "如果需要实现一个两列布局，左侧固定宽度 200px，右侧根据剩余空间自适应，你会怎么写 CSS？",
+    "key_points": [
+      "能够指出至少一种实现方法，比如 Flexbox 或 CSS Grid。",
+      "如果使用 Flexbox，说明设置父容器 `display: flex` 和右列的 `flex: 1` 等关键细节。",
+      "如果使用 CSS Grid，提到定义网格模板如 `grid-template-columns: 200px auto`。"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "problem_solving",
+    "section": "CSS与页面布局",
+    "difficulty": "hard",
+    "question": "如何在不使用 JavaScript 的情况下，通过纯 CSS 实现一个多级导航栏的交互展开效果？",
+    "key_points": [
+      "提到使用 `:hover` 或更高级的伪类（如 `:focus-within`）实现交互。",
+      "说明如何使用 CSS 子选择器，有效控制子菜单的显示与隐藏。",
+      "描述如何处理多级菜单的定位问题，以及可能遇到的 z-index 堆叠问题。"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "problem_solving",
+    "section": "CSS与页面布局",
+    "difficulty": "medium",
+    "question": "在一个多列布局中，如果某一列的内容超出了列宽，应该使用什么方式让其不会破坏整体布局？",
+    "key_points": [
+      "使用 overflow 属性（如 hidden、scroll、auto）控制超出内容。",
+      "确保父容器设置了固定的宽度或使用 flexbox/grid 进行布局约束。",
+      "可以使用 word-wrap 或 overflow-wrap 来处理长字符串造成的溢出问题。"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "problem_solving",
+    "section": "CSS与页面布局",
+    "difficulty": "medium",
+    "question": "如果给一个容器设置了宽度为 100%，并添加了 padding 或 border，实际渲染宽度会比预期多出一部分。如何解决这个问题？",
+    "key_points": [
+      "理解 box-sizing 的默认行为是 content-box，padding 和 border 会额外增加宽度。",
+      "设置 box-sizing: border-box，可以让 padding 和 border 包含在指定的宽度内。",
+      "全局应用 box-sizing: border-box 时，注意兼容性及可能影响其他元素的布局。"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "problem_solving",
+    "section": "CSS与页面布局",
+    "difficulty": "medium",
+    "question": "你需要实现一个三等分的水平布局，其中每一列等宽，且中间列要固定在屏幕中央，如何实现？",
+    "key_points": [
+      "使用 flexbox 的 justify-content: space-around 或 justify-content: space-between 来分布列。",
+      "通过 margin: auto 或 flex 属性让中间列居中，同时两侧列等宽。",
+      "注意确保使用百分比宽度或 flex-grow: 1 保证三列等宽。"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "problem_solving",
+    "section": "JavaScript与TypeScript",
+    "difficulty": "easy",
+    "question": "如果让你在 TypeScript 中声明一个接口，并为某个对象应用这个接口，该怎么做？",
+    "key_points": [
+      "能够正确书写 TypeScript 接口的声明，包括属性和类型。",
+      "能够将接口应用到某个对象并确保对象符合接口定义。",
+      "解释接口在代码组织和类型检查中的重要作用。"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "problem_solving",
+    "section": "JavaScript与TypeScript",
+    "difficulty": "easy",
+    "question": "当你需要将一个数组中的所有字符串转为大写，并组成一个新数组时，如何用 JavaScript 实现？",
+    "key_points": [
+      "能够使用数组的 map 方法进行遍历。",
+      "正确调用字符串的 toUpperCase 方法将值转换为大写。",
+      "清楚原数组不会被修改，新数组是 map 返回的结果。"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "problem_solving",
+    "section": "JavaScript与TypeScript",
+    "difficulty": "easy",
+    "question": "如何使用 TypeScript 的类型断言解决一个变量可能为多种类型的问题？",
+    "key_points": [
+      "理解类型断言语法，例如 `as` 或尖括号语法。",
+      "清楚限制类型断言的场景，例如断言为目标类型后访问特定属性。",
+      "能够说明类型断言的风险（可能导致运行时错误）以及何时该慎用。"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "problem_solving",
+    "section": "JavaScript与TypeScript",
+    "difficulty": "hard",
+    "question": "如果让你实现一个深度冻结对象的函数（deepFreeze），确保对象及其嵌套属性都不能被修改，要怎么做？",
+    "key_points": [
+      "利用 Object.freeze() 冻结对象本身，防止直接修改",
+      "递归遍历对象的所有嵌套属性，对每个属性都调用 deepFreeze",
+      "考虑循环引用的问题，确保不会导致无限递归"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "problem_solving",
+    "section": "JavaScript与TypeScript",
+    "difficulty": "hard",
+    "question": "在 TypeScript 中，假设你有一个表示用户配置的接口 interface UserConfig，你需要基于一个默认配置对象生成一个类型安全的合并函数，确保合并后的配置仍然符合 UserConfig 类型。如何实现这个函数？",
+    "key_points": [
+      "使用 TypeScript 中的泛型来定义函数的输入和输出类型",
+      "确保对传入的 userConfig 进行类型检查，并与默认配置 defaultConfig 合并",
+      "验证最终返回值满足 UserConfig 接口要求，避免引入编译时错误"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "problem_solving",
+    "section": "JavaScript与TypeScript",
+    "difficulty": "hard",
+    "question": "假设你有一个复杂的嵌套数组（如 [1, [2, [3, [4]], 5]]），请用 JavaScript 或 TypeScript 实现一个函数来对这个数组进行任意深度的扁平化（flatten）。",
+    "key_points": [
+      "使用递归的方式逐层展开嵌套数组，并处理任意深度的结构",
+      "优化性能，避免对已经是扁平的一层重复遍历",
+      "用 TypeScript 强类型定义函数输入与输出，确保扁平结构的类型一致性"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "problem_solving",
+    "section": "JavaScript与TypeScript",
+    "difficulty": "medium",
+    "question": "假设你需要实现一个函数，可以将一个嵌套的数组扁平化为一维数组，并支持指定深度。你会如何实现？",
+    "key_points": [
+      "使用递归方法处理数组嵌套，判断当前深度是否达到指定要求。",
+      "充分利用 Array.prototype.flat 对深度进行控制，简化逻辑。",
+      "应考虑输入数据的边界情况，例如空数组或非数组类型输入。"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "problem_solving",
+    "section": "JavaScript与TypeScript",
+    "difficulty": "medium",
+    "question": "请设计一个工具函数，用于对任意对象的指定字段值进行深度拷贝，确保不会影响原对象。你会怎么做？",
+    "key_points": [
+      "通过递归实现深度拷贝，处理嵌套对象和数组的结构。",
+      "注意解决循环引用问题，可以使用 Map 或 WeakMap 做记录。",
+      "区分浅拷贝与深拷贝，避免直接使用 JSON.parse 和 JSON.stringify 的局限性。"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "problem_solving",
+    "section": "JavaScript与TypeScript",
+    "difficulty": "medium",
+    "question": "如果你需要基于 TypeScript 定义一个通用工具类型，用来从对象中选出所有值为字符串类型的字段，该如何设计？",
+    "key_points": [
+      "利用 TypeScript 的条件类型，例如 `keyof` 和 `infer` 关键字辅助实现。",
+      "确保类型定义能够动态提取对象中值为字符串的字段，并支持嵌套的对象结构。",
+      "考虑 TypeScript 类型系统中的边界情况，例如联合类型或字段值为数组。"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "problem_solving",
+    "section": "前端工程化与工具链",
+    "difficulty": "easy",
+    "question": "如果项目依赖较多，你如何优化 Webpack 打包速度？",
+    "key_points": [
+      "合理使用 cache-loader 或者持久化缓存以减少重复打包时间",
+      "优化 loader 配置，例如通过 include/exclude 限制作用范围",
+      "使用多线程构建工具（如 thread-loader 或 HappyPack）提升处理速度"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "problem_solving",
+    "section": "前端工程化与工具链",
+    "difficulty": "easy",
+    "question": "你会如何管理一个大型项目的多个环境配置（如开发、测试、生产）？",
+    "key_points": [
+      "利用环境变量（如 Node.js 的 process.env）实现差异化配置",
+      "通过 Webpack DefinePlugin 注入不同的环境配置",
+      "将公共配置抽离，使用配置文件分别覆盖不同环境的差异化配置"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "problem_solving",
+    "section": "前端工程化与工具链",
+    "difficulty": "easy",
+    "question": "在使用 CI/CD 工具自动化构建时，如何确保前端版本一致性和可靠性？",
+    "key_points": [
+      "使用 package-lock.json 或 pnpm-lock.yaml 锁定依赖版本",
+      "在构建流程中加入依赖审查机制，确保没有意外升级",
+      "将构建产物（例如 dist 文件夹）与版本号绑定并存储到独立制品仓库"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "problem_solving",
+    "section": "前端工程化与工具链",
+    "difficulty": "hard",
+    "question": "如果你要优化一个使用 Webpack 的项目，打包时间过长的问题，你会采取哪些具体措施？",
+    "key_points": [
+      "分析打包文件：使用 webpack-bundle-analyzer 检查 bundle 大小，定位主要问题模块。",
+      "开启代码分割：合理利用 splitChunks 和动态导入，减少初始加载体积。",
+      "启用缓存和多线程：使用 cache-loader 或 thread-loader 提升构建效率。",
+      "减少不必要的 polyfill：通过 Babel 配置目标浏览器，避免生成冗余代码。",
+      "改进构建流程：通过优化 loader 和 plugin 的配置，避免重复计算和性能浪费。"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "problem_solving",
+    "section": "前端工程化与工具链",
+    "difficulty": "hard",
+    "question": "你如何设计一个基于 Monorepo 的前端工程化项目，来管理多个互相关联的模块？",
+    "key_points": [
+      "采用工具：选择合适的 Monorepo 工具如 Lerna 或 Nx 来管理模块和任务依赖。",
+      "版本管理策略：定义模块之间的版本依赖规则，例如固定版本或动态更新。",
+      "共享工具链：统一使用 ESLint、Prettier、测试框架等，保证代码风格与质量一致。",
+      "构建优化：配置增量构建和缓存机制，只重新构建受影响的模块。",
+      "部署流程：设计分模块的 CI/CD 流程，确保变更只影响必要模块的发布。"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "problem_solving",
+    "section": "前端工程化与工具链",
+    "difficulty": "hard",
+    "question": "假设你接手一个历史悠久但技术堆栈陈旧的前端项目，需要对工具链进行现代化改造，你会怎么做？",
+    "key_points": [
+      "工具链审计：分析现有工具链的组成和痛点，明确现代化改造目标。",
+      "版本升级策略：逐步升级核心工具（如构建工具、测试框架）到最新稳定版本，避免大规模改动。",
+      "模块化构建：从全量构建切换到现代化按需打包工具（如 Vite 或 Webpack Module Federation）。",
+      "自动化质量保障：引入代码质量工具如 Prettier、ESLint 和更完整的测试覆盖率报告。",
+      "团队培训和迁移：编写详细的文档和迁移指南，确保团队成员理解新工具的使用和优势。"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "problem_solving",
+    "section": "前端工程化与工具链",
+    "difficulty": "medium",
+    "question": "如果构建速度过慢，你会怎么优化？",
+    "key_points": [
+      "利用 Webpack 的缓存机制（如 cache-loader 或持久缓存）加速重复构建",
+      "分离开发环境和生产环境配置，减小不必要的构建环节",
+      "减少入口文件数量，优化模块依赖关系，避免过深的依赖链"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "problem_solving",
+    "section": "前端工程化与工具链",
+    "difficulty": "medium",
+    "question": "你会如何优化 CI/CD 流程中的前端构建环节？",
+    "key_points": [
+      "利用多线程或分布式构建工具（如 esbuild、swc）提升构建效率",
+      "缓存依赖包（如 node_modules 或构建输出）避免重复安装和编译",
+      "将耗时较长的任务（如代码压缩或资源上传）拆分到异步流程处理"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "problem_solving",
+    "section": "前端工程化与工具链",
+    "difficulty": "medium",
+    "question": "如何配置和使用 Babel 提升编译性能和兼容性？",
+    "key_points": [
+      "通过配置 targets 属性合理设置浏览器兼容范围，避免多余的 polyfills",
+      "使用 @babel/preset-env 配合 core-js 按需引入 polyfills 减少打包体积",
+      "启用 Babel 缓存（如通过 babel-loader 配置 cacheDirectory）提高重新编译速度"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "project",
+    "section": "前端工程化落地",
+    "difficulty": "hard",
+    "question": "你有没有参与过前端工程化体系的设计和落地？具体做了哪些工作？",
+    "key_points": [
+      "是否规划了基于模块化的代码组织方案",
+      "是否搭建了统一的CI/CD流水线并设计规范",
+      "是否解决了跨团队协作中的工程化痛点"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "project",
+    "section": "前端工程化落地",
+    "difficulty": "hard",
+    "question": "在一个复杂的多项目场景下，你是如何设计和维护前端构建工具链的？",
+    "key_points": [
+      "是否对工具链的性能和扩展性有深度优化",
+      "是否设计了合理的插件体系和可复用配置",
+      "是否解决了构建工具的版本兼容性问题"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "project",
+    "section": "前端工程化落地",
+    "difficulty": "hard",
+    "question": "说说你在前端自动化测试的工程化落地中遇到的挑战以及解决方案。",
+    "key_points": [
+      "是否设计了测试覆盖率衡量机制",
+      "是否通过工具链实现了测试场景的自动化构建和执行",
+      "是否解决了测试环境与生产环境不一致的问题"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "project",
+    "section": "前端工程化落地",
+    "difficulty": "hard",
+    "question": "你参与过前端资源优化的工程化实践吗？具体是如何实现的？",
+    "key_points": [
+      "是否利用代码分割优化了资源加载",
+      "是否搭建了自动化的性能监控和分析体系",
+      "是否通过工程化手段实现了动态资源按需加载"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "behavioral",
+    "section": "应急处理能力",
+    "difficulty": "medium",
+    "question": "如果你负责的前端模块突然出现严重的性能问题，并且用户反馈页面卡顿甚至无法操作，你会如何处理？",
+    "key_points": [
+      "快速定位性能问题的根因，例如通过监控工具或用户行为回溯",
+      "紧急优化主要瓶颈，优先解决卡顿问题以恢复用户可用性",
+      "沟通技术及业务团队，确认是否需要降级或屏蔽部分功能"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "behavioral",
+    "section": "应急处理能力",
+    "difficulty": "medium",
+    "question": "线上环境中前端发布后出现了页面样式完全错乱的情况，你会怎么处理？",
+    "key_points": [
+      "立即回滚到稳定版本以控制影响范围",
+      "分析引入的代码变更，确认样式错乱的具体原因",
+      "复盘并加强样式变更测试流程，避免类似问题再发生"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "behavioral",
+    "section": "应急处理能力",
+    "difficulty": "medium",
+    "question": "你在排查一次线上故障时发现一个潜在的安全漏洞，但这个漏洞暂时没有被利用，你会怎么处理？",
+    "key_points": [
+      "优先评估漏洞的严重程度及可能的影响范围",
+      "及时通知相关团队讨论紧急修复方案或缓解措施",
+      "记录详细复盘文档并加强前端安全审计流程"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "behavioral",
+    "section": "应急处理能力",
+    "difficulty": "medium",
+    "question": "某个第三方服务的前端 SDK 突然不可用，导致主流程被阻断，你会如何处理？",
+    "key_points": [
+      "主动确认第三方服务是否存在问题或提供替代方案",
+      "快速实现降级策略，确保核心流程能够正常运行",
+      "评估长期影响，考虑是否需要替换或自研相关服务"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "problem_solving",
+    "section": "性能优化与前端安全",
+    "difficulty": "easy",
+    "question": "你在检查一个前端页面的性能问题时，发现主要的瓶颈在于图片加载过慢。你会怎么优化？",
+    "key_points": [
+      "使用图片懒加载减少首屏加载压力",
+      "根据不同屏幕尺寸选择适当的图片分辨率（响应式图片）",
+      "采用现代图片格式如 WebP 来减少文件大小",
+      "使用 CDN 提高静态资源加载速度",
+      "压缩图片或使用图片优化工具提前优化图片文件大小"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "problem_solving",
+    "section": "性能优化与前端安全",
+    "difficulty": "easy",
+    "question": "如果一个网页上的表单存在 XSS 攻击的风险，你会采取哪些措施来防范？",
+    "key_points": [
+      "对用户输入进行严格的过滤和转义，防止恶意脚本注入",
+      "在 HTTP 响应头中使用 Content-Security-Policy 限制资源加载来源",
+      "在 Html 标签输出时严格避免直接插入未经处理的数据",
+      "验证用户输入的合法性，限制输入内容长度和格式",
+      "确保使用编码输出（如 innerText 而非 innerHTML）以防范动态脚本执行"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "problem_solving",
+    "section": "性能优化与前端安全",
+    "difficulty": "easy",
+    "question": "如果你接手的一个项目发现大量页面资源未开启浏览器缓存，你会如何改进？",
+    "key_points": [
+      "配置 HTTP Cache-Control 或 Expires 头，设置资源缓存时间",
+      "启用资源版本管理，例如使用哈希值命名文件以便于更新",
+      "在静态资源服务器中正确配置强缓存和协商缓存策略",
+      "检查哪些资源是静态的、哪些资源需要动态更新，制定对应的缓存策略",
+      "分析浏览器开发者工具中的缓存命中情况，验证配置是否生效"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "problem_solving",
+    "section": "性能优化与前端安全",
+    "difficulty": "hard",
+    "question": "你如何防止 Web 应用在加载外部资源（如 JS/CSS 文件）时被中间人攻击劫持？",
+    "key_points": [
+      "使用 HTTPS 确保传输通道的加密安全",
+      "在外部资源加载时配合使用 Subresource Integrity (SRI)",
+      "合理配置 Content Security Policy (CSP) 限制可加载的资源来源"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "problem_solving",
+    "section": "性能优化与前端安全",
+    "difficulty": "hard",
+    "question": "假设公司前端项目存在严重的关键路径资源阻塞问题，你会如何排查与优化？",
+    "key_points": [
+      "利用浏览器开发工具的网络面板分析资源加载顺序与耗时",
+      "将关键资源标记为 preload 或 async，减少阻塞渲染",
+      "通过代码分包与动态加载减少初始加载资源体积"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "problem_solving",
+    "section": "性能优化与前端安全",
+    "difficulty": "hard",
+    "question": "在复杂单页应用中，如何安全地防止 XSS 攻击，同时不显著影响性能？",
+    "key_points": [
+      "在输出动态内容前进行必要的 HTML 转义",
+      "使用严格的 Content Security Policy (CSP) 防止执行不信任的脚本",
+      "避免直接拼接 HTML，改用模板引擎或框架自带的安全渲染机制"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "problem_solving",
+    "section": "性能优化与前端安全",
+    "difficulty": "medium",
+    "question": "在一个大型 Web 应用中，如何优化首屏加载性能？",
+    "key_points": [
+      "使用代码分割 (Code Splitting) 和按需加载 (Lazy Load)",
+      "利用浏览器缓存和 CDN 加速静态资源加载",
+      "优化和压缩关键资源，如图片、CSS、JS 文件"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "problem_solving",
+    "section": "性能优化与前端安全",
+    "difficulty": "medium",
+    "question": "如何防御 CSRF（跨站请求伪造）攻击？",
+    "key_points": [
+      "在请求中引入 CSRF Token 并进行服务器端校验",
+      "使用 SameSite 属性限制 Cookie 的跨站发送",
+      "限制敏感操作的请求方法，例如仅允许 POST 请求"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "problem_solving",
+    "section": "性能优化与前端安全",
+    "difficulty": "medium",
+    "question": "当一个页面的 CSS 文件体积过大导致渲染变慢时，你会采取哪些优化方案？",
+    "key_points": [
+      "拆分 CSS 文件并按模块或页面进行加载",
+      "去除未使用的 CSS 样式并借助工具如 PurifyCSS 或 Tree Shaking",
+      "将关键 CSS 提取到页面内联样式中，提高首屏渲染速度"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "project",
+    "section": "性能调优实战",
+    "difficulty": "hard",
+    "question": "在你的经验中，有没有遇到过页面加载速度特别慢的问题？你是如何定位和解决的？",
+    "key_points": [
+      "分析白屏时间、首屏渲染时间等关键性能指标",
+      "使用瀑布流分析网络请求，定位瓶颈资源",
+      "优化静态资源加载（如懒加载、压缩、CDN加速等）"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "project",
+    "section": "性能调优实战",
+    "difficulty": "hard",
+    "question": "遇到过前端应用在渲染大规模数据时性能不达标吗？你用了哪些方法优化渲染性能？",
+    "key_points": [
+      "使用虚拟列表或懒加载方案减少视图加载负担",
+      "合理拆分组件，并使用React.memo等方式优化重渲染",
+      "通过调试工具检查React的Fiber树或Vue的响应式依赖追踪"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "project",
+    "section": "性能调优实战",
+    "difficulty": "hard",
+    "question": "如果你负责一个前端单页应用，用户在交互时发现卡顿问题，你会怎么排查？",
+    "key_points": [
+      "使用浏览器Performance工具分析主线程的占用情况",
+      "排查是否有阻塞性任务或长时间运行的JavaScript逻辑",
+      "优化事件绑定和任务拆分，例如防抖、节流或Web Worker"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "project",
+    "section": "性能调优实战",
+    "difficulty": "hard",
+    "question": "你是否曾优化过复杂动画性能问题？能否分享一个实际场景，讲讲具体的过程？",
+    "key_points": [
+      "利用GPU加速，将动画从主线程转移到合成线程",
+      "减少动画中额外的强制同步布局（Recalculate Style）",
+      "优化动画关键属性，例如使用transform和opacity而不是width或height"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "behavioral",
+    "section": "技术路线冲突解决",
+    "difficulty": "medium",
+    "question": "假如团队内对前端框架的迁移方案存在明显分歧，你会如何推动达成一致？",
+    "key_points": [
+      "是否能够列出现有框架的限制以及迁移的必要性",
+      "是否会主动收集团队成员的意见并进行归纳",
+      "是否提供了实际迁移方案的风险评估和缓解措施"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "behavioral",
+    "section": "技术路线冲突解决",
+    "difficulty": "medium",
+    "question": "当你认为某项新技术引入能解决当前项目的性能瓶颈，但同事担心会增加学习成本，你会怎么说服团队？",
+    "key_points": [
+      "是否能够清晰解释新技术对性能提升的具体帮助",
+      "是否评估了团队学习成本对项目进度的影响",
+      "是否设计了逐步引入的计划以降低风险"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "behavioral",
+    "section": "技术路线冲突解决",
+    "difficulty": "medium",
+    "question": "某次代码评审中，你负责的功能实现因为技术手段被批评过于复杂，你会如何处理这个反馈？",
+    "key_points": [
+      "是否对批评意见进行冷静客观的分析",
+      "是否主动提供更简单可行的替代方案",
+      "是否展现了以团队目标为导向的协作态度"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "behavioral",
+    "section": "技术路线冲突解决",
+    "difficulty": "medium",
+    "question": "在项目开发中，你发现合作的后端团队执意使用一个前端兼容性差的接口协议，你会如何解决这个问题？",
+    "key_points": [
+      "是否尝试通过技术验证具体说明兼容性问题",
+      "是否主动提出能够协调前后端需求的替代方案",
+      "是否表现出解决问题时的同理心和沟通技巧"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "problem_solving",
+    "section": "框架原理 (Vue/React)",
+    "difficulty": "easy",
+    "question": "如果需要在 Vue 或 React 中实现一个全局状态管理，有哪些方式可以选择？",
+    "key_points": [
+      "Vue: Vuex 或者 Composition API（如 reactive、ref 实现状态共享）",
+      "React: Redux、Context API 或者第三方状态管理工具（如 MobX）",
+      "讨论何时使用轻量级状态管理（比如 Context）而非完整工具（如 Redux）"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "problem_solving",
+    "section": "框架原理 (Vue/React)",
+    "difficulty": "easy",
+    "question": "在 React 中，如何避免由于组件重新渲染而导致的性能问题？",
+    "key_points": [
+      "使用 React.memo 来缓存纯函数组件的渲染结果",
+      "在函数组件中使用 useCallback 和 useMemo 避免不必要的函数或值重建",
+      "确保 key 的使用正确，防止 React 重复创建 DOM 节点"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "problem_solving",
+    "section": "框架原理 (Vue/React)",
+    "difficulty": "easy",
+    "question": "在 Vue 中，如何高效地监听数据变化并处理复杂逻辑？",
+    "key_points": [
+      "使用 watch 监听具体的数据变化",
+      "使用 computed 属性来优化复杂逻辑的计算，避免重复运行",
+      "使用深度监听（deep: true）或者手动递归监听复杂对象"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "problem_solving",
+    "section": "框架原理 (Vue/React)",
+    "difficulty": "hard",
+    "question": "React 的 Fiber 架构是为了解决什么问题？它的核心调度机制是如何运作的？",
+    "key_points": [
+      "解释 React 在旧版 Stack 架构中的性能瓶颈，尤其是长时间渲染造成的主线程阻塞问题",
+      "描述 Fiber 中的任务分片机制，以及如何通过优先级队列动态中断和恢复任务",
+      "阐述调度器与 requestIdleCallback 的关系，以及时间切片分片的具体实现"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "problem_solving",
+    "section": "框架原理 (Vue/React)",
+    "difficulty": "hard",
+    "question": "Vue 的虚拟 DOM 是如何更新视图的？其中的 diff 算法有没有优化空间？",
+    "key_points": [
+      "详细说明 Vue 的虚拟 DOM diff 过程，包括 key 属性在 diff 中的作用",
+      "分析静态内容标记（如静态节点的静态优化）在 Vue 中的作用",
+      "探讨 diff 算法在极端场景下的性能问题，以及可能的优化方向（如 block tree 的设计）"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "problem_solving",
+    "section": "框架原理 (Vue/React)",
+    "difficulty": "hard",
+    "question": "如果你需要在 React 中实现一个类似 Vue Composition API 的逻辑复用机制，应该如何设计？",
+    "key_points": [
+      "分析 Vue Composition API 的核心特性，例如 setup 函数和响应式数据的绑定",
+      "结合 React Hooks 的特性，提出如何通过自定义 Hook 实现类似的逻辑复用",
+      "探讨在 React 中实现响应式数据的具体方法，例如通过 useState 或 useReducer 模拟响应式行为"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "problem_solving",
+    "section": "框架原理 (Vue/React)",
+    "difficulty": "medium",
+    "question": "如果在 Vue 中需要频繁操作一个深层嵌套的对象状态，如何进行优化并确保 reactivity 能正确工作？",
+    "key_points": [
+      "利用 Vue 的 `reactive` 或 `ref` 创建响应式状态，避免直接过多嵌套操作",
+      "通过 `watch` 或 `computed` 减少不必要的深层次依赖",
+      "在需要大规模操作时，使用 `shallowReactive` 或者通过临时变量浅拷贝处理"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "problem_solving",
+    "section": "框架原理 (Vue/React)",
+    "difficulty": "medium",
+    "question": "React 的 Context API 如何避免大范围的重新渲染？",
+    "key_points": [
+      "对 Context 的值进行分片管理，避免所有状态塞进一个 Context",
+      "结合 `React.memo` 或 `useMemo` 对值进行优化，减少不必要的重计算",
+      "必要时使用 `useContextSelector` 或第三方库（如 Zustand）针对性获取子状态"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "problem_solving",
+    "section": "框架原理 (Vue/React)",
+    "difficulty": "medium",
+    "question": "在 Vue 的响应式系统中，如何处理数组的性能问题，例如大规模的增删改操作？",
+    "key_points": [
+      "使用 Vue 提供的响应式方法（如 `splice`）替代直接赋值或原生操作",
+      "在不需要即时更新的情况下，将批量操作放到 `nextTick` 中集中处理",
+      "对于超大数组数据，考虑拆分为多个小规模的响应式分块以减少运算量"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "behavioral",
+    "section": "沟通协作",
+    "difficulty": "medium",
+    "question": "如果你和设计师在某个复杂组件的交互设计上意见不一致，你会如何推进这个问题的解决？",
+    "key_points": [
+      "主动表达自己的技术观点，并清晰说明技术限制或代价",
+      "倾听设计师的目标和用户体验诉求，表现出理解力",
+      "提出双方都能接受的折中方案或打样以促进达成共识"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "behavioral",
+    "section": "沟通协作",
+    "difficulty": "medium",
+    "question": "在项目中，某个关键功能上线时间紧，你发现负责的后端同事进度严重拖延，你会如何处理这种情况？",
+    "key_points": [
+      "主动跟进并了解拖延的具体原因",
+      "提供前端可行的替代方案，比如模拟数据或接口降级",
+      "协调项目管理人员或技术负责人进行资源优化分配"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "behavioral",
+    "section": "沟通协作",
+    "difficulty": "medium",
+    "question": "当你的代码在 code review 中被多次提出修改意见时，你会如何应对？",
+    "key_points": [
+      "虚心接受并理解每条意见的背景和意义",
+      "解释自己的设计思路，避免误解，同时寻求最佳方案",
+      "总结改进经验，避免类似问题在以后重复发生"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "behavioral",
+    "section": "沟通协作",
+    "difficulty": "medium",
+    "question": "在团队会议中，你提出的技术方案被其他成员质疑或否定时，你会怎么处理？",
+    "key_points": [
+      "保持冷静，认真倾听质疑的具体点",
+      "用数据和事实支撑自己的方案优势，避免情绪化争论",
+      "表达愿意调整的弹性，不固执己见，寻找团队最佳方案"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "project",
+    "section": "项目架构与复盘",
+    "difficulty": "medium",
+    "question": "最近有没有主导或参与设计过一个前端架构？为什么选择这种架构，它解决了哪些核心问题？",
+    "key_points": [
+      "清晰描述项目背景和业务需求",
+      "阐述架构设计的核心理念和具体实现",
+      "解释架构带来的改进，用数据或场景证明效果"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "project",
+    "section": "项目架构与复盘",
+    "difficulty": "medium",
+    "question": "聊聊你负责过的一个复杂组件或模块的设计和实现，你是如何权衡性能、可维护性和开发效率的？",
+    "key_points": [
+      "完整讲述设计思路和权衡过程",
+      "突出重点问题和挑战，提供解决方案",
+      "从实际效果评估组件或模块的价值"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "project",
+    "section": "项目架构与复盘",
+    "difficulty": "medium",
+    "question": "你是否有对一个已有项目进行技术改造的经历？具体做了哪些优化改动，最终效果如何？",
+    "key_points": [
+      "明确指出项目的技术痛点或瓶颈",
+      "清晰描述改造的具体措施和技术方案",
+      "用可量化的成果和实际数据展示改造效果"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "project",
+    "section": "项目架构与复盘",
+    "difficulty": "medium",
+    "question": "你的项目中有没有发生过突发性故障？你是如何定位问题并快速恢复的？",
+    "key_points": [
+      "清晰描述故障背景和影响范围",
+      "详细讲述定位问题的方法和排查逻辑",
+      "快速恢复的具体措施以及后续的改进计划"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "project",
+    "section": "项目深挖",
+    "difficulty": "easy",
+    "question": "你在项目中如何组织前端代码结构？是否有模块化方案或目录规划经验？",
+    "key_points": [
+      "是否按照功能模块划分代码，例如组件层级、业务逻辑层级等",
+      "是否应用通用的目录结构，例如 src、components、utils 等",
+      "是否考虑代码复用性和可维护性，举例说明优化方案"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "project",
+    "section": "项目深挖",
+    "difficulty": "easy",
+    "question": "在项目中你如何处理前端性能优化？可以分享几个具体做法吗？",
+    "key_points": [
+      "是否有具体措施提升加载性能，例如代码分割、懒加载等",
+      "是否优化了渲染性能，例如减少重排重绘或使用虚拟列表",
+      "是否有监控性能的经验，例如使用 Lighthouse 或相关工具"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "project",
+    "section": "项目深挖",
+    "difficulty": "easy",
+    "question": "你在前端项目里会如何规划或设计状态管理方案？曾经遇到过哪些挑战？",
+    "key_points": [
+      "是否设计了全局和局部状态的分离，有合理的使用场景",
+      "是否熟悉常见状态管理工具，例如 Redux、MobX 或 React Context",
+      "是否能清晰描述解决问题的过程，例如避免“状态过多”或“状态冲突”"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "project",
+    "section": "项目深挖",
+    "difficulty": "easy",
+    "question": "你在前端项目中是否经历过复杂表单处理？如何设计交互和验证逻辑？",
+    "key_points": [
+      "是否有处理动态表单结构的经验，例如表单项根据条件动态生成",
+      "是否考虑了用户体验，例如即时验证提示或异步校验",
+      "是否有分层处理逻辑的经验，例如表单组件与验证规则清晰分离"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "project",
+    "section": "项目深挖",
+    "difficulty": "hard",
+    "question": "你的项目里有没有遇到过复杂组件的性能问题？比如表单或表格组件，有什么优化经验？",
+    "key_points": [
+      "定位复杂组件的性能瓶颈（如渲染/回流/重绘）",
+      "使用虚拟列表或分页加载优化大量数据渲染",
+      "减少不必要的 re-render，优化状态管理",
+      "合理拆分组件，使用 memo 或 PureComponent",
+      "使用性能监控工具（如 React Profiler）分析并验证优化效果"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "project",
+    "section": "项目深挖",
+    "difficulty": "hard",
+    "question": "你的项目中是否有过与 WebSocket 实时通信相关的开发？实时更新的前端性能怎么保障？",
+    "key_points": [
+      "WebSocket 消息处理的设计（去抖/节流/批量更新）",
+      "长连接的心跳检测与断线重连机制",
+      "更新视图时对频繁 DOM 操作的优化（如虚拟 DOM 或批量更新）",
+      "如何避免消息处理对主线程的阻塞",
+      "评估并提高界面实时响应的用户体验指标"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "project",
+    "section": "项目深挖",
+    "difficulty": "hard",
+    "question": "项目中是否做过复杂表单/多步骤表单的场景？如何在复杂交互下保持代码的可维护性？",
+    "key_points": [
+      "表单字段的动态生成与动态验证逻辑",
+      "状态管理的设计，比如使用 Redux/Context/自定义 Hook",
+      "如何拆分表单组件，提高可复用性和可读性",
+      "处理复杂交互逻辑的策略（如步骤导航、多依赖字段联动）",
+      "实际维护中是否遇到过问题，如何解决的"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "project",
+    "section": "项目深挖",
+    "difficulty": "medium",
+    "question": "在你的项目里，有没有遇到过性能瓶颈？你是怎么分析和解决的？能否具体讲一个例子？",
+    "key_points": [
+      "性能瓶颈的触发场景和症状分析是否清晰",
+      "是否使用了性能监控工具（如 Lighthouse、Performance API）进行数据支撑",
+      "找到的根因是否具体准确，并与解决方案有明确对应",
+      "优化手段（如懒加载、虚拟列表、代码拆分）是否合理且有效",
+      "最终优化后的指标提升是否有数据验证"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "behavioral",
+    "section": "项目管理与排期",
+    "difficulty": "medium",
+    "question": "当团队中涉及多个前端开发人员协作时，如何确保每个人的任务在排期内合理分配并按时完成？",
+    "key_points": [
+      "如何拆解任务明确每个人的工作内容与优先级",
+      "是否会进行定期检查和同步，确保各部分进展一致",
+      "是否重点关注过高或过低工作负荷的分配问题"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "behavioral",
+    "section": "项目管理与排期",
+    "difficulty": "medium",
+    "question": "当一个项目的需求频繁变动时，作为前端开发人员你是怎么调整排期的？",
+    "key_points": [
+      "如何与产品或需求方有效沟通变动的范围和优先级",
+      "是否主动提出调整计划并明确可能延期的项目部分",
+      "如何利用版本控制工具或模块化设计减少需求变动的影响"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "behavioral",
+    "section": "项目管理与排期",
+    "difficulty": "medium",
+    "question": "在一个涉及多个依赖（后端、UI、第三方服务等）的项目中，你是如何制定前端开发排期的？",
+    "key_points": [
+      "是否能够提前识别并标注关键路径上的依赖项",
+      "是否会与相关方同步确认依赖的交付时间和风险",
+      "如何设计对依赖模块的容错或替代方案"
+    ]
+  },
+  {
+    "job_type": "web-frontend",
+    "category": "behavioral",
+    "section": "项目管理与排期",
+    "difficulty": "medium",
+    "question": "如果你在项目中发现排期计划和实际进度完全不符，该怎么调整和应对？",
+    "key_points": [
+      "如何分析当前的进度偏差以及导致的原因",
+      "是否会调整项目的优先级和资源分配来应对延迟",
+      "是否主动与项目干系人沟通并商讨解决方案"
+    ]
   }
 ]

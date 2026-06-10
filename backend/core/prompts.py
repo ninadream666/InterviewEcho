@@ -105,7 +105,14 @@ class PromptManager:
             rag_context=rag_context
         )
 
-    def get_evaluator_prompt(self, interview_transcript, excellent_answers_context="", role="", role_specific_criteria=""):
+    def get_evaluator_prompt(
+        self,
+        interview_transcript,
+        excellent_answers_context="",
+        role="",
+        role_specific_criteria="",
+        resume_summary="",
+    ):
         """
         获取评估者角色的 System Prompt。
 
@@ -114,6 +121,7 @@ class PromptManager:
             excellent_answers_context: RAG 检索到的优秀回答参考。
             role: 岗位名称。
             role_specific_criteria: 岗位特定的评估侧重标准。
+            resume_summary: 候选人结构化简历摘要。
 
         Returns:
             str: 格式化后的评估 Prompt。
@@ -125,6 +133,7 @@ class PromptManager:
             "excellent_answers_context": excellent_answers_context,
             "role": role or "通用计算机岗位",
             "role_specific_criteria": role_specific_criteria or "（按通用计算机岗位标准评估）",
+            "resume_summary": resume_summary or "（本场面试未提供简历画像）",
         }
         try:
             return template.format(**format_kwargs)

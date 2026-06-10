@@ -33,6 +33,35 @@ const NESTED_COLORS = {
 
 const DEFAULT_COLOR = '#0066CC'
 
+const clampAxisValue = (value) => Math.max(0, Math.min(100, value))
+
+const buildYAxisRange = (series) => {
+  const values = series
+    .flatMap(item => item.data || [])
+    .map(point => point?.value)
+    .filter(value => typeof value === 'number' && !Number.isNaN(value))
+
+  if (values.length === 0) {
+    return { min: 0, max: 100 }
+  }
+
+  const minScore = Math.min(...values)
+  const maxScore = Math.max(...values)
+  const padding = values.length === 1 || minScore === maxScore ? 5 : 3
+
+  const min = clampAxisValue(Math.floor((minScore - padding) / 5) * 5)
+  const max = clampAxisValue(Math.ceil((maxScore + padding) / 5) * 5)
+
+  if (min === max) {
+    return {
+      min: clampAxisValue(min - 5),
+      max: clampAxisValue(max + 5)
+    }
+  }
+
+  return { min, max }
+}
+
 const initChart = () => {
   if (!chartRef.value) return
   chartInstance = echarts.init(chartRef.value)
@@ -152,8 +181,7 @@ const updateChart = () => {
     },
     yAxis: {
       type: 'value',
-      min: 60,
-      max: 100,
+      ...buildYAxisRange(series),
       splitLine: { lineStyle: { color: '#F3F4F6', type: 'dashed' } },
       axisLine: { show: false },
       axisLabel: { color: '#6B7280' }
