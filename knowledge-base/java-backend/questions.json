@@ -634,5 +634,930 @@
       "尊重对方关心的指标",
       "事后复盘的习惯"
     ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "JVM原理",
+    "difficulty": "easy",
+    "question": "GC 是如何判断一个对象是否可以被回收的？",
+    "key_points": [
+      "引用计数法及其缺陷，例如循环引用问题",
+      "可达性分析算法的原理及根对象（GCRoots）的定义",
+      "实际应用中哪些对象会被当作 GCRoots，比如栈中的局部变量或静态变量"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "JVM原理",
+    "difficulty": "easy",
+    "question": "Java 中一次 Full GC 可能由哪些原因触发？",
+    "key_points": [
+      "堆内存不足导致的 Full GC，比如老年代占满",
+      "调用 System.gc() 方法可能触发 Full GC",
+      "元空间溢出或直接内存不足等其他非堆内存相关问题"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "JVM原理",
+    "difficulty": "easy",
+    "question": "你如何选择合适的垃圾收集器来优化应用性能？",
+    "key_points": [
+      "根据应用的延迟需求或吞吐量需求选择，比如 G1 或 CMS",
+      "如何通过日志观察 GC 执行效率（如 Full GC 时间、频率）",
+      "掌握不同垃圾收集器的特点及适合的场景，比如 ZGC 的低停顿特性"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "JVM原理",
+    "difficulty": "hard",
+    "question": "在实际生产环境中，如果频繁出现 'OutOfMemoryError: Metaspace' 错误，你会如何定位和解决这个问题？",
+    "key_points": [
+      "分析类加载器的使用，检查是否存在类加载器泄漏。",
+      "使用工具（如 jcmd、jmap）监控 Metaspace 的增长趋势和占用情况。",
+      "调整 JVM 参数（如 MaxMetaspaceSize）并检查是否存在过多动态生成类的情况。",
+      "核查是否有非必要的第三方依赖引入，导致类加载过多。"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "JVM原理",
+    "difficulty": "hard",
+    "question": "系统内存占用异常高，但 GC 日志显示回收效率很低。你会如何诊断问题并提出优化方案？",
+    "key_points": [
+      "检查应用对象生命周期，判断是否存在内存泄漏或缓存滥用问题。",
+      "分析 GC 日志中的回收时间和停顿情况，判断是否需要调整 GC 参数或更换垃圾回收器（如从 CMS 转为 G1）。",
+      "关注老年代的对象晋升策略，调整晋升阀值以减少不必要的晋升。",
+      "结合工具（如 VisualVM、MAT）定位内存占用热点，优化高频分配对象。"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "JVM原理",
+    "difficulty": "hard",
+    "question": "如果你发现生产环境中线程频繁因为 'SafePoint' 停顿导致性能问题，应该如何排查原因并优化？",
+    "key_points": [
+      "使用工具（如 jstack）分析线程状态，检查是否存在频繁触发 SafePoint 的代码特征（如频繁使用 synchronized）。",
+      "分析 GC 日志中停顿次数和时间，判断是否由于 GC 触发 SafePoint。",
+      "检查 JIT 编译行为，排查是否有方法内联或热点代码膨胀导致频繁重新编译。",
+      "通过调整 JVM 参数（如使用 -XX:+PrintSafepointStatistics）进一步获取 SafePoint 停顿的详细信息并优化安全点布局。"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "JVM原理",
+    "difficulty": "medium",
+    "question": "请解释 JVM 类加载过程的主要阶段，并分析为什么需要双亲委派模型？",
+    "key_points": [
+      "类加载的主要阶段：加载、链接（验证、准备、解析）、初始化",
+      "双亲委派模型的核心做法：把加载请求从子加载器逐级向上委托给父加载器",
+      "双亲委派模型的优点：避免类重复加载、确保核心类的安全性"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "JVM原理",
+    "difficulty": "medium",
+    "question": "如何判断一个 JVM 堆内存溢出（OutOfMemoryError: Java heap space）的问题，并提供解决思路？",
+    "key_points": [
+      "通过分析日志中报错栈轨迹确认是 Java 堆问题",
+      "使用工具（如 jmap 或 MAT）分析堆转储文件，定位占用内存的对象情况",
+      "可能的解决思路：优化代码逻辑减少对象生命周期、调整堆内存大小配置、合理使用缓存"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "JVM原理",
+    "difficulty": "medium",
+    "question": "JVM 中方法区是用来干什么的？解释为什么在 JDK 8 中用元空间替代了永久代？",
+    "key_points": [
+      "方法区存储类的元信息、常量池、静态变量等，是 JVM 运行时数据区的一部分",
+      "永久代问题：大小固定、容易导致 OOM，且管理复杂",
+      "元空间优点：利用操作系统的直接内存，大小更加灵活，并降低了 OOM 风险"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "Java基础",
+    "difficulty": "easy",
+    "question": "Java 中的 HashMap 和 Hashtable 有哪些主要区别？",
+    "key_points": [
+      "HashMap 是非线程安全的，Hashtable 是线程安全的。",
+      "HashMap 允许 key 和 value 为 null，而 Hashtable 不允许。",
+      "HashMap 的性能通常优于 Hashtable，因为它没有同步开销。"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "Java基础",
+    "difficulty": "easy",
+    "question": "在 Java 中，如何判断两个对象是否相等？",
+    "key_points": [
+      "需要重写 equals 方法，并按需考虑业务逻辑。",
+      "同时重写 hashCode 方法，确保符合 equals 的对称性和一致性。",
+      "equals 方法默认是按对象引用比较，需要根据实际使用场景进行改写。"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "Java基础",
+    "difficulty": "easy",
+    "question": "Java 中，final 关键字有哪些使用场景？",
+    "key_points": [
+      "final 可以用来修饰变量，表示变量一旦赋值后无法修改。",
+      "final 修饰类时，表示该类不能被继承。",
+      "final 修饰方法时，表示方法不能被子类重写。"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "Java基础",
+    "difficulty": "hard",
+    "question": "假设你在实现一个高并发 Java 应用时，发现 synchronized 块导致了严重的性能瓶颈。请你说明如何优化这种场景，同时确保线程安全。",
+    "key_points": [
+      "分析同步块的粒度，尝试缩小锁的范围，减少锁竞争",
+      "使用更高效的并发工具类，例如 ReentrantLock 或者 StampedLock",
+      "考虑无锁算法（如使用 Atomic 类）替代传统锁机制",
+      "评估是否可以通过分区或分片思想，降低访问冲突的可能性"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "Java基础",
+    "difficulty": "hard",
+    "question": "Java 的 HashMap 在多线程环境下可能导致死循环或数据丢失。请问这是为什么，如何避免？",
+    "key_points": [
+      "解释多线程下 HashMap 的 resize 操作可能导致死循环的原因",
+      "描述如何使用 ConcurrentHashMap 替代 HashMap 提升线程安全",
+      "说明 ConcurrentHashMap 的分段锁机制及其并发性能优化",
+      "提到在设计场景下，避免并发使用普通 HashMap 的必要性"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "Java基础",
+    "difficulty": "hard",
+    "question": "当你需要实现一个自定义的线程池，并让线程池具备动态调整线程数的能力时，你会怎么设计？",
+    "key_points": [
+      "描述如何基于 ThreadPoolExecutor 来实现自定义线程池",
+      "解释核心线程数和最大线程数的动态调整逻辑及触发条件",
+      "说明如何使用阻塞队列（如 LinkedBlockingQueue）管理任务队列",
+      "针对可能的资源浪费或过载问题，设计出合理的拒绝策略"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "Java基础",
+    "difficulty": "medium",
+    "question": "Java 中的线程池有几种常见实现？创建线程池时应该注意哪些坑？",
+    "key_points": [
+      "熟悉常见线程池类型：FixedThreadPool、CachedThreadPool、SingleThreadExecutor、ScheduledThreadPool",
+      "了解线程池的核心参数，如核心线程数、最大线程数、队列大小、拒绝策略等",
+      "明确线程池可能导致的问题，例如线程池大小不合理导致 OOM 或任务堆积"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "Java基础",
+    "difficulty": "medium",
+    "question": "说说 Java 中的 final 关键字的作用和使用场景，它和 immutability 的关系是什么？",
+    "key_points": [
+      "理解 final 的应用场景：修饰变量、方法和类的作用",
+      "能解释 final 修饰对象引用与实际对象内容的区别",
+      "讨论 final 关键字如何帮助实现不可变类 (Immutability)"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "Java基础",
+    "difficulty": "medium",
+    "question": "在 Java 并发编程中，如果多个线程同时修改共享变量，可能会出现什么问题？如何避免这些问题？",
+    "key_points": [
+      "能描述线程安全问题，例如竞态条件和数据不一致",
+      "熟悉常见解决方案：使用 synchronized、ReentrantLock、volatile 或原子类 (如 AtomicInteger)",
+      "了解线程隔离和使用线程安全集合类 (如 ConcurrentHashMap)"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "Spring框架与工程化",
+    "difficulty": "easy",
+    "question": "Spring 中的 @Component 和 @Bean 注解分别用来做什么？它们有什么区别？",
+    "key_points": [
+      "@Component 是一种类级别的注解，用于将类标记为 Spring 容器中的组件。",
+      "@Bean 是方法级别的注解，用于在方法返回值上定义一个 Bean。",
+      "@Component 通常配合扫描包路径使用，而 @Bean 通常用于显式声明 Bean 的配置逻辑。"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "Spring框架与工程化",
+    "difficulty": "easy",
+    "question": "如果在 Spring 项目中多个 Bean 配置了同一个接口的实现，如何指定注入哪个 Bean？",
+    "key_points": [
+      "可以使用 @Qualifier 注解结合 @Autowired 注解来明确指定注入的 Bean 名称。",
+      "@Primary 注解可以用来标注一个优先注入的 Bean。",
+      "确定是否存在 Bean 名称冲突或未正确配置，必要时检查配置文件或类定义。"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "Spring框架与工程化",
+    "difficulty": "easy",
+    "question": "在 Spring 中，如何实现一个定时任务？有哪些注意事项？",
+    "key_points": [
+      "可以使用 @EnableScheduling 注解启用任务调度功能。",
+      "@Scheduled 注解可以用来定义方法的具体调度规则，如 fixedRate 或 cron 表达式。",
+      "需要确保 Spring 容器中启用了相关的线程池配置，以避免任务阻塞或资源消耗过多。"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "Spring框架与工程化",
+    "difficulty": "hard",
+    "question": "如果让你设计一个基于 Spring 的多租户系统，你会如何实现数据隔离和租户上下文的动态注入？",
+    "key_points": [
+      "基于 ThreadLocal 或其他上下文机制实现租户上下文的存储和传递",
+      "配置多数据源或使用同一数据源通过租户标识动态切换数据库架构",
+      "利用 AbstractRoutingDataSource 动态路由数据源的实现方式",
+      "考虑 AOP 拦截器拦截请求完成租户上下文的绑定和清理",
+      "处理跨线程异步任务时租户上下文传递的难题"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "Spring框架与工程化",
+    "difficulty": "hard",
+    "question": "在 Spring 应用中如何实现动态修改 Bean 的属性，且确保修改不会影响正在提供服务的实例？",
+    "key_points": [
+      "需要考虑使用 @Scope(proxyMode=ScopedProxyMode.TARGET_CLASS) 创建代理 Bean",
+      "通过 ApplicationContext.getBeanFactory().registerSingleton 动态注册新的 Bean 定义",
+      "利用 @RefreshScope 和 Spring Cloud Context 来动态刷新配置",
+      "同步机制避免并发修改对系统的副作用",
+      "确保在修改期间，老实例的服务提供不中断"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "Spring框架与工程化",
+    "difficulty": "hard",
+    "question": "如果一个 Spring ApplicationContext 的初始化性能有瓶颈，你会怎么做来优化启动速度？",
+    "key_points": [
+      "利用 @Lazy 注解延迟加载非必须的 Bean",
+      "将 Bean 的初始化分片或分阶段执行，减少 ApplicationContext 加载压力",
+      "通过配置 spring.main.lazy-initialization=true 实现整体懒加载",
+      "分析 Bean 的循环依赖链，减少过多的 @PostConstruct 或 @Bean(initMethod)",
+      "使用 Profiling 工具（如 JProfiler 或 Micrometer）定位特定 Bean 初始化的性能瓶颈"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "Spring框架与工程化",
+    "difficulty": "medium",
+    "question": "如果需要实现一个动态的多数据源切换功能，你会如何利用 Spring 的核心功能来设计？",
+    "key_points": [
+      "利用 AbstractRoutingDataSource 实现动态数据源切换",
+      "通过 ThreadLocal 或其他上下文机制存储当前数据源的标识",
+      "使用 AOP 拦截特定业务方法，动态设置数据源上下文"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "Spring框架与工程化",
+    "difficulty": "medium",
+    "question": "在一个高并发场景下，如何利用 Spring Bean 的生命周期管理来控制线程安全问题？",
+    "key_points": [
+      "明确 Spring Bean 的作用域（如 singleton, prototype）对线程安全的影响",
+      "在多线程访问场景中，考虑将不安全的 Bean 配置为 prototype",
+      "使用 @Scope 注解自定义 Bean 的多实例管理"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "Spring框架与工程化",
+    "difficulty": "medium",
+    "question": "在 Spring 环境中，如果你需要对某个类的复杂初始化逻辑进行解耦和扩展，你会怎么设计？",
+    "key_points": [
+      "利用 @PostConstruct 进行初始化逻辑的注册",
+      "通过实现 InitializingBean 接口的 afterPropertiesSet 方法扩展逻辑",
+      "结合 FactoryBean 或自定义 BeanPostProcessor 动态处理 Bean 的初始化行为"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "分布式与微服务架构",
+    "difficulty": "easy",
+    "question": "如何在微服务架构中实现服务的负载均衡？常用的策略有哪些？",
+    "key_points": [
+      "解释常用的负载均衡方式（如客户端负载均衡、服务端负载均衡)",
+      "详细说明常见的负载均衡策略（如随机、轮询、一致性哈希等）",
+      "结合 Java 框架（如 Spring Cloud）举例说明实现方式"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "分布式与微服务架构",
+    "difficulty": "easy",
+    "question": "在分布式系统中，如何确保服务之间的通信数据是幂等的？",
+    "key_points": [
+      "描述什么是幂等性及其重要性",
+      "列举实现幂等性的常用方案（如去重标识、幂等表、重试机制）",
+      "结合实际场景分析幂等性实现中的关键挑战"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "分布式与微服务架构",
+    "difficulty": "easy",
+    "question": "分布式环境下如何处理全局事务问题？请举例说明一种你认为合适的方案。",
+    "key_points": [
+      "说明分布式事务的概念及其可能引发的问题（如数据不一致）",
+      "详细描述一种解决方案（如两阶段提交、TCC 模型、Saga 模型等）",
+      "结合 Java 相关技术栈（如 Seata、Spring Cloud）举例实现"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "分布式与微服务架构",
+    "difficulty": "hard",
+    "question": "如果你需要设计一个分布式锁用于多个微服务共享资源的场景，你如何保证锁的高可用性和一致性？",
+    "key_points": [
+      "基于 Redis 的分布式锁设计：结合 SET 和 Lua 脚本确保原子操作",
+      "引入锁的过期时间和续期机制，防止死锁或锁漂移问题",
+      "高可用性：通过主从同步或 Redis Cluster，避免单点故障"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "分布式与微服务架构",
+    "difficulty": "hard",
+    "question": "微服务间的数据一致性如何通过事件驱动架构实现？请给出一个完整的解决思路。",
+    "key_points": [
+      "使用可靠的消息队列（如 Kafka/RabbitMQ）作为事件总线，避免消息丢失",
+      "事务事件的存储与发布要保证原子性（如 Outbox Pattern）",
+      "设计幂等机制避免重复消费，处理最终一致性的场景"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "分布式与微服务架构",
+    "difficulty": "hard",
+    "question": "假如你的系统中引入了服务注册中心（如 Eureka 或 Consul），如何处理服务实例状态不一致的问题？",
+    "key_points": [
+      "通过心跳检测机制及时发现实例状态变化（心跳间隔配置合理优化）",
+      "利用剔除策略（如 CAPACITY_FACTOR），优先下线异常节点",
+      "容错机制：结合负载均衡器过滤掉无效或半失效的节点请求"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "分布式与微服务架构",
+    "difficulty": "medium",
+    "question": "如果让你设计一个微服务之间的通信方案，你会选择 gRPC 还是 REST？请说明你的选择依据和适用场景。",
+    "key_points": [
+      "gRPC 的二进制协议效率高、支持流式数据、双向通信。",
+      "REST 的易用性、广泛支持和与 HTTP 协议的天然兼容性。",
+      "对微服务通信场景的分析，以及如何根据性能需求、兼容性和开发成本作出合理选择。"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "分布式与微服务架构",
+    "difficulty": "medium",
+    "question": "在分布式系统中，你如何保证多个服务之间的数据一致性？请具体举例并说明。",
+    "key_points": [
+      "分布式事务的实现方法，比如两阶段提交（2PC）、三阶段提交（3PC）。",
+      "基于事件驱动的最终一致性方案，如消息队列的使用。",
+      "对于强一致性需求的场景和放宽一致性需求的权衡分析。"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "分布式与微服务架构",
+    "difficulty": "medium",
+    "question": "如何实现一个分布式锁来解决多实例间的资源竞争问题？你会选择 Redis 还是 Zookeeper？为什么？",
+    "key_points": [
+      "Redis 的 SET NX EX 指令模式，以及 Redlock 算法的分布式锁实现。",
+      "Zookeeper 基于临时顺序节点的分布式锁机制。",
+      "对场景的分析和选择依据，比如性能需求、高可用性、复杂性等。"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "behavioral",
+    "section": "团队协作",
+    "difficulty": "medium",
+    "question": "当团队里有成员进度落后，影响了整体项目进展时，你会怎么处理这种情况？",
+    "key_points": [
+      "主动了解落后原因，提出建设性建议",
+      "提供技术或资源支持，帮助成员克服困难",
+      "与团队一起调整计划，确保整体目标不受影响"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "behavioral",
+    "section": "团队协作",
+    "difficulty": "medium",
+    "question": "如果团队中有人对你负责的代码提出了明显不足的批评，你会如何回应？",
+    "key_points": [
+      "倾听对方观点，保持积极开放的态度",
+      "分析问题的合理性并确认是否需要改进",
+      "基于具体问题与团队讨论，共同优化代码质量"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "behavioral",
+    "section": "团队协作",
+    "difficulty": "medium",
+    "question": "在团队开发中，如果你发现某位成员的工作方式效率低下，可能拖慢进度，你会怎么做？",
+    "key_points": [
+      "私下沟通，友善地指出问题并给予建议",
+      "根据具体问题提供指导或工具改进建议",
+      "在不影响士气的情况下，与团队配合解决问题"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "behavioral",
+    "section": "团队协作",
+    "difficulty": "medium",
+    "question": "当团队面临重要项目的紧急需求时，需要临时延长工作时间，你会如何协调团队并确保士气？",
+    "key_points": [
+      "清晰说明紧急需求的重要性以及对项目的影响",
+      "与团队沟通，尊重个人意愿并合理分配任务",
+      "提供额外激励或补偿措施，确保团队士气"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "behavioral",
+    "section": "学习能力与沟通",
+    "difficulty": "easy",
+    "question": "当你遇到一个完全不熟悉的技术框架或工具时，你会如何快速掌握它，并与团队分享你的学习成果？",
+    "key_points": [
+      "展示主动学习的态度，如查阅文档或寻找学习资源",
+      "提到实际的学习方法，例如小规模试验或构建简单用例",
+      "描述如何通过团队沟通或知识分享会传递学习成果"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "behavioral",
+    "section": "学习能力与沟通",
+    "difficulty": "easy",
+    "question": "如果团队中有人提出了一种你认为存在问题的解决方案，你会如何与他沟通？",
+    "key_points": [
+      "能清晰表达自己的质疑点，而不是直接否定对方",
+      "注重使用数据或案例支持自己的观点",
+      "展现与对方合作改进方案的意愿，而不是单方面指责"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "behavioral",
+    "section": "学习能力与沟通",
+    "difficulty": "easy",
+    "question": "在过去的项目中，你是否因为不熟悉某些领域而导致进度延误？如果有，你是如何解决的？",
+    "key_points": [
+      "能够坦诚承认不足，同时展示具体的补救措施",
+      "通过实例说明如何快速补齐知识短板",
+      "强调如何与团队沟通，争取配合或支持来解决问题"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "behavioral",
+    "section": "学习能力与沟通",
+    "difficulty": "easy",
+    "question": "如果你正在学习一种新技术，但发现官方文档不够完善而且网上资料非常少，你会怎么处理？",
+    "key_points": [
+      "展现搜索和整合信息的能力，比如从论坛、GitHub等渠道获取资料",
+      "提及通过动手实践或阅读源码进行探索的做法",
+      "描述如何向社区或同事寻求帮助，或贡献自己的研究成果"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "behavioral",
+    "section": "工程实践",
+    "difficulty": "medium",
+    "question": "当你被要求优化现有系统的性能，但对系统不够熟悉时，你会如何开展这项工作？",
+    "key_points": [
+      "分析性能瓶颈，使用监控工具定位问题",
+      "与团队成员沟通，获取系统设计和业务背景",
+      "确认优化方案对现有功能的影响并制定回退计划",
+      "优先处理高影响低成本的改进项",
+      "在优化完成后进行压力测试，验证效果"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "behavioral",
+    "section": "工程实践",
+    "difficulty": "medium",
+    "question": "在团队开发过程中，如果你发现同事的代码质量较差，可能会影响项目进度，你会怎么处理？",
+    "key_points": [
+      "通过代码审查提出具体改进建议，而非泛泛而谈",
+      "以建设性的态度提供帮助，共同提升代码质量",
+      "评估问题的严重性，判断是否需要上报给负责人",
+      "主动提供资源或工具，帮助同事提升编码能力",
+      "确保项目进度不会受到严重影响"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "behavioral",
+    "section": "工程实践",
+    "difficulty": "medium",
+    "question": "如果你负责一个微服务，突然接到线上服务大量超时报警，你会如何排查和解决？",
+    "key_points": [
+      "优先确认报警是否准确，排除假阳性",
+      "检查服务的关键监控指标（如QPS、响应时间、错误率）",
+      "分析日志和调用链，定位具体耗时的环节",
+      "根据原因选择合适的修复方案（如扩容、优化代码等）",
+      "总结经验并完善监控、告警规则，避免问题重现"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "behavioral",
+    "section": "工程实践",
+    "difficulty": "medium",
+    "question": "如果你在开发过程中，发现现有数据库设计严重制约了功能扩展，你会如何解决这个问题？",
+    "key_points": [
+      "梳理当前数据库设计存在的问题和限制",
+      "与团队沟通，结合业务需求重新设计合理的数据库结构",
+      "规划迁移步骤，保证数据完整性和服务不中断",
+      "设计回滚方案，确保在紧急情况下可以快速恢复",
+      "记录改动和决策过程，分享给团队作为经验积累"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "并发编程",
+    "difficulty": "easy",
+    "question": "请你实现一个简单的生产者-消费者模型，需要考虑线程安全和效率问题。",
+    "key_points": [
+      "合理使用 wait 和 notify/notifyAll 进行线程通信",
+      "使用线程安全的队列（如 BlockingQueue）简化实现",
+      "避免死锁或资源争用问题，确保代码可以正常运行"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "并发编程",
+    "difficulty": "easy",
+    "question": "如何在 Java 中让多个线程顺序执行，比如线程 A 执行完后再执行 B，最后执行 C？",
+    "key_points": [
+      "可以通过使用线程间的 join 方法实现顺序控制",
+      "还可以通过 CountDownLatch 等同步工具来协调线程顺序",
+      "需要避免线程之间的竞争关系对顺序执行造成干扰"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "并发编程",
+    "difficulty": "easy",
+    "question": "如果让你设计一个简单的线程池，你会怎么做？需要解决线程复用的问题。",
+    "key_points": [
+      "需要维护一个任务队列来保存待处理的任务",
+      "线程池中的线程可以从任务队列中循环获取任务并执行",
+      "要注意线程池的关闭逻辑，避免资源泄露"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "并发编程",
+    "difficulty": "hard",
+    "question": "在 Java 里实现一个高性能的线程安全队列，如何选择合适的数据结构和并发工具类？请具体描述你的实现思路。",
+    "key_points": [
+      "合理选择数据结构，例如 ArrayBlockingQueue 或 ConcurrentLinkedQueue。",
+      "分析并发场景，是否需要使用锁，还是无锁更高效。",
+      "使用 CAS 操作优化性能，避免锁带来的线程争用问题。",
+      "处理生产者-消费者模型中的资源竞争，确保线程安全。"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "并发编程",
+    "difficulty": "hard",
+    "question": "请你实现一个线程池的核心功能，包括任务提交、线程复用，以及任务队列的设计。你会如何解决线程饥饿或者资源耗尽的问题？",
+    "key_points": [
+      "实现线程池的基本功能，包括核心线程数和最大线程数的管理。",
+      "设计合理的阻塞队列，用于存储等待执行的任务。",
+      "使用拒绝策略应对线程资源耗尽的场景，例如抛出异常或丢弃任务。",
+      "考虑线程饥饿问题，合理设置任务优先级或评估系统负载。"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "并发编程",
+    "difficulty": "hard",
+    "question": "如果你需要设计一个并发限流器，用于控制高并发场景下的线程访问频率，你会选择什么方法？如何设计确保性能和准确性？",
+    "key_points": [
+      "基于令牌桶或漏桶算法的设计原理，限制线程访问频率。",
+      "选择合适的并发工具类，例如 Semaphore 或 AtomicInteger。",
+      "在高并发场景下减少锁的使用，采用无锁操作或线程本地变量优化性能。",
+      "设计方案时需考虑单机与分布式限流的不同要求。"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "并发编程",
+    "difficulty": "medium",
+    "question": "在 Java 中，如果多个线程需要安全地访问共享资源，你会如何实现这样的线程安全？",
+    "key_points": [
+      "使用 synchronized 关键字锁住共享资源，确保同一时间只有一个线程访问。",
+      "运用 ReentrantLock 提供更灵活的锁控制，比如尝试锁和定时锁功能。",
+      "分析具体场景是否需要使用线程安全的集合类（如 ConcurrentHashMap 或 CopyOnWriteArrayList）。"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "并发编程",
+    "difficulty": "medium",
+    "question": "假设你要实现一个生产者消费者模型，如何使用 Java 并发工具包来实现？",
+    "key_points": [
+      "正确选择 BlockingQueue（如 ArrayBlockingQueue 或 LinkedBlockingQueue）用于线程间通信。",
+      "利用阻塞队列的 put 和 take 方法确保线程协作，不需要额外的显式锁机制。",
+      "考虑如何通过配置队列容量来控制生产者和消费者之间的平衡。"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "并发编程",
+    "difficulty": "medium",
+    "question": "如果一个复杂任务需要拆分为多个子任务并行执行，你会如何使用 ForkJoin 框架完成？",
+    "key_points": [
+      "使用 RecursiveTask 或 RecursiveAction 定义子任务的分解逻辑。",
+      "合理设计任务分割条件，避免过小任务导致的性能开销。",
+      "在 ForkJoinPool 中提交主任务，并确保结果合并的线程安全性。"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "behavioral",
+    "section": "抗压与沟通",
+    "difficulty": "medium",
+    "question": "当你遇到多个任务同时加急的情况时，你会如何应对？",
+    "key_points": [
+      "任务优先级的判断标准及划分依据",
+      "是否主动与相关方协调，明确各任务的实际紧迫性",
+      "如何在压力下合理分配时间和资源"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "behavioral",
+    "section": "抗压与沟通",
+    "difficulty": "medium",
+    "question": "如果在项目过程中出现了严重的冲突或分歧，你会怎么处理？",
+    "key_points": [
+      "是否主动倾听并理解冲突双方的立场和需求",
+      "使用何种沟通技巧来缓解紧张局面",
+      "在推动问题解决时，如何体现客观性与团队协作精神"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "behavioral",
+    "section": "抗压与沟通",
+    "difficulty": "medium",
+    "question": "最近的一个项目里，你是如何在最后期限前应对较大的突发问题的？",
+    "key_points": [
+      "是否准确识别并分析问题的核心原因",
+      "如何在时间紧张时高效地与团队协作解决问题",
+      "是否及时向上下游沟通进展及后续计划"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "behavioral",
+    "section": "抗压与沟通",
+    "difficulty": "medium",
+    "question": "在团队中，如何处理因沟通不到位而导致的误解或失误？",
+    "key_points": [
+      "如何分析误解或失误的根本原因",
+      "是否能用有效沟通手段快速修复团队信任",
+      "采取了哪些措施防止类似问题再次发生"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "数据库与缓存",
+    "difficulty": "easy",
+    "question": "如何判断某张表的某个字段是否需要加索引？你的分析步骤是怎样的？",
+    "key_points": [
+      "是否存在频繁的查询操作，尤其是 WHERE 条件中是否常用该字段",
+      "是否涉及排序、分组等操作，索引能否加速这些操作",
+      "分析表的体量、字段的基数（cardinality），判断是否适合加索引"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "数据库与缓存",
+    "difficulty": "easy",
+    "question": "当缓存中的数据与数据库中的数据不一致时，你会如何处理？",
+    "key_points": [
+      "明确缓存失效策略，如时间驱动、主动刷新还是被动更新",
+      "考虑是否采用写穿、写回或写旁路等缓存更新策略",
+      "确保高并发场景下数据一致性，通过分布式锁或消息队列解决潜在竞态问题"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "数据库与缓存",
+    "difficulty": "easy",
+    "question": "Redis 的键会自动过期吗？有哪些常见的过期策略？",
+    "key_points": [
+      "Redis 的键可以设置 TTL，超过 TTL 会自动过期",
+      "常见的过期策略包括惰性过期、定期过期等",
+      "了解如何平衡内存性能和数据清理效率，比如主动清理与内存淘汰的结合使用"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "数据库与缓存",
+    "difficulty": "hard",
+    "question": "如果让你设计一个高性能的缓存系统来支持一个高并发电商平台，你会如何处理缓存穿透、缓存击穿和缓存雪崩？",
+    "key_points": [
+      "缓存穿透的解决方案，例如缓存空值、使用布隆过滤器。",
+      "缓存击穿的处理方式，例如使用互斥锁或设置热点数据的高并发访问控制。",
+      "应对缓存雪崩的策略，例如缓存失效时间的随机化、分布式限流或降级机制。"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "数据库与缓存",
+    "difficulty": "hard",
+    "question": "Redis 提供了多种数据类型，如果需要用 Redis 实现一个排行榜系统，并支持实时更新和分页功能，你会怎么设计？",
+    "key_points": [
+      "合理使用 Sorted Set 数据结构，通过分数排序实现排行榜功能。",
+      "设计分页功能，比如通过 ZRANGE 或 ZREVRANGE 指令按需求查询数据。",
+      "确保支持高并发更新，避免操作耗时导致性能下降。"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "数据库与缓存",
+    "difficulty": "hard",
+    "question": "在设计一个复杂的业务系统时，如何结合 MySQL 和 Redis 提高查询性能，同时保证数据一致性？",
+    "key_points": [
+      "讨论缓存与数据库的读写分离策略，例如缓存优先或数据库优先。",
+      "涉及数据一致性时，说明如何处理缓存与数据库的双写问题，如使用延迟双删或异步刷新机制。",
+      "考虑高并发场景下的锁机制（分布式锁）的使用和其对一致性的影响。"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "数据库与缓存",
+    "difficulty": "medium",
+    "question": "如果数据库某张表的写入操作持续增多，导致表的查询变慢，你会如何优化这张表的设计与数据管理？",
+    "key_points": [
+      "分析表的现有索引是否满足查询需求，合理添加或优化索引",
+      "考虑分库分表策略，例如水平分表或垂直拆分",
+      "结合业务场景评估是否可以利用缓存机制减少数据库查询压力"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "数据库与缓存",
+    "difficulty": "medium",
+    "question": "Redis 缓存穿透、缓存击穿和缓存雪崩，你能分别描述一下这三者的现象，并给出应对方案吗？",
+    "key_points": [
+      "缓存穿透：查询不存在的数据，解决方式如使用布隆过滤器或默认缓存空值",
+      "缓存击穿：热点数据过期瞬间被大量请求击中，解决方式如设置互斥锁或提前预热",
+      "缓存雪崩：大量数据同时过期或缓存服务宕机，解决方式如随机过期时间或设置多级缓存"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "problem_solving",
+    "section": "数据库与缓存",
+    "difficulty": "medium",
+    "question": "在一个强一致性的业务场景中，如何设计保证 MySQL 数据库主从同步延迟不会对读取一致性造成影响？",
+    "key_points": [
+      "明确业务对数据一致性的要求，必要时强制使用主库读取",
+      "配置主从同步为半同步模式，降低延迟风险",
+      "在读请求中引入延迟队列或检测机制，判断从库数据是否最新"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "project",
+    "section": "项目深挖",
+    "difficulty": "easy",
+    "question": "最近一个项目中，你是如何处理接口设计和定义的？是否遇到过接口变更的问题，怎么解决的？",
+    "key_points": [
+      "是否清楚描述接口设计的思路和工具",
+      "接口变更后的影响排查是否全面",
+      "处理接口变更时是否与前端或其他相关方有效沟通"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "project",
+    "section": "项目深挖",
+    "difficulty": "easy",
+    "question": "你在项目中遇到过性能瓶颈吗？你具体是怎么定位和优化性能的？",
+    "key_points": [
+      "明确性能瓶颈的具体表现和影响范围",
+      "使用了哪些工具或技术手段定位问题",
+      "提出的优化措施是否针对性强并可行"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "project",
+    "section": "项目深挖",
+    "difficulty": "easy",
+    "question": "谈谈你在项目中设计数据库表结构的经验，如何确保结构设计的合理性？",
+    "key_points": [
+      "是否考虑业务需求与未来扩展性",
+      "是否提及索引设计、范式或反范式的具体权衡",
+      "是否有实际案例支撑说明设计效果"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "project",
+    "section": "项目深挖",
+    "difficulty": "easy",
+    "question": "你在项目中是否曾处理过分布式事务或数据一致性问题？是如何实现的？",
+    "key_points": [
+      "清楚描述具体场景和分布式事务挑战",
+      "使用了哪些解决方案，如本地事务、MQ补偿方案等",
+      "是否提及对一致性与性能的权衡思考"
+    ]
+  },
+  {
+    "job_type": "java-backend",
+    "category": "project",
+    "section": "项目深挖",
+    "difficulty": "hard",
+    "question": "在你做过的一个分布式系统中，能否举例讲一下你是如何设计和实现分布式事务的？尤其是在性能和可靠性之间是怎么做权衡的？",
+    "key_points": [
+      "能够清晰描述分布式事务的具体业务场景和问题，例如跨多个微服务更新数据的场景。",
+      "选择的分布式事务解决方案，例如二阶段提交（2PC）、TCC、SAGA 模式或其他，能说出选择背后的理由。",
+      "优化性能的细节，如降低锁持有时间、异步处理非关键步骤或结合最终一致性。",
+      "可靠性保障措施，例如失败回滚策略、幂等性实现和异常监控机制。",
+      "是否有可量化的结果，比如延迟降低、吞吐量提升或者错误率下降的具体数据。"
+    ]
   }
 ]

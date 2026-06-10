@@ -106,6 +106,79 @@
           <EvalDimensionPanel :report="report" />
         </div>
 
+        <div v-if="roundFeedback.length > 0" class="pt-10 border-t border-gray-200">
+          <div class="mb-8">
+            <h1 class="text-2xl font-extrabold text-gray-900 tracking-tight">逐轮改进示例</h1>
+            <p class="text-gray-500 mt-2 text-sm">针对每一轮真实作答，给出问题复盘、薄弱点和更优示范表达。</p>
+          </div>
+
+          <div class="space-y-6">
+            <div
+              v-for="item in roundFeedback"
+              :key="`round-feedback-${item.round}`"
+              class="rounded-2xl border border-slate-200 bg-slate-50/70 p-6"
+            >
+              <div class="flex items-start gap-3 mb-4">
+                <span class="shrink-0 w-8 h-8 rounded-full bg-[#0066CC] text-white text-sm flex items-center justify-center font-bold">
+                  {{ item.round }}
+                </span>
+                <div class="flex-1">
+                  <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">面试官问题</div>
+                  <p class="text-sm text-slate-800 leading-relaxed">{{ item.question || '未记录问题文本' }}</p>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                <div class="rounded-xl bg-white border border-slate-200 p-4">
+                  <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">候选人回答摘要</div>
+                  <p class="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">
+                    {{ item.answer_summary || '本轮未提取到有效回答摘要。' }}
+                  </p>
+                </div>
+
+                <div class="rounded-xl bg-white border border-slate-200 p-4">
+                  <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">推荐改进示例</div>
+                  <p class="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">
+                    {{ item.improved_example || '暂无改进示例。' }}
+                  </p>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 mt-4">
+                <div class="rounded-xl bg-green-50/60 border border-green-100 p-4">
+                  <div class="text-xs font-semibold text-green-700 uppercase tracking-wider mb-2">做得好的地方</div>
+                  <ul class="space-y-1.5" v-if="item.strengths && item.strengths.length">
+                    <li
+                      v-for="(strength, idx) in item.strengths"
+                      :key="`strength-${item.round}-${idx}`"
+                      class="text-sm text-slate-700 leading-relaxed flex items-start gap-2"
+                    >
+                      <span class="shrink-0 mt-1.5 w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                      <span class="flex-1">{{ strength }}</span>
+                    </li>
+                  </ul>
+                  <p v-else class="text-sm text-slate-500">暂无单独提炼的亮点。</p>
+                </div>
+
+                <div class="rounded-xl bg-orange-50/60 border border-orange-100 p-4">
+                  <div class="text-xs font-semibold text-orange-700 uppercase tracking-wider mb-2">待改进点</div>
+                  <ul class="space-y-1.5" v-if="item.issues && item.issues.length">
+                    <li
+                      v-for="(issue, idx) in item.issues"
+                      :key="`issue-${item.round}-${idx}`"
+                      class="text-sm text-slate-700 leading-relaxed flex items-start gap-2"
+                    >
+                      <span class="shrink-0 mt-1.5 w-1.5 h-1.5 rounded-full bg-orange-500"></span>
+                      <span class="flex-1">{{ issue }}</span>
+                    </li>
+                  </ul>
+                  <p v-else class="text-sm text-slate-500">暂无单独提炼的待改进点。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- V2: 表达能力深度诊断 -->
         <div v-if="report.expression_metrics" class="pt-10 border-t border-gray-200">
           <div class="mb-8">
@@ -439,25 +512,27 @@ const router = useRouter()
 const report = ref(null)
 const loading = ref(false)
 
+const loadReport = async (evalId) => {
+  if (!evalId) return
+  loading.value = true
+  try {
+    const { data } = await api.get(`/interview/${evalId}/evaluation`)
+    report.value = data
+  } catch (err) {
+    ElMessage.error('无法加载评估报告')
+    router.push('/dashboard')
+  } finally {
+    loading.value = false
+  }
+}
+
 onMounted(async () => {
   if (history.state && history.state.evaluation) {
     report.value = history.state.evaluation
-    return
   }
 
   const evalId = route.params.id
-  if (evalId) {
-    loading.value = true
-    try {
-      const { data } = await api.get(`/interview/${evalId}/evaluation`)
-      report.value = data
-    } catch (err) {
-      ElMessage.error('无法加载评估报告')
-      router.push('/dashboard')
-    } finally {
-      loading.value = false
-    }
-  }
+  await loadReport(evalId)
 })
 
 const formatDateTime = (dateStr) => {
@@ -513,6 +588,36 @@ const parsedReportData = computed(() => {
     weaknesses: report.value.weaknesses || [],
     recommendations: report.value.recommendations || report.value.improvement_suggestions || ''
   }
+})
+
+const roundFeedback = computed(() => {
+  if (!report.value) return []
+  if (Array.isArray(report.value.round_feedback) && report.value.round_feedback.length > 0) {
+    return report.value.round_feedback
+  }
+  if (report.value.report_json) {
+    try {
+      const data = typeof report.value.report_json === 'string'
+        ? JSON.parse(report.value.report_json)
+        : report.value.report_json
+      if (Array.isArray(data.round_feedback)) return data.round_feedback
+      if (Array.isArray(data.evaluations)) {
+        return data.evaluations
+          .filter(item => item.question || item.answer_summary || item.improved_example)
+          .map((item, index) => ({
+            round: item.round || index + 1,
+            question: item.question || '',
+            answer_summary: item.answer_summary || '',
+            strengths: item.strengths || [],
+            issues: item.issues || [],
+            improved_example: item.improved_example || ''
+          }))
+      }
+    } catch (e) {
+      return []
+    }
+  }
+  return []
 })
 </script>
 

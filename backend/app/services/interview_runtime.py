@@ -633,6 +633,20 @@ def get_evaluation_detail(db: Session, user_id: int, interview_id: int) -> schem
     interview_obj = eval_record.interview
     repo_context = _load_json(interview_obj.repo_context, None)
     custom_questions = _load_json(interview_obj.custom_questions, None)
+    round_feedback = report_data.get("round_feedback") or []
+    if not round_feedback:
+        evaluations = report_data.get("evaluations") or []
+        for index, item in enumerate(evaluations, start=1):
+            round_feedback.append(
+                {
+                    "round": int(item.get("round") or index),
+                    "question": item.get("question", ""),
+                    "answer_summary": item.get("answer_summary", ""),
+                    "strengths": item.get("strengths") or [],
+                    "issues": item.get("issues") or [],
+                    "improved_example": item.get("improved_example", ""),
+                }
+            )
 
     return schemas.EvaluationDetail(
         interview_id=eval_record.interview_id,
@@ -653,6 +667,7 @@ def get_evaluation_detail(db: Session, user_id: int, interview_id: int) -> schem
         weaknesses=report_data.get("weaknesses", []),
         recommendations=eval_record.recommendations or report_data.get("improvement_suggestions", "继续加油！"),
         scores=report_data.get("scores"),
+        round_feedback=round_feedback,
         created_at=eval_record.created_at,
     )
 
@@ -1164,7 +1179,11 @@ async def end_interview(db: Session, user_id: int, interview_id: int) -> dict:
         .order_by(models.Message.created_at.asc())
         .all()
     )
-    evaluation_data = await evaluate_full_interview(messages, role=interview.role)
+    evaluation_data = await evaluate_full_interview(
+        messages,
+        role=interview.role,
+        resume_persona=_load_json(interview.resume_persona, None),
+    )
 
     # 3. 语音指标采集 + 表达评分
     voice_records = db.query(models.VoiceMetrics).filter(models.VoiceMetrics.interview_id == interview_id).all()
@@ -1240,21 +1259,5 @@ async def end_interview(db: Session, user_id: int, interview_id: int) -> dict:
 
     return {
         "message": "Interview ended and evaluated successfully.",
-        "evaluation": {
-            "interview_id": interview_id,
-            "role": interview.role,
-            "content_score": evaluation_data.get("content_score", 0),
-            "expression_score": evaluation_data.get("expression_score", 0),
-            "business_scenario_score": evaluation_data.get("business_scenario_score", 0),
-            "problem_solving_score": evaluation_data.get("problem_solving_score", 0),
-            "total_score": evaluation_data.get("total_score", 0),
-            "speech_rate_score": speech_rate_score,
-            "clarity_score": clarity_score,
-            "confidence_score": confidence_score,
-            "expression_metrics": expression_result,
-            "highlights": evaluation_data.get("highlights", []),
-            "weaknesses": evaluation_data.get("weaknesses", []),
-            "recommendations": evaluation_data.get("recommendations", ""),
-            "created_at": eval_record.created_at,
-        },
+        "evaluation": get_evaluation_detail(db, user_id, interview_id).model_dump(),
     }

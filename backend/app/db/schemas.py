@@ -141,6 +141,16 @@ class EvaluationSummary(ApiSchema):
     created_at: datetime
 
 
+class EvaluationRoundFeedback(ApiSchema):
+    """逐轮回答改进示例。"""
+    round: int
+    question: str
+    answer_summary: str
+    strengths: List[str] = []
+    issues: List[str] = []
+    improved_example: str
+
+
 class EvaluationDetail(ApiSchema):
     """评估详情（完整报告数据）。"""
     interview_id: int
@@ -160,6 +170,7 @@ class EvaluationDetail(ApiSchema):
     recommendations: str
     scores: Optional[dict] = None
     expression_metrics: Optional[dict] = None
+    round_feedback: List[EvaluationRoundFeedback] = []
     # ---- 上下文字段（v3/v4 扩展） ----
     repo_context: Optional[List[dict]] = None
     custom_questions: Optional[List[dict]] = None

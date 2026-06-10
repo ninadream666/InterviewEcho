@@ -527,5 +527,827 @@
       "上线后监控不是可选项",
       "复盘并形成 SOP"
     ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "problem_solving",
+    "section": "Python语言核心",
+    "difficulty": "easy",
+    "question": "用 Python 实现一个函数，统计一个字符串中每个字符出现的次数。",
+    "key_points": [
+      "使用字典（dict）作为数据结构来记录字符及其对应出现次数",
+      "正确处理字符串中可能出现的特殊字符或空格",
+      "代码应具有清晰的逻辑并包含适当的边界条件处理"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "problem_solving",
+    "section": "Python语言核心",
+    "difficulty": "easy",
+    "question": "如何使用 Python 的内置模块 `collections` 快速找到一个列表中最常出现的三个元素？",
+    "key_points": [
+      "熟练使用 collections.Counter 提供的功能（如 most_common 方法）",
+      "能够清楚地解读 Counter 的输出格式并正确提取对应结果",
+      "代码简洁且能正确处理输入列表为空或元素不足 3 个的情况"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "problem_solving",
+    "section": "Python语言核心",
+    "difficulty": "easy",
+    "question": "请写一个 Python 函数，合并两个有序列表，并返回一个合并后的有序列表。",
+    "key_points": [
+      "能够正确处理任意长度的输入列表并保证输出有序性",
+      "熟悉通过双指针技巧实现高效合并操作",
+      "代码逻辑清晰，能正确处理列表为空的特殊情况"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "problem_solving",
+    "section": "Python语言核心",
+    "difficulty": "hard",
+    "question": "请实现一个类，使其具备与列表类似的切片功能，同时让切片操作支持负索引并能跳跃选择元素，例如 obj[1:10:2]。",
+    "key_points": [
+      "需要实现 __getitem__ 和 __setitem__ 魔法方法，能处理 slice 对象。",
+      "支持负索引解析，确保下标在合法范围内。",
+      "允许设置步长并正确返回符合条件的元素子集。"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "problem_solving",
+    "section": "Python语言核心",
+    "difficulty": "hard",
+    "question": "用 Python 原生语法实现一个线程安全的单例模式，同时支持惰性初始化。",
+    "key_points": [
+      "正确使用 threading.Lock 或其他同步机制实现线程安全。",
+      "惰性初始化应在首次调用实例化时完成，而不是程序启动时。",
+      "在多线程环境下确保单例对象唯一性，无竞态条件。"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "problem_solving",
+    "section": "Python语言核心",
+    "difficulty": "hard",
+    "question": "设计一个系统，动态生成 Python 类，使这些类都能基于一个给定的 JSON 字符串初始化对象，并支持将对象序列化回 JSON。",
+    "key_points": [
+      "动态生成类时，需要使用 type 构造函数并正确定义 __init__ 和 __str__ 方法。",
+      "能够从 JSON 字符串自动解析为对象属性，并支持多层嵌套结构。",
+      "实现将对象序列化回 JSON 字符串的方法，确保字段完整性。"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "problem_solving",
+    "section": "Python语言核心",
+    "difficulty": "medium",
+    "question": "在 Python 中，如何使用生成器来处理大文件？生成器相比列表的优势是什么？",
+    "key_points": [
+      "生成器基于惰性求值，节省内存开销，特别适合处理不能完全载入内存的大文件",
+      "可以通过 `yield` 实现逐行读取文件的逻辑，从而避免一次性加载整个文件",
+      "列表会占用较大的内存空间，而生成器只在需要时生成数据"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "problem_solving",
+    "section": "Python语言核心",
+    "difficulty": "medium",
+    "question": "如何检测和优化 Python 程序中的内存泄漏问题？通常会借助哪些工具？",
+    "key_points": [
+      "分析程序中的循环引用或未释放的对象是导致内存泄漏的原因之一",
+      "可以使用 Python 内置的 `gc` 模块来检测未被释放的对象",
+      "借助第三方工具（如 `memory_profiler` 或 `objgraph`）进行代码分析和优化"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "problem_solving",
+    "section": "Python语言核心",
+    "difficulty": "medium",
+    "question": "当你发现 Python 的多线程没有充分利用多核 CPU 时，该如何设计优化方案？",
+    "key_points": [
+      "考虑 GIL 的存在对计算密集型任务的限制，可能需要切换到多进程方案",
+      "使用 `multiprocessing` 模块来实现多进程并行处理，从而充分利用多核 CPU",
+      "可以结合 `ThreadPoolExecutor` 或 `ProcessPoolExecutor`，根据任务特性选择适合的并行模型"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "behavioral",
+    "section": "伪需求降维拦截与向上处理",
+    "difficulty": "hard",
+    "question": "在某次项目中，业务团队提出了一个完全没有数据支持的伪需求，但对方要求你直接给出算法实现，你会如何应对这种情况？",
+    "key_points": [
+      "通过数据分析证明伪需求的不可行性或无意义",
+      "设计模拟实验验证伪需求对系统性能的潜在影响",
+      "提出替代性的算法方案，确保能满足部分合理需求"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "behavioral",
+    "section": "伪需求降维拦截与向上处理",
+    "difficulty": "hard",
+    "question": "假如你在系统研发中发现某关键模块的输入是上游部门的伪需求，且他们对修改这部分逻辑很抗拒，你是如何处理这种复杂沟通的？",
+    "key_points": [
+      "以数据驱动方式展示伪需求对当前模块的负面影响",
+      "寻找自适应或兼容性调整方式，与上游达成中间方案",
+      "在沟通中保持技术论证与业务需求的平衡"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "behavioral",
+    "section": "伪需求降维拦截与向上处理",
+    "difficulty": "hard",
+    "question": "某次紧急任务中，负责人要求优先解决一个看似重要但其实无关痛痒的伪需求，而你的预期是会严重拖慢更重要任务的进度，这种情况下你会怎么做？",
+    "key_points": [
+      "清晰阐述当前任务优先级的评估依据",
+      "主动提供改进后的时间计划或工作方案",
+      "寻求更高层或跨团队确认优先次序"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "behavioral",
+    "section": "伪需求降维拦截与向上处理",
+    "difficulty": "hard",
+    "question": "团队中有成员发现了一项新技术，但你清楚这技术在当前伪需求场景中根本无法落地，如何在不打消同事积极性的情况下引导对方回归实际？",
+    "key_points": [
+      "通过技术细节引导讨论，明确新技术的适用边界",
+      "提出与现有需求相匹配的应用方向或实践场景",
+      "表扬对方的探索精神并鼓励其多尝试实际任务中的技术创新"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "project",
+    "section": "多模态多模型业务结合实战",
+    "difficulty": "medium",
+    "question": "如何通过自然语言处理技术优化电商多模态搜索中的上下文相关性，并在多语言场景下提升模型效果？",
+    "key_points": [
+      "设计结合文本语义和图像特征的多模态模型框架",
+      "多语言场景中词向量的跨语言对齐与建模设计",
+      "性能指标提升的验证方式，如在上下文搜索中的准确率对比"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "project",
+    "section": "多模态多模型业务结合实战",
+    "difficulty": "medium",
+    "question": "如果需要设计一个多人协作的内容审核系统，如何利用多模态数据（例如文本、图像、视频）和多模型组合有效提升审核效率？",
+    "key_points": [
+      "明确多模态数据在审核任务中的协同作用",
+      "设计基于多模型的分步处理架构（如先检测违规目标，再审查文本语义）",
+      "对比传统人工审核的提升效果与模型误判率数据"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "project",
+    "section": "多模态多模型业务结合实战",
+    "difficulty": "medium",
+    "question": "在跨平台内容推荐场景中，如何融合用户行为的图像、文本和时间序列特征来构建多模态推荐模型？",
+    "key_points": [
+      "解释各模态特征在推荐中的作用及融合方式",
+      "设计训练多模态模型的优化策略，特别是数据不均衡情境下的处理",
+      "使用A/B测试方法衡量改进模型对用户留存率的提升"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "project",
+    "section": "多模态多模型业务结合实战",
+    "difficulty": "medium",
+    "question": "设想一个实时翻译系统，如何结合语音、文本和语法规则设计高效的翻译模型，并解决多语言实时翻译中的延迟问题？",
+    "key_points": [
+      "设计语音转文本与翻译模型的联动机制",
+      "提出压缩翻译时延的具体实现方案，如模型并发或轻量化",
+      "评价模型在不同语言对下的准确性与延迟对比数据"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "problem_solving",
+    "section": "数据结构与算法基础",
+    "difficulty": "easy",
+    "question": "你如何用 Python 实现一个栈结构？请手写代码并解释它的核心操作 push 和 pop。",
+    "key_points": [
+      "代码需使用列表模拟栈结构。",
+      "解释 push 是如何添加数据到栈顶。",
+      "解释 pop 是如何移除栈顶数据，并注意处理栈为空的情况。"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "problem_solving",
+    "section": "数据结构与算法基础",
+    "difficulty": "easy",
+    "question": "给定一个包含整数的列表，请用 Python 实现一个函数，返回列表中第二大的元素。如果列表长度小于 2，返回 None。",
+    "key_points": [
+      "需正确处理列表中重复元素的情况。",
+      "函数需具备时间复杂度优化，不能通过排序直接获取第二大值。",
+      "要处理列表长度不足 2 的边界情况，并给出合理返回值。"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "problem_solving",
+    "section": "数据结构与算法基础",
+    "difficulty": "easy",
+    "question": "你需要从一个无序列表中查找两数之和等于目标值的所有组合，如何用 Python 实现这个功能？",
+    "key_points": [
+      "要避免暴力双循环，需通过哈希表优化查找效率。",
+      "正确处理列表中可能有重复元素，组合不能重复计入。",
+      "返回结果应以所有符合条件的组合列表形式体现。"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "problem_solving",
+    "section": "数据结构与算法基础",
+    "difficulty": "hard",
+    "question": "给定一棵包含数百万节点的二叉树，如何高效地查找所有从根节点到叶子节点的路径？如果节点的值可能包含重复数字，该如何处理路径的唯一性问题？",
+    "key_points": [
+      "递归与迭代方法的比较，包括内存消耗和代码复杂性",
+      "路径的构建与存储优化，例如使用生成器减少内存占用",
+      "利用集合或散列表判断路径唯一性，避免重复计算"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "problem_solving",
+    "section": "数据结构与算法基础",
+    "difficulty": "hard",
+    "question": "实现一个支持动态更新并高效查询第 k 小元素的数据结构。当数据规模达到百万级时，如何平衡插入、删除和查询的性能？",
+    "key_points": [
+      "测评对平衡树（如 AVL 树或红黑树）的理解及其操作复杂度",
+      "是否联想到分块技术或线段树等其他数据结构作为优化方案",
+      "在 Python 中如何处理大规模数据的实时更新和查询，高效利用内存"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "problem_solving",
+    "section": "数据结构与算法基础",
+    "difficulty": "hard",
+    "question": "假如你需要从一个动态增长的流中实时计算滑动窗口的中位数，如何设计算法来保证高效性和准确性？",
+    "key_points": [
+      "是否能正确使用两个堆（最大堆与最小堆）来维护数据",
+      "如何处理边界条件，例如奇偶元素数量不等的平衡问题",
+      "从 Python 标准库选择适合的数据结构来实现堆（如 heapq）或设计自定义结构"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "problem_solving",
+    "section": "数据结构与算法基础",
+    "difficulty": "medium",
+    "question": "给定一个二叉树，如何找出该树中任意两节点的最大距离？",
+    "key_points": [
+      "需要理解二叉树的递归特性，并实现自顶向下的深度优先搜索",
+      "定义递归函数返回当前节点到其子节点的最大深度，同时更新最大距离",
+      "考虑子树的情况，最大距离可能通过某节点连接其左右子树的最大深度"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "problem_solving",
+    "section": "数据结构与算法基础",
+    "difficulty": "medium",
+    "question": "你能实现一个函数来检查两个字符串是否可以通过重新排列为同一个字符串吗？",
+    "key_points": [
+      "可以通过统计字符串中每个字符的频率来解决问题，例如使用数组或字典",
+      "利用排序的方式将两个字符串排序后比较是否相等也是一种可行方案",
+      "代码实现需考虑边界情况，例如空字符串或不同长度字符串"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "problem_solving",
+    "section": "数据结构与算法基础",
+    "difficulty": "medium",
+    "question": "如何设计一个算法，找出一个数组中所有和为目标值的子数组？",
+    "key_points": [
+      "可以使用滑动窗口加哈希表记录前缀和的方法优化搜索效率",
+      "需要动态维护子数组的起始位置，确保子数组和符合目标值",
+      "代码需注意负数或重复元素的处理，避免漏掉有效子数组"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "problem_solving",
+    "section": "机器学习与数据处理",
+    "difficulty": "easy",
+    "question": "如果你需要对一个包含大量缺失值的表格数据进行处理，你会怎么处理这些缺失值？",
+    "key_points": [
+      "判断缺失值的分布并分析其原因",
+      "选择填充方式（均值、中位数、前值填充或模型预测等）",
+      "考虑是否需要删除高比例缺失的列或样本，以减少噪声"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "problem_solving",
+    "section": "机器学习与数据处理",
+    "difficulty": "easy",
+    "question": "对于一个高维稀疏数据的特征矩阵，如何降低其维度以提高模型的效率？",
+    "key_points": [
+      "使用降维方法，如主成分分析（PCA）或 t-SNE",
+      "通过特征选择技术（如基于方差、相关性或模型的特征重要性）",
+      "结合业务背景删除低重要特征"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "problem_solving",
+    "section": "机器学习与数据处理",
+    "difficulty": "easy",
+    "question": "在对连续数值型数据进行特征工程时，你会如何处理数值分布的偏态问题？",
+    "key_points": [
+      "利用数学变换（如对数变换、平方根变换或 Box-Cox 变换）使分布更接近正态",
+      "检查偏态的影响是否对模型的表现产生显著影响",
+      "在可能的情况下，通过剔除异常值来减低偏态"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "problem_solving",
+    "section": "机器学习与数据处理",
+    "difficulty": "hard",
+    "question": "假设你需要对一个含有大量缺失值的用户行为数据集进行处理，如何最大限度地保留信息用于训练机器学习模型？",
+    "key_points": [
+      "分析缺失值的分布和模式，评估其对特征和目标变量的影响。",
+      "选择合适的填充策略，例如均值填充、插值或使用机器学习模型预测缺失值。",
+      "判断是否需要删除缺失值过多的列或行，或通过特征变换提取更加稳定的信息。"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "problem_solving",
+    "section": "机器学习与数据处理",
+    "difficulty": "hard",
+    "question": "在一个高维度特征的文本分类任务中，如何结合特征选择与降维技术来提高模型性能和训练效率？",
+    "key_points": [
+      "采用卡方检验、信息增益或互信息等特征选择方法筛选出重要的文本特征。",
+      "结合降维方法如 LDA、SVD 或 PCA，进一步压缩特征维度以降低计算复杂度。",
+      "在实验中验证降维与特征选择的组合效果，确保不会丢失关键信息。"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "problem_solving",
+    "section": "机器学习与数据处理",
+    "difficulty": "hard",
+    "question": "你负责一个实时流式数据处理平台，如何设计数据预处理与机器学习模型部署流程，确保其低延迟且高准确性？",
+    "key_points": [
+      "使用分布式流数据框架如 Apache Kafka 或 Apache Flink，确保数据处理高效且快速。",
+      "在预处理阶段引入增量处理方法，例如流式特征更新与异常值检测。",
+      "设计轻量级的机器学习模型或在线学习框架，支持低延迟的预测和模型更新。"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "problem_solving",
+    "section": "机器学习与数据处理",
+    "difficulty": "medium",
+    "question": "在处理一个包含数百万条记录的大型日志数据时，你需要提取每条日志中某个关键字段的特征，以便后续用于分类模型训练。你会如何设计这部分数据处理的流程？",
+    "key_points": [
+      "高效读取大规模数据，例如使用分块方法或 Spark 处理",
+      "选择适合字段类型的特征提取方法，例如文本字段用 TF-IDF 或预训练模型 Embedding",
+      "考虑数据清洗与归一化等步骤，确保特征输入具有一致性"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "problem_solving",
+    "section": "机器学习与数据处理",
+    "difficulty": "medium",
+    "question": "假设你需要对一个不平衡的二分类数据集进行处理和建模，你会采取哪些方法来提高分类模型的表现？",
+    "key_points": [
+      "利用重采样方法（如上采样 SMOTE 或下采样）平衡类别分布",
+      "选择适合处理不平衡数据的评估指标，例如 AUC 或 F1-score",
+      "尝试调整模型的类别权重或使用集成学习方法（如提升树）"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "problem_solving",
+    "section": "机器学习与数据处理",
+    "difficulty": "medium",
+    "question": "你需要在一个用户行为数据集中寻找异常点。这些异常点可能是潜在的系统错误或恶意攻击。你会怎么设计异常检测的流程？",
+    "key_points": [
+      "先对用户行为数据进行清洗与特征工程，确保数据质量",
+      "选择适合的异常检测算法，例如 Isolation Forest 或基于距离的 LOF",
+      "针对不平衡数据的特性调整模型参数，并结合可视化验证结果"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "problem_solving",
+    "section": "模型部署与工程实践",
+    "difficulty": "easy",
+    "question": "你如何选择适合线上部署的模型存储格式？谈谈你的考虑因素。",
+    "key_points": [
+      "模型文件大小与加载速度的平衡",
+      "是否支持定制化优化，例如 ONNX 格式",
+      "与目标部署环境的兼容性"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "problem_solving",
+    "section": "模型部署与工程实践",
+    "difficulty": "easy",
+    "question": "假设你的模型服务需要支持高并发访问，你会采取哪些方法进行优化？",
+    "key_points": [
+      "模型推理的异步化或批处理策略",
+      "合理配置线程池或进程池",
+      "利用缓存机制减少重复推理"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "problem_solving",
+    "section": "模型部署与工程实践",
+    "difficulty": "easy",
+    "question": "你如何确保部署的模型在多次版本更新后依然具有良好的可维护性？",
+    "key_points": [
+      "采用版本控制工具管理模型与代码，比如 Git",
+      "使用清晰的命名规范区分不同版本",
+      "记录更新历史并保持良好的文档记录"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "problem_solving",
+    "section": "模型部署与工程实践",
+    "difficulty": "hard",
+    "question": "如何设计一个能够动态扩展的模型部署系统，以支持不同的负载峰值？请具体说明关键组件及技术选型。",
+    "key_points": [
+      "使用容器化技术（如 Docker）实现部署单元的标准化和可移植性",
+      "通过 Kubernetes 或 AWS ECS 等编排工具管理服务的动态扩缩容",
+      "负载均衡层的策略与实现，如基于请求量的动态转发"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "problem_solving",
+    "section": "模型部署与工程实践",
+    "difficulty": "hard",
+    "question": "在模型部署环节，如何实现一种支持在线模型热更新的方案，同时避免服务中断？",
+    "key_points": [
+      "通过蓝绿部署或金丝雀部署实现渐进式流量迁移",
+      "确保新旧模型版本的输入输出接口和协议完全兼容",
+      "引入健康检查和自动回滚机制，实时监控更新效果"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "problem_solving",
+    "section": "模型部署与工程实践",
+    "difficulty": "hard",
+    "question": "假设你需要部署一个机器学习模型到边缘设备上，如何优化模型大小和推理速度，同时确保准确率在可接受范围内？",
+    "key_points": [
+      "使用模型蒸馏或量化技术减少模型大小",
+      "利用 TensorRT 或 ONNX Runtime 等优化推理性能",
+      "通过实验和验证找到准确率与模型性能的最佳平衡点"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "problem_solving",
+    "section": "模型部署与工程实践",
+    "difficulty": "medium",
+    "question": "你如何处理复杂模型部署时的依赖冲突问题？能具体说明步骤吗？",
+    "key_points": [
+      "使用虚拟环境（如 venv 或 Conda）隔离依赖，确保不同项目之间不会互相影响",
+      "准确记录部署环境的依赖版本，例如通过 requirements.txt 或 Conda environment 文件",
+      "针对冲突的依赖版本，尝试利用工具（如 pipdeptree）分析依赖关系并选择合适的解决方案"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "problem_solving",
+    "section": "模型部署与工程实践",
+    "difficulty": "medium",
+    "question": "当模型推理需要大量的计算资源时，你会如何设计模型的服务端架构以提高吞吐能力？",
+    "key_points": [
+      "使用微服务架构，将模型推理任务分区并进行水平扩展",
+      "结合消息队列（如 RabbitMQ、Kafka）管理请求队列，提高异步处理能力",
+      "利用 GPU 资源池或 Kubernetes 集群实现动态资源分配，优化计算资源利用率"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "problem_solving",
+    "section": "模型部署与工程实践",
+    "difficulty": "medium",
+    "question": "假如你需要将一个本地训练的 Python 模型快速迁移到云端进行推理，你会如何设计迁移流程？",
+    "key_points": [
+      "选择合适的云服务平台（如 AWS Sagemaker、Google AI Platform），并了解其支持的文件格式（如 ONNX、PB）",
+      "将模型转化为云平台支持的格式，同时完成所需的环境配置和依赖文件打包",
+      "设置云端推理接口，确保接口的安全性（如通过令牌认证）和可扩展性（如负载均衡配置）"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "problem_solving",
+    "section": "深度学习与大模型",
+    "difficulty": "easy",
+    "question": "如果你需要从零实现一个简单的前向传播过程，例如单隐藏层的神经网络，你会如何设计？",
+    "key_points": [
+      "输入层、隐藏层和输出层的神经元数量如何配置",
+      "选择激活函数，例如 ReLU 或 Sigmoid，并说明原因",
+      "如何计算权重和偏置的初始化，以及前向传播的公式"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "problem_solving",
+    "section": "深度学习与大模型",
+    "difficulty": "easy",
+    "question": "面对一个过拟合严重的深度神经网络，你会采用哪些简单的方法来缓解过拟合？",
+    "key_points": [
+      "正则化手段（例如 L1 或 L2 正则化）",
+      "引入 Dropout 层并解释其作用",
+      "数据增广（Data Augmentation）的基本想法及其实施方式"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "problem_solving",
+    "section": "深度学习与大模型",
+    "difficulty": "easy",
+    "question": "如果你想在有限资源的情况下使用大语言模型完成文本分类任务，你会如何优化模型的推理效率？",
+    "key_points": [
+      "模型量化（例如 INT8 量化）",
+      "使用模型蒸馏技术获得一个更小的子模型",
+      "减少输入文本长度或者使用分批推理来降低计算需求"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "problem_solving",
+    "section": "深度学习与大模型",
+    "difficulty": "hard",
+    "question": "假设你需要对一个支持多语言翻译的大型语言模型进行微调，请说明如何针对低资源语言优化模型的翻译效果。",
+    "key_points": [
+      "数据增强技术：通过回译 (back-translation) 增加低资源语言数据量",
+      "多任务学习：利用高资源语言数据共同训练，提升模型泛化能力",
+      "权重冻结与适配：冻结预训练模型部分参数，仅微调低资源语言相关层"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "problem_solving",
+    "section": "深度学习与大模型",
+    "difficulty": "hard",
+    "question": "针对一个新构建的大语言模型，如何设计一个机制来评估模型在开放领域问答上的表现？",
+    "key_points": [
+      "设计多样化的开放领域数据集，覆盖不同类别问题（如事实性、推理性）",
+      "制定自动化评价指标：如BLEU、ROUGE、GPT-score等结合人工评审",
+      "分析模型错误案例，特别关注生成内容的逻辑性和真实性"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "problem_solving",
+    "section": "深度学习与大模型",
+    "difficulty": "hard",
+    "question": "假设你在研发一个深度学习模型，用于对话生成任务。如何解决模型回答缺乏多样性的问题？",
+    "key_points": [
+      "采样策略优化：调整采样方法（如Top-k或Nucleus Sampling）以提高生成内容多样性",
+      "引入多样性正则化项：在损失函数中加入惩罚生成重复回答的项",
+      "数据预处理：扩展对话数据集，包含更多类型的回答与表达方式"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "problem_solving",
+    "section": "深度学习与大模型",
+    "difficulty": "medium",
+    "question": "如果你的深度学习模型在训练过程中出现了梯度爆炸问题，你会怎么定位和解决？",
+    "key_points": [
+      "检测梯度值是否异常增大，并确认可能的触发点，例如学习率过大或初始化问题。",
+      "尝试使用梯度裁剪（Gradient Clipping）来限制梯度的最大值。",
+      "分析网络结构，检查是否存在过深的网络导致反向传播中的数值不稳定。"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "problem_solving",
+    "section": "深度学习与大模型",
+    "difficulty": "medium",
+    "question": "你如何选择大模型的优化器以及相关超参数？能举例说明实际应用中的权衡吗？",
+    "key_points": [
+      "根据任务需求选择优化器，例如 Adam 更适合稀疏梯度，SGD 更适合大规模训练。",
+      "考虑超参数调优的策略，比如学习率、动量参数或权重衰减等的合理设置。",
+      "说明实际案例中的权衡，例如在训练速度和模型收敛质量之间如何选择。"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "problem_solving",
+    "section": "深度学习与大模型",
+    "difficulty": "medium",
+    "question": "在分布式环境下训练一个大规模模型时，如何最大化效率并减少通信开销？",
+    "key_points": [
+      "选择合适的分布式训练策略，例如数据并行、模型并行或混合并行。",
+      "使用通信优化技术，比如梯度压缩、分层同步或延迟同步。",
+      "优先使用高效的分布式框架和硬件支持（如 NCCL 或自定义 GPU 集群架构）。"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "behavioral",
+    "section": "跨部门模型扯皮定责化解",
+    "difficulty": "medium",
+    "question": "某业务团队反馈你的推荐算法在核心场景中点击率不升反降，同时认为这是模型问题导致的，但你初步排查发现更多可能是数据埋点问题。你会如何处理这样的情况？",
+    "key_points": [
+      "冷静沟通业务方的核心诉求和具体问题表现",
+      "快速组织一次埋点数据与模型输入输出的排查并形成初步结论",
+      "提出联合排查和验证的框架，协调双方资源共同确认问题根因"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "behavioral",
+    "section": "跨部门模型扯皮定责化解",
+    "difficulty": "medium",
+    "question": "你的团队将设计的客户流失预测模型上线后，结果被销售部门质疑不准，并且强烈要求停止使用模型。你会如何解决这种冲突？",
+    "key_points": [
+      "主动了解销售部门的实际痛点和对模型的反馈细节",
+      "尝试通过回溯评估模型准度与风险，寻找改进点",
+      "提出共建评估指标和验证流程，争取建立信任"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "behavioral",
+    "section": "跨部门模型扯皮定责化解",
+    "difficulty": "medium",
+    "question": "在协作中，大模型团队认为模型偏差是业务数据缺乏标注明确度导致的，而你的团队认为是模型结构不适配。面对这种责任归属争议，你会如何推动问题的解决？",
+    "key_points": [
+      "设置明确的讨论框架，区分模型与数据的问题边界",
+      "提议以小规模实验或对比分析的方式找出根本原因",
+      "确保所有决策公开透明并记录，避免重复扯皮"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "behavioral",
+    "section": "跨部门模型扯皮定责化解",
+    "difficulty": "medium",
+    "question": "你负责的文本分类算法在实际业务量级上运行后发现部分边界类表现不佳，业务方因此推责为模型设计问题。如何推进对这种性能问题的解决？",
+    "key_points": [
+      "主动复盘数据分布，尤其是边界类样本的标注质量",
+      "协同业务方一起明确模型当前的适用范围与可优化点",
+      "制定分析报告，并提出短期调整与长期优化的实施路径"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "project",
+    "section": "项目深挖",
+    "difficulty": "easy",
+    "question": "你负责的算法项目中，怎么确保离线效果和线上效果的一致性？遇到过哪些挑战？",
+    "key_points": [
+      "描述离线和线上数据分布差异问题",
+      "提到是否针对线上部署环境优化了模型逻辑",
+      "分享具体案例和挑战的解决方法"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "project",
+    "section": "项目深挖",
+    "difficulty": "easy",
+    "question": "在项目里，当数据分布发生变化时，你如何调整模型策略？能举个实际项目的例子吗？",
+    "key_points": [
+      "说明如何发现数据分布变化",
+      "描述调整策略是如何落地的",
+      "举例说明调整前后的效果对比"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "project",
+    "section": "项目深挖",
+    "difficulty": "easy",
+    "question": "你在算法项目中有没有经历过模型效果下降的情况？当时是怎么分析和解决的？",
+    "key_points": [
+      "分享如何定位问题根因（数据、超参、代码等）",
+      "说明是否引入了新的监控指标",
+      "提到解决方案的实施过程和结果"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "project",
+    "section": "项目深挖",
+    "difficulty": "easy",
+    "question": "在一个算法项目中，如果业务方反馈效果不佳，你一般会怎么沟通和改进？有实际案例吗？",
+    "key_points": [
+      "展示与业务方的沟通逻辑，如何获取具体痛点",
+      "阐述改进效果的评估方案",
+      "分享实际案例及其最终的业务影响"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "project",
+    "section": "项目深挖",
+    "difficulty": "hard",
+    "question": "你在项目中设计过算法的线上部署流程吗？如何保证算法上线的稳定性和性能？",
+    "key_points": [
+      "从开发到上线的完整流程设计，包括模型版本管理、测试策略等",
+      "线上服务化的技术选型，比如 Flask/FastAPI/gRPC，如何处理 QPS 和延迟",
+      "对线上性能和资源消耗的监控，比如打日志、告警和指标监控方案",
+      "针对线上异常情况的容错机制，比如回退策略、降级处理",
+      "上线后针对效果波动的优化和调整经验"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "project",
+    "section": "项目深挖",
+    "difficulty": "hard",
+    "question": "你有没有调优过分布式计算框架（如 Spark 或 Hadoop）做大规模数据处理？具体是怎么优化的？",
+    "key_points": [
+      "具体的大规模数据处理场景，比如清洗、聚合或训练样本生成",
+      "任务拆分和并行调度的策略，如何减少 Shuffle 和数据倾斜",
+      "核心参数优化，例如 Spark Executor 或者 Memory 配置的调整",
+      "通过代码层面提升效率，比如 UDF 优化或用向量化操作替代循环",
+      "优化后的性能提升有量化指标支持，例如更短的运行时间"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "project",
+    "section": "项目深挖",
+    "difficulty": "medium",
+    "question": "你在项目中有没有遇到模型效果不如预期的问题？请讲一下是如何定位问题并改进的。",
+    "key_points": [
+      "是否采用系统化的排查方式：数据质量、特征工程、模型架构、训练参数等逐一分析。",
+      "能否清楚描述发现的问题来源，例如数据分布偏移、特征冗余或模型容量不足。",
+      "具体的改进措施是否合理并有逻辑，比如数据增强、特征筛选、模型优化或更换。",
+      "是否明确指出改进前后的对比结果，量化改进效果。",
+      "是否考虑到项目场景的实际业务限制，例如改进方案的可行性与上线成本。"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "project",
+    "section": "预训练 / 微调管线实战",
+    "difficulty": "hard",
+    "question": "请介绍一个你主导过的预训练和微调管线的项目，特别是如何高效管理大规模数据集和训练资源？",
+    "key_points": [
+      "清晰描述数据集的来源、清洗和处理方法",
+      "具体说明如何分配和优化分布式训练资源",
+      "提到关键性能提升的指标与背后的优化策略"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "project",
+    "section": "预训练 / 微调管线实战",
+    "difficulty": "hard",
+    "question": "你是否用过参数高效微调方法（比如 LoRA 或 Prefix Tuning）？请结合项目详细讲讲你是如何实际应用这些方法的。",
+    "key_points": [
+      "明确指出使用了哪些参数高效微调技术及其适用场景",
+      "描述如何修改训练流程以融入这些方法",
+      "提供实际性能对比结果来证明优化效果"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "project",
+    "section": "预训练 / 微调管线实战",
+    "difficulty": "hard",
+    "question": "针对一个需要多语言支持的任务，你是如何调整预训练和微调策略的？简述你的解决方案。",
+    "key_points": [
+      "解释如何设计多语言支持的数据采样和处理流程",
+      "描述是否采取了特定的模型架构或技术（如跨语言迁移学习）",
+      "评估并说明多语言实验的成功标准及实际效果"
+    ]
+  },
+  {
+    "job_type": "python-algorithm",
+    "category": "project",
+    "section": "预训练 / 微调管线实战",
+    "difficulty": "hard",
+    "question": "在微调过程中，当出现过拟合或表现欠佳的情况，你具体采取过哪些改进措施？能结合实例说明吗？",
+    "key_points": [
+      "阐述如何定位问题出现的原因（如数据、模型或训练参数）",
+      "具体列举曾尝试的解决措施（如正则化、数据增强或学习率调整）",
+      "论述最终如何确认改进措施的有效性（定量或定性分析）"
+    ]
   }
 ]
