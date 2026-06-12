@@ -30,6 +30,7 @@ from datetime import UTC, datetime
 from typing import Optional
 
 from fastapi import HTTPException, UploadFile
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
@@ -47,6 +48,7 @@ from app.core.llm_service import (
     generate_repo_questions,
     generate_resume_question,
     generate_study_plan,
+    normalize_evaluation_result,
     polish_text,
 )
 from app.services.audio_analysis import analyze_audio
@@ -633,6 +635,10 @@ def get_evaluation_detail(db: Session, user_id: int, interview_id: int) -> schem
     interview_obj = eval_record.interview
     repo_context = _load_json(interview_obj.repo_context, None)
     custom_questions = _load_json(interview_obj.custom_questions, None)
+    report_data = normalize_evaluation_result(report_data)
+    if not report_data.get("study_plan"):
+        report_data["study_plan"] = _fallback_study_plan(report_data, eval_record.interview.role)
+
     round_feedback = report_data.get("round_feedback") or []
     if not round_feedback:
         evaluations = report_data.get("evaluations") or []
@@ -665,7 +671,7 @@ def get_evaluation_detail(db: Session, user_id: int, interview_id: int) -> schem
         study_plan=report_data.get("study_plan"),
         highlights=report_data.get("highlights", report_data.get("strengths", [])),
         weaknesses=report_data.get("weaknesses", []),
-        recommendations=eval_record.recommendations or report_data.get("improvement_suggestions", "继续加油！"),
+        recommendations=eval_record.recommendations or report_data.get("recommendations") or report_data.get("improvement_suggestions", "继续加油！"),
         scores=report_data.get("scores"),
         round_feedback=round_feedback,
         created_at=eval_record.created_at,
@@ -1165,8 +1171,15 @@ async def end_interview(db: Session, user_id: int, interview_id: int) -> dict:
     """
     from evaluation.expression_evaluator import score_expression
 
-    # 1. 标记面试结束
     interview = _get_interview_for_user(db, user_id, interview_id)
+    existing_eval = db.query(models.Evaluation).filter(models.Evaluation.interview_id == interview_id).first()
+    if interview.status == "completed" and existing_eval is not None:
+        return {
+            "message": "Interview already evaluated.",
+            "evaluation": get_evaluation_detail(db, user_id, interview_id).model_dump(),
+        }
+
+    # 1. 标记面试结束
     interview.status = "completed"
     interview.phase = PHASE_COMPLETED
     interview.end_time = datetime.now(UTC).replace(tzinfo=None)
@@ -1184,6 +1197,7 @@ async def end_interview(db: Session, user_id: int, interview_id: int) -> dict:
         role=interview.role,
         resume_persona=_load_json(interview.resume_persona, None),
     )
+    evaluation_data = normalize_evaluation_result(evaluation_data)
 
     # 3. 语音指标采集 + 表达评分
     voice_records = db.query(models.VoiceMetrics).filter(models.VoiceMetrics.interview_id == interview_id).all()
@@ -1232,7 +1246,10 @@ async def end_interview(db: Session, user_id: int, interview_id: int) -> dict:
         if study_plan:
             evaluation_data["study_plan"] = study_plan
     except Exception:
-        pass
+        evaluation_data["study_plan"] = _fallback_study_plan(evaluation_data, interview.role)
+
+    if not evaluation_data.get("study_plan"):
+        evaluation_data["study_plan"] = _fallback_study_plan(evaluation_data, interview.role)
 
     # 6. 保存/更新评估记录
     eval_record = db.query(models.Evaluation).filter(models.Evaluation.interview_id == interview_id).first()
@@ -1254,10 +1271,67 @@ async def end_interview(db: Session, user_id: int, interview_id: int) -> dict:
     else:
         for key, value in fields.items():
             setattr(eval_record, key, value)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        return {
+            "message": "Interview already evaluated.",
+            "evaluation": get_evaluation_detail(db, user_id, interview_id).model_dump(),
+        }
     db.refresh(eval_record)
 
     return {
         "message": "Interview ended and evaluated successfully.",
         "evaluation": get_evaluation_detail(db, user_id, interview_id).model_dump(),
+    }
+def _ensure_report_list(value, fallback: list[str] | None = None) -> list[str]:
+    items = value if isinstance(value, list) else []
+    normalized = [str(item).strip() for item in items if str(item).strip()]
+    if normalized:
+        return normalized
+    return list(fallback or [])
+
+
+def _fallback_study_plan(report_data: dict, role: str) -> dict:
+    weak_areas = _ensure_report_list(report_data.get("weaknesses"))[:3]
+    areas = weak_areas or [
+        f"{role}核心知识巩固" if role else "岗位核心知识巩固",
+        "结构化表达训练",
+        "限时题与思路讲解",
+    ]
+    return {
+        "weak_areas": [
+            {
+                "area": area[:40],
+                "severity": "高" if index == 0 else "中",
+                "diagnosis": area,
+            }
+            for index, area in enumerate(areas)
+        ],
+        "plan": [
+            {
+                "week": 1,
+                "focus": "知识点补漏",
+                "tasks": ["整理 10 个高频薄弱点并逐条复述原理。", "输出 3 个改进后的标准答案。", "完成 2 道岗位相关练习题。"],
+                "resources": [{"type": "article", "title": "官方文档/高频面经", "note": "对照薄弱点阅读"}],
+            },
+            {
+                "week": 2,
+                "focus": "表达与模拟训练",
+                "tasks": ["录制 3 段口述答案并复盘。", "补齐项目细节与权衡说明。", "再做 1 次 30 分钟模拟面试。"],
+                "resources": [{"type": "video", "title": "结构化表达训练", "note": "重点练习追问应对"}],
+            },
+            {
+                "week": 3,
+                "focus": "综合查漏补缺",
+                "tasks": ["复盘所有错题与弱项。", "整理一页速记卡。", "进行 1 次完整模拟并对照评分。"],
+                "resources": [{"type": "article", "title": "岗位面经合集", "note": "抽题自测"}],
+            },
+        ],
+        "quick_wins": [
+            "本周就能做：补写 3 个高频问题答案（30 分钟）",
+            "本周就能做：录 1 段 3 分钟自我介绍并回听（30 分钟）",
+            "本周就能做：限时做 1 道手写题并复盘复杂度（45 分钟）",
+        ],
     }
