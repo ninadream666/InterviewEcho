@@ -18,6 +18,7 @@
 
 import os
 import json
+from typing import Any
 from openai import AsyncOpenAI
 from core.config import settings
 from core.prompts import prompt_manager
@@ -28,6 +29,140 @@ client = AsyncOpenAI(
     api_key=settings.LLM_API_KEY,
     base_url=settings.LLM_BASE_URL
 )
+
+
+def _ensure_text_list(value: Any, *, fallback: list[str] | None = None) -> list[str]:
+    """将任意输入规整为非空字符串列表。"""
+    items = value if isinstance(value, list) else []
+    normalized = [str(item).strip() for item in items if str(item).strip()]
+    if normalized:
+        return normalized
+    return list(fallback or [])
+
+
+def _derive_overall_summary(evaluations: list[dict]) -> tuple[list[str], list[str]]:
+    """从逐轮评估中补齐整体亮点与待提升项。"""
+    strengths: list[str] = []
+    issues: list[str] = []
+    for item in evaluations:
+        strengths.extend(_ensure_text_list(item.get("strengths")))
+        issues.extend(_ensure_text_list(item.get("issues")))
+
+    dedup_strengths = list(dict.fromkeys(strengths))[:4]
+    dedup_issues = list(dict.fromkeys(issues))[:4]
+    return dedup_strengths, dedup_issues
+
+
+def normalize_evaluation_result(data: dict | None) -> dict:
+    """规整评估结果，确保报告关键区块始终可展示。"""
+    payload = data if isinstance(data, dict) else {}
+    evaluations = payload.get("evaluations") if isinstance(payload.get("evaluations"), list) else []
+    if isinstance(payload.get("round_feedback"), list) and payload.get("round_feedback"):
+        round_feedback = payload.get("round_feedback")
+    else:
+        round_feedback = _normalize_round_feedback(evaluations)
+    summary = payload.get("overall_summary") if isinstance(payload.get("overall_summary"), dict) else {}
+    derived_strengths, derived_issues = _derive_overall_summary(evaluations)
+
+    highlights = _ensure_text_list(
+        payload.get("highlights", summary.get("strengths")),
+        fallback=derived_strengths or ["有一定基础，能够完成主要回答。"],
+    )
+    weaknesses = _ensure_text_list(
+        payload.get("weaknesses", summary.get("weaknesses")),
+        fallback=derived_issues or ["当前报告生成不完整，建议重新生成一次评估以获得更细诊断。"],
+    )
+    recommendations = str(
+        payload.get("recommendations")
+        or summary.get("recommendations")
+        or "建议围绕薄弱点做专项复盘，并继续通过模拟面试巩固表达。"
+    ).strip()
+
+    normalized = {
+        "content_score": float(payload.get("content_score") or 0),
+        "expression_score": float(payload.get("expression_score") or 0),
+        "business_scenario_score": float(payload.get("business_scenario_score") or 0),
+        "problem_solving_score": float(payload.get("problem_solving_score") or 0),
+        "total_score": float(payload.get("total_score") or 0),
+        "highlights": highlights,
+        "weaknesses": weaknesses,
+        "recommendations": recommendations,
+        "evaluations": evaluations,
+        "round_feedback": round_feedback,
+    }
+
+    for optional_key in ("expression_metrics", "study_plan", "scores"):
+        if payload.get(optional_key) is not None:
+            normalized[optional_key] = payload.get(optional_key)
+
+    return normalized
+
+
+def _build_fallback_study_plan(role: str, evaluation_data: dict) -> dict:
+    """当 LLM 学习计划生成失败时，构造一个稳定可展示的回退计划。"""
+    weakness_items = _ensure_text_list(evaluation_data.get("weaknesses"))
+    focus_areas = weakness_items[:3] or [
+        f"{role}基础知识体系梳理" if role else "岗位基础知识体系梳理",
+        "结构化表达与回答复盘",
+        "限时题与手写代码训练",
+    ]
+    weak_areas = []
+    for index, area in enumerate(focus_areas, start=1):
+        weak_areas.append(
+            {
+                "area": area[:40],
+                "severity": "高" if index == 1 else "中",
+                "diagnosis": area,
+            }
+        )
+
+    plan = [
+        {
+            "week": 1,
+            "focus": "补齐核心知识点",
+            "tasks": [
+                f"围绕“{focus_areas[0]}”整理 1 份不少于 20 条的知识清单，并逐条补足原理说明。",
+                "针对最近一次面试中回答不完整的问题，补写 3 个 STAR/技术原理版标准答案。",
+                "完成 2 道与目标岗位相关的中等难度题，并口述每步思路与复杂度。",
+            ],
+            "resources": [
+                {"type": "article", "title": "项目相关官方文档", "note": "对照薄弱点逐节阅读并做笔记"},
+                {"type": "video", "title": "目标岗位高频面试题讲解", "note": "挑 2 个对应薄弱主题观看并复述"},
+            ],
+        },
+        {
+            "week": 2,
+            "focus": "专项训练与输出",
+            "tasks": [
+                f"针对“{focus_areas[min(1, len(focus_areas) - 1)]}”完成 1 次专题复盘，输出 800 字总结。",
+                "录制 3 段 3 分钟模拟回答，检查语速、停顿和逻辑连接词使用情况。",
+                "选择 1 个真实项目模块，补充设计权衡、性能瓶颈和优化方案说明。",
+            ],
+            "resources": [
+                {"type": "book", "title": "深入理解计算机系统 / 对应岗位经典书籍", "note": "精读与薄弱点相关章节"},
+                {"type": "course", "title": "面试表达训练课程", "note": "重点练习结构化表达和追问应对"},
+            ],
+        },
+        {
+            "week": 3,
+            "focus": "模拟面试与查漏补缺",
+            "tasks": [
+                "进行 1 次完整模拟面试，记录每题得失分点并形成复盘表。",
+                f"围绕“{focus_areas[min(2, len(focus_areas) - 1)]}”再补做 2 道题或 2 个知识点口述演练。",
+                "把本周所有薄弱问题整理成一页速记卡，下一轮面试前集中回顾。",
+            ],
+            "resources": [
+                {"type": "article", "title": "岗位面经合集", "note": "筛选 10 个高频追问进行自测"},
+            ],
+        },
+    ]
+
+    quick_wins = [
+        "本周就能做：挑 3 道上一轮没答好的问题，分别写出 150 字改进答案（30 分钟）",
+        "本周就能做：录一段 3 分钟自我介绍并回听，删掉多余语气词（30 分钟）",
+        "本周就能做：完成 1 道限时手写题并复盘复杂度（45 分钟）",
+    ]
+    return {"weak_areas": weak_areas, "plan": plan, "quick_wins": quick_wins}
 
 async def generate_llm_response(role, question, expected_points, conversation_history, target_next_question, difficulty="medium", knowledge_points="", force_next_instruction=""):
     """
@@ -355,15 +490,23 @@ async def generate_study_plan(role: str, evaluation_data: dict, history: list) -
         # 简单校验结构
         if not isinstance(data.get("plan"), list):
             print(f"[generate_study_plan] unexpected format: missing 'plan' list")
-            return None
+            return _build_fallback_study_plan(role, evaluation_data)
+        if not isinstance(data.get("weak_areas"), list):
+            data["weak_areas"] = []
+        if not isinstance(data.get("quick_wins"), list):
+            data["quick_wins"] = []
+        if not data["weak_areas"] or not data["quick_wins"]:
+            fallback = _build_fallback_study_plan(role, evaluation_data)
+            data["weak_areas"] = data["weak_areas"] or fallback["weak_areas"]
+            data["quick_wins"] = data["quick_wins"] or fallback["quick_wins"]
         print(f"[generate_study_plan] generated plan with {len(data.get('plan', []))} weeks, {len(data.get('weak_areas', []))} weak areas")
         return data
     except json.JSONDecodeError as e:
         print(f"[generate_study_plan] JSON parse error: {e}")
-        return None
+        return _build_fallback_study_plan(role, evaluation_data)
     except Exception as e:
         print(f"[generate_study_plan] LLM error: {type(e).__name__}: {e}")
-        return None
+        return _build_fallback_study_plan(role, evaluation_data)
 
 
 # ================= 评分辅助工具 =================
@@ -587,7 +730,7 @@ async def evaluate_full_interview(history: list, role: str = "", resume_persona:
         
         summary = data.get("overall_summary", {})
         
-        return {
+        return normalize_evaluation_result({
             "content_score": final_scores["content_score"],
             "expression_score": final_scores["expression_score"],
             "business_scenario_score": final_scores["business_scenario_score"],
@@ -598,12 +741,12 @@ async def evaluate_full_interview(history: list, role: str = "", resume_persona:
             "recommendations": summary.get("recommendations", "继续努力！"),
             "evaluations": evals,
             "round_feedback": round_feedback,
-        }
+        })
         
     except Exception as e:
         print(f"Error generating report: {e}")
-        return {
+        return normalize_evaluation_result({
             "content_score": 0, "expression_score": 0, "business_scenario_score": 0, "problem_solving_score": 0,
-            "total_score": 0, "highlights": ["评估生成失败"], "weaknesses": [], "recommendations": "请重试。",
+            "total_score": 0, "highlights": ["评估生成失败"], "weaknesses": ["评估服务暂时不可用，本次报告未能完整生成。"], "recommendations": "请稍后重试生成评估报告。",
             "evaluations": [], "round_feedback": []
-        }
+        })

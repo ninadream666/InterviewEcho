@@ -421,6 +421,7 @@ const handleCodeSubmit = async ({ code, language }) => {
 }
 
 const endInterview = async () => {
+  if (ending.value) return
   ending.value = true
   clearTimeoutTimer()
 
