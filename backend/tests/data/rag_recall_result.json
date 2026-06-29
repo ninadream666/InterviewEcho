@@ -1,0 +1,328 @@
+{
+  "mode": "fallback",
+  "top_k": 5,
+  "metrics": {
+    "total_queries": 40,
+    "recall@1": 0.9,
+    "recall@3": 0.9,
+    "recall@5": 0.925,
+    "mrr": 0.905
+  },
+  "eval_set": {
+    "total": 40,
+    "by_role": {
+      "java-backend": 13,
+      "web-frontend": 13,
+      "python-algorithm": 14
+    },
+    "hard_cases": 3
+  },
+  "missed_cases": [
+    {
+      "role": "java-backend",
+      "query": "请大概讲讲 AQS 方面在实际工作中需要注意的核心要点",
+      "gt_question": "AQS (AbstractQueuedSynchronizer) 的核心原理是什么？它是如何实现公平/非公平锁的？",
+      "hard": true
+    },
+    {
+      "role": "java-backend",
+      "query": "请大概讲讲 相关概念 方面在实际工作中需要注意的核心要点",
+      "gt_question": "排查生产环境下的死锁问题，你通常会使用哪些指令，并简述死锁发生的四个必要条件？",
+      "hard": true
+    },
+    {
+      "role": "web-frontend",
+      "query": "请大概讲讲 TypeScript 方面在实际工作中需要注意的核心要点",
+      "gt_question": "TypeScript 中的协变（Covariance）与逆变（Contravariance）是什么？在函数类型比较中如何应用？",
+      "hard": true
+    }
+  ],
+  "per_query": [
+    {
+      "role": "java-backend",
+      "query": "面试问题：Java ArrayList LinkedList ArrayList 基于动态数组，支持 O 随机",
+      "gt_question": "谈谈 Java 中的 ArrayList 和 LinkedList 的区别？",
+      "hard": false,
+      "hit_rank": 1
+    },
+    {
+      "role": "java-backend",
+      "query": "面试问题：HashMap JDK 1.7 数组 + 链表；1.8 数组 + 链表 ",
+      "gt_question": "HashMap 的底层实现原理是什么？从 JDK 1.7 到 1.8 有哪些重大改进？",
+      "hard": false,
+      "hit_rank": 1
+    },
+    {
+      "role": "java-backend",
+      "query": "面试问题：Java 泛型信息仅存在于编译期，字节码中不保留",
+      "gt_question": "Java 中的泛型擦除是什么？为什么需要擦除？泛型擦除会带来哪些问题？",
+      "hard": false,
+      "hit_rank": 1
+    },
+    {
+      "role": "java-backend",
+      "query": "面试问题：Java NEW, RUNNABLE, BLOCKED, ",
+      "gt_question": "Java 线程有哪些状态？它们之间是如何转换的？",
+      "hard": false,
+      "hit_rank": 1
+    },
+    {
+      "role": "java-backend",
+      "query": "面试问题：volatile 保证可见性：强制刷新主存",
+      "gt_question": "谈谈你对 volatile 关键字的理解？它能保证原子性吗？",
+      "hard": false,
+      "hit_rank": 1
+    },
+    {
+      "role": "java-backend",
+      "query": "请大概讲讲 AQS 方面在实际工作中需要注意的核心要点",
+      "gt_question": "AQS (AbstractQueuedSynchronizer) 的核心原理是什么？它是如何实现公平/非公平锁的？",
+      "hard": true,
+      "hit_rank": null
+    },
+    {
+      "role": "java-backend",
+      "query": "面试问题：JVM 栈 , 堆 , 方法区 ",
+      "gt_question": "介绍一下 JVM 的运行时数据区（内存布局）？",
+      "hard": false,
+      "hit_rank": 1
+    },
+    {
+      "role": "java-backend",
+      "query": "面试问题：GC Roots 通过 GC Roots 向下搜索引用链",
+      "gt_question": "简述对象垃圾回收的可达性分析算法及其 GC Roots 包括哪些？",
+      "hard": false,
+      "hit_rank": 1
+    },
+    {
+      "role": "java-backend",
+      "query": "面试问题：CPU Java top 找到耗时进程",
+      "gt_question": "线上应用 CPU 飙升到 100%，请通过命令演示寻找出问题的具体 Java 线程的过程？",
+      "hard": false,
+      "hit_rank": 1
+    },
+    {
+      "role": "java-backend",
+      "query": "面试问题：Full GC 排查内存泄漏是前提",
+      "gt_question": "由于频繁触发 Full GC 导致系统卡顿，请谈谈你的参数调优思路？",
+      "hard": false,
+      "hit_rank": 1
+    },
+    {
+      "role": "java-backend",
+      "query": "面试问题：使用 jmap 导出堆快照 ",
+      "gt_question": "针对线上项目出现内存持续缓慢上升（疑似内存泄漏），你会通过哪些工具和步骤来排查？",
+      "hard": false,
+      "hit_rank": 1
+    },
+    {
+      "role": "java-backend",
+      "query": "面试问题：ThreadPoolExecutor 参数：co",
+      "gt_question": "你需要设计一个本地任务调度器，既要保证并发度又要限制最大线程数，你会如何配置线程池？",
+      "hard": false,
+      "hit_rank": 5
+    },
+    {
+      "role": "java-backend",
+      "query": "请大概讲讲 相关概念 方面在实际工作中需要注意的核心要点",
+      "gt_question": "排查生产环境下的死锁问题，你通常会使用哪些指令，并简述死锁发生的四个必要条件？",
+      "hard": true,
+      "hit_rank": null
+    },
+    {
+      "role": "web-frontend",
+      "query": "面试问题：JavaScript 每个对象都有 __proto__ 属性指向构造函",
+      "gt_question": "谈谈你对 JavaScript 原型链的理解？",
+      "hard": false,
+      "hit_rank": 1
+    },
+    {
+      "role": "web-frontend",
+      "query": "面试问题：Closure 闭包是能够访问另一个函数作用域变量的函数",
+      "gt_question": "请解释什么是闭包（Closure），以及它的常见应用场景和潜在问题？",
+      "hard": false,
+      "hit_rank": 1
+    },
+    {
+      "role": "web-frontend",
+      "query": "面试问题：Flex justify-content align-items justify-content：控制主轴的对齐",
+      "gt_question": "Flex 布局中 justify-content 和 align-items 的区别是什么？",
+      "hard": false,
+      "hit_rank": 1
+    },
+    {
+      "role": "web-frontend",
+      "query": "面试问题：CSS important 内联 > ID > 类/伪类 > 标签",
+      "gt_question": "谈谈 CSS 权重计算规则，以及 !important 在什么情况下会失效？",
+      "hard": false,
+      "hit_rank": 1
+    },
+    {
+      "role": "web-frontend",
+      "query": "面试问题：BFC BFC 是一块独立的渲染区域，内部元素不会影响外",
+      "gt_question": "什么是 BFC（块级格式化上下文）？如何触发它？它能解决哪些布局问题？",
+      "hard": false,
+      "hit_rank": 1
+    },
+    {
+      "role": "web-frontend",
+      "query": "面试问题：Vue React Vue: created/mounted ",
+      "gt_question": "介绍一下 Vue 或 React 的组件生命周期，以及通常在哪一步发起网络请求？",
+      "hard": false,
+      "hit_rank": 1
+    },
+    {
+      "role": "web-frontend",
+      "query": "面试问题：React DOM 用 JS 对象描述真实的 DOM 树",
+      "gt_question": "React 的虚拟 DOM 是什么？为什么要使用它？",
+      "hard": false,
+      "hit_rank": 1
+    },
+    {
+      "role": "web-frontend",
+      "query": "面试问题：Vue Proxy Object.defineProperty Proxy 直接监听整个对象而非单一属性",
+      "gt_question": "深入谈谈 Vue 3 的响应式原理。Proxy 相比 Object.defineProperty 有哪些本质提升？",
+      "hard": false,
+      "hit_rank": 1
+    },
+    {
+      "role": "web-frontend",
+      "query": "面试问题：SPA 路由守卫在跳转前检查 Token",
+      "gt_question": "在单页应用 (SPA) 中，如何实现权限控制，让普通用户看不到管理页面？",
+      "hard": false,
+      "hit_rank": 1
+    },
+    {
+      "role": "web-frontend",
+      "query": "面试问题：JSON 使用可选链操作符  `?.` ",
+      "gt_question": "项目中需要处理一个深层嵌套的 JSON 对象，且部分属性可能不存在，你会如何优雅地获取数据并设定默认值？",
+      "hard": false,
+      "hit_rank": 1
+    },
+    {
+      "role": "web-frontend",
+      "query": "面试问题：CSS Flexbox: justify-content",
+      "gt_question": "如何利用 CSS 实现垂直居中？请列举至少三种方案。",
+      "hard": false,
+      "hit_rank": 1
+    },
+    {
+      "role": "web-frontend",
+      "query": "面试问题：CSS CSS Modules Tailwind CSS Modules: 利用哈希实现局部作用域",
+      "gt_question": "在大规模项目中，为了解决 CSS 类名污染和样式覆盖混乱，你会推荐使用哪种方案？（如 CSS Modules, Tailwind, CSS-in-JS）？",
+      "hard": false,
+      "hit_rank": 1
+    },
+    {
+      "role": "web-frontend",
+      "query": "请大概讲讲 TypeScript 方面在实际工作中需要注意的核心要点",
+      "gt_question": "TypeScript 中的协变（Covariance）与逆变（Contravariance）是什么？在函数类型比较中如何应用？",
+      "hard": true,
+      "hit_rank": null
+    },
+    {
+      "role": "python-algorithm",
+      "query": "面试问题：Python deepcopy copy 浅拷贝：只复制父对象，不复制内部的子对象",
+      "gt_question": "Python 中的深拷贝（deepcopy）和浅拷贝（copy）有什么区别？",
+      "hard": false,
+      "hit_rank": 1
+    },
+    {
+      "role": "python-algorithm",
+      "query": "面试问题：Python GIL GIL 保证同一时刻只有一个线程在执行字节码",
+      "gt_question": "谈谈 Python 的全局解析器锁（GIL）对多线程程序的影响？在什么场景下建议使用多进程？",
+      "hard": false,
+      "hit_rank": 1
+    },
+    {
+      "role": "python-algorithm",
+      "query": "面试问题：Binary Search 前提是数据有序",
+      "gt_question": "请手写实现二分查找算法（Binary Search），并说明其时间复杂度。",
+      "hard": false,
+      "hit_rank": 1
+    },
+    {
+      "role": "python-algorithm",
+      "query": "面试问题：排序 + 双指针法",
+      "gt_question": "给定一个包含 n 个整数的数组，如何找出其中三个数之和等于 0 的所有唯一组合？",
+      "hard": false,
+      "hit_rank": 1
+    },
+    {
+      "role": "python-algorithm",
+      "query": "面试问题：A* Heuristic Function 结合 Dijkstra和启发式估计",
+      "gt_question": "解释什么是 A* 搜索算法？为什么要引入启发式函数（Heuristic Function）？",
+      "hard": false,
+      "hit_rank": 1
+    },
+    {
+      "role": "python-algorithm",
+      "query": "面试问题：L1 Lasso L2 Ridge L1 产生稀疏权重",
+      "gt_question": "简述 L1 正则化（Lasso）和 L2 正则化（Ridge）的区别？",
+      "hard": false,
+      "hit_rank": 1
+    },
+    {
+      "role": "python-algorithm",
+      "query": "面试问题：反向传播中梯度连乘导致值过小或溢出",
+      "gt_question": "什么是“梯度消失”和“梯度爆炸”？如何通过权重初始化或正则化来缓解？",
+      "hard": false,
+      "hit_rank": 1
+    },
+    {
+      "role": "python-algorithm",
+      "query": "面试问题：PCA 寻找最大方差的投影方向",
+      "gt_question": "谈谈主成分分析（PCA）的物理意义和数学原理。为什么要先进行均值归一化？",
+      "hard": false,
+      "hit_rank": 1
+    },
+    {
+      "role": "python-algorithm",
+      "query": "面试问题：GB GB Pythonic 使用 generator逐行读取",
+      "gt_question": "你需要处理一个 10GB 的文本文件，但你的内存只有 4GB，请写出一种 Pythonic 的读取方式。",
+      "hard": false,
+      "hit_rank": 1
+    },
+    {
+      "role": "python-algorithm",
+      "query": "面试问题：Python 使用 NumPy 向量化运算方案",
+      "gt_question": "在高性能计算场景下，如果你发现 Python 的执行速度无法满足需求，你会采用哪些手段来加速？",
+      "hard": false,
+      "hit_rank": 1
+    },
+    {
+      "role": "python-algorithm",
+      "query": "面试问题：引入倒排索引",
+      "gt_question": "针对千万级的短视频标题，如何快速实现一个关键字模糊匹配搜索系统？",
+      "hard": false,
+      "hit_rank": 1
+    },
+    {
+      "role": "python-algorithm",
+      "query": "面试问题：过采样或 欠采样",
+      "gt_question": "在处理电商分类数据时，如果发现正负样本极其不均匀（1:99），你会采取哪些策略？",
+      "hard": false,
+      "hit_rank": 1
+    },
+    {
+      "role": "python-algorithm",
+      "query": "面试问题：Python 核心是引用计数计；标记清除解决循环引用",
+      "gt_question": "谈谈 Python 的垃圾回收机制（引用计数, 标记清除, 分代回收）？如何排查循环引用导致的内存泄漏？",
+      "hard": false,
+      "hit_rank": 1
+    },
+    {
+      "role": "python-algorithm",
+      "query": "面试问题：使用 wraps 保持函数元信息",
+      "gt_question": "设计一个装饰器，使其能够自动记录任何函数的执行时间、参数、返回值，并在执行超时时抛出警告。",
+      "hard": false,
+      "hit_rank": 1
+    }
+  ],
+  "wbs": [
+    "W2.5.6",
+    "W9.3"
+  ],
+  "rbs": "FT6.3.1",
+  "owner": "黄一和"
+}
